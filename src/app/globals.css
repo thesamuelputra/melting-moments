@@ -1,0 +1,353 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
+
+/* ========================================================
+   THE GEOMETRIC AWARD-WINNING CONSTRAINT ENGINE
+   Synthesis: Haus (Scale) + Noiré (Shape) + Menu (Space)
+======================================================== */
+
+:root {
+  /* Color Compass - Award Winning Absolute Monochrome */
+  --clr-bone: #F7F6F0; /* Clean gallery white */
+  --clr-ink: #070707; /* Ultimate contrast vantablack */
+  --clr-charcoal: #111111; /* Utility dark */
+  --clr-oat: #F3EAE1; /* Soft oatmeal */
+  --clr-pine: #1F3323; /* Deep forest green */
+
+  /* Typographic Scales (Clamp for structural integrity) */
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --text-massive: clamp(4rem, 15vw, 12rem);
+  --text-primary: clamp(2.5rem, 6vw, 5rem);
+  --text-secondary: clamp(1.2rem, 3vw, 2.5rem);
+  --text-body: clamp(14px, 1.2vw, 16px);
+  --text-micro: clamp(10px, 0.8vw, 11px);
+}
+
+/* Absolute Resets */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, h4, p, ul { margin: 0; padding: 0; }
+a { text-decoration: none; color: inherit; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--clr-bone);
+  color: var(--clr-ink);
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================================
+   1. TYPOGRAPHY ENGINE
+======================================================== */
+
+/* Haus Massive Display (Hero Text that acts as structure) */
+.haus-display {
+  font-family: var(--font-serif);
+  font-size: var(--text-massive);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: var(--clr-ink);
+  text-transform: capitalize;
+  font-weight: 400;
+}
+
+/* Noiré Editorial Serif */
+.noire-serif {
+  font-family: var(--font-serif);
+  font-size: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--clr-ink);
+  font-weight: 400;
+}
+
+.menu-index {
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  color: rgba(17, 17, 17, 0.65); /* Accessible contrast */
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Chinese Menu Pricing */
+.menu-price {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--clr-ink);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Noiré 1px Dividers ❋ */
+.noire-divider {
+  width: 1px;
+  height: clamp(40px, 6vw, 60px);
+  background-color: rgba(17, 17, 17, 0.2);
+  margin: 0 auto;
+  position: relative;
+}
+.noire-divider::after {
+  content: "❋";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  color: var(--clr-charcoal);
+  background-color: var(--clr-bone); /* masks the line beneath */
+  padding: 4px 0;
+}
+
+/* ========================================================
+   2. SHAPE & GRID CONSTRAINT ENGINE
+======================================================== */
+
+/* BANNED RECTANGLES: Every prominent image must use these shapes */
+.shape-oval {
+  clip-path: ellipse(40% 50% at 50% 50%);
+  overflow: hidden;
+}
+.shape-circle {
+  border-radius: 50%;
+  overflow: hidden;
+}
+.shape-editorial-tall {
+  aspect-ratio: 4/5;
+  overflow: hidden;
+}
+
+/* Haus Extreme Terracotta Overlap Block */
+.haus-block-container {
+  background-color: var(--clr-ink);
+  padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+  position: relative;
+  z-index: 10;
+  color: white; /* Contrast shift */
+}
+
+/* Chinese Menu Extreme Spacing Grid */
+/* Focuses all structural pressure into a narrow column of reading, leaving massive left/right voids */
+.menu-grid-constraint {
+  display: grid;
+  grid-template-columns: 40px minmax(200px, 500px) 60px;
+  gap: clamp(1rem, 3vw, 4rem);
+  justify-content: center;
+  align-items: start;
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.05);
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+/* Utility Containers */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+}
+
+.spacer-massive {
+  margin-top: clamp(4rem, 8vw, 8rem);
+}
+.spacer-large {
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+/* Buttons */
+.btn-outline {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: clamp(1rem, 2vw, 1.2rem) clamp(2rem, 4vw, 3rem);
+  border: 1px solid rgba(17, 17, 17, 0.2);
+  border-radius: 40px;
+  color: var(--clr-ink);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.3s ease;
+  min-height: 48px; /* Mobile touch target */
+}
+.btn-outline:hover, .btn-outline.active {
+  background-color: var(--clr-ink);
+  color: var(--clr-bone);
+}
+
+.btn-solid {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: clamp(1rem, 2vw, 1.2rem) clamp(2rem, 4vw, 3rem);
+  border: 1px solid var(--clr-ink);
+  border-radius: 40px;
+  background-color: var(--clr-ink);
+  color: var(--clr-bone);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 48px; /* Mobile touch target */
+}
+.btn-solid:hover {
+  background-color: transparent;
+  color: var(--clr-ink);
+  border-color: var(--clr-ink);
+}
+
+/* React Filter Categories */
+.filter-container {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 2rem;
+  margin-bottom: 4rem;
+  scrollbar-width: none;
+}
+.filter-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pricing Grid Pattern */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+.pricing-card {
+  padding: 2rem;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  background-color: white;
+  transition: transform 0.3s ease;
+}
+.pricing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+/* Global Navbar Styling */
+.global-nav {
+  position: fixed;
+  top: 0; left: 0; width: 100%;
+  padding: 2rem clamp(1.5rem, 5vw, 4rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+}
+.global-nav a {
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* ========================================================
+   3. ACCESSIBILITY & UTILITIES
+======================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--clr-ink);
+  outline-offset: 2px;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--clr-ink);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.skip-nav {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 10000;
+  padding: 1rem 2rem;
+  background: var(--clr-ink);
+  color: var(--clr-bone);
+}
+.skip-nav:focus { top: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================================
+   4. RESPONSIVE BREAKPOINTS
+======================================================== */
+
+@media (max-width: 768px) {
+  .haus-display {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+  
+  .noire-serif {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+  
+  .menu-grid-constraint {
+    grid-template-columns: 30px 1fr;
+    gap: 1rem;
+  }
+  
+  .menu-grid-constraint .menu-price {
+    grid-column: 2;
+  }
+  
+  .container {
+    padding: 0 1.25rem;
+  }
+  
+  .spacer-massive {
+    margin-top: clamp(3rem, 6vw, 5rem);
+  }
+  
+  .filter-container {
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-links-desktop { display: none; }
+  .nav-hamburger { display: flex; }
+
+  /* M-1: Stack contact page 2-col layout on mobile */
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 3rem !important;
+  }
+
+  /* M-2: Stack menus/corporate/fountains header 2-col layout on mobile */
+  .page-header-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .nav-hamburger { display: none; }
+  .nav-mobile-panel { display: none; }
+}
+
+/* ========================================================
+   5. GLOBAL KEYFRAMES
+======================================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; transform: translate(-50%, 0); }
+  50% { opacity: 0.8; transform: translate(-50%, 5px); }
+  100% { opacity: 0.4; transform: translate(-50%, 0); }
+}

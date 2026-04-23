@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
+
+/* ========================================================
+   THE GEOMETRIC AWARD-WINNING CONSTRAINT ENGINE
+   Synthesis: Haus (Scale) + Noiré (Shape) + Menu (Space)
+======================================================== */
+
+:root {
+  /* Color Compass */
+  --clr-oat: #F5F3ED; /* Soft Haus background */
+  --clr-charcoal: #111111; /* Ultimate contrast */
+  --clr-terra: #DCA18E; /* Haus editorial rust */
+  --clr-pine: #1A3D2F; /* Chinese Menu deep green pricing/labels */
+  --clr-ink: #070707; /* Noiré headers */
+
+  /* Typographic Scales (Clamp for structural integrity) */
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  --text-massive: clamp(4rem, 15vw, 12rem);
+  --text-primary: clamp(2.5rem, 6vw, 5rem);
+  --text-secondary: clamp(1.2rem, 3vw, 2.5rem);
+  --text-body: clamp(14px, 1.2vw, 16px);
+  --text-micro: clamp(10px, 0.8vw, 11px);
+}
+
+/* Absolute Resets */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, h4, p, ul { margin: 0; padding: 0; }
+a { text-decoration: none; color: inherit; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--clr-oat);
+  color: var(--clr-charcoal);
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================================
+   1. TYPOGRAPHY ENGINE
+======================================================== */
+
+/* Haus Massive Display (Hero Text that acts as structure) */
+.haus-display {
+  font-family: var(--font-serif);
+  font-size: var(--text-massive);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: var(--clr-ink);
+  text-transform: capitalize;
+  font-weight: 400;
+}
+
+/* Noiré Editorial Serif */
+.noire-serif {
+  font-family: var(--font-serif);
+  font-size: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--clr-ink);
+  font-weight: 400;
+}
+
+/* Chinese Menu Micro-Index (`01`, `02`) */
+.menu-index {
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  color: var(--clr-pine);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Chinese Menu Pricing */
+.menu-price {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--clr-pine);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Noiré 1px Dividers ❋ */
+.noire-divider {
+  width: 1px;
+  height: clamp(60px, 10vw, 120px);
+  background-color: rgba(17, 17, 17, 0.2);
+  margin: 0 auto;
+  position: relative;
+}
+.noire-divider::after {
+  content: "❋";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  color: var(--clr-charcoal);
+  background-color: var(--clr-oat); /* masks the line beneath */
+  padding: 4px 0;
+}
+
+/* ========================================================
+   2. SHAPE & GRID CONSTRAINT ENGINE
+======================================================== */
+
+/* BANNED RECTANGLES: Every prominent image must use these shapes */
+.shape-oval {
+  clip-path: ellipse(40% 50% at 50% 50%);
+  overflow: hidden;
+}
+.shape-circle {
+  border-radius: 50%;
+  overflow: hidden;
+}
+.shape-editorial-tall {
+  aspect-ratio: 4/5;
+  overflow: hidden;
+}
+
+/* Haus Extreme Terracotta Overlap Block */
+.haus-block-container {
+  background-color: var(--clr-terra);
+  padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+  position: relative;
+  z-index: 10;
+  color: white; /* Contrast shift */
+}
+
+/* Chinese Menu Extreme Spacing Grid */
+/* Focuses all structural pressure into a narrow column of reading, leaving massive left/right voids */
+.menu-grid-constraint {
+  display: grid;
+  grid-template-columns: 40px minmax(200px, 500px) 60px;
+  gap: clamp(1rem, 3vw, 4rem);
+  justify-content: center;
+  align-items: start;
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.05);
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+/* Utility Containers */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+}
+
+.spacer-massive {
+  margin-top: clamp(8rem, 20vw, 16rem);
+}
+.spacer-large {
+  margin-top: clamp(4rem, 10vw, 8rem);
+}
+
+/* Buttons */
+.btn-outline {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 1.2em 3em;
+  border: 1px solid rgba(17, 17, 17, 0.2);
+  border-radius: 40px;
+  color: var(--clr-charcoal);
+  transition: all 0.3s ease;
+}
+.btn-outline:hover {
+  background-color: var(--clr-charcoal);
+  color: var(--clr-oat);
+}
+
+/* Global Navbar Styling */
+.global-nav {
+  position: fixed;
+  top: 0; left: 0; width: 100%;
+  padding: 2rem clamp(1.5rem, 5vw, 4rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  mix-blend-mode: difference; /* Forces visibility against any background */
+  color: white;
+}
+.global-nav a {
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+}
