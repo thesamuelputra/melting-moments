@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery | Melting Moments</title>
+    <link rel="stylesheet" href="css/globals.css">
+</head>
+<body>
+    <nav class="global-nav" style="color: var(--clr-charcoal); mix-blend-mode: normal;">
+        <a href="index.html">Melting Moments</a>
+        <div style="display: flex; gap: 2rem;">
+            <a href="menus.html">Menus</a>
+            <a href="gallery.html" style="border-bottom: 1px solid var(--clr-charcoal);">Gallery</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+    <main>
+        <header class="container" style="padding-top: clamp(8rem, 15vw, 12rem); padding-bottom: clamp(4rem, 10vw, 8rem);">
+            <div class="menu-index" style="margin-bottom: 2rem;">Visual Archive</div>
+            <h1 class="haus-display">GALLERY</h1>
+            <div class="spacer-large">
+                <div class="noire-divider"></div>
+            </div>
+        </header>
+
+        <!-- HAUS GRID ARCHITECTURE -->
+        <section class="container" style="padding-bottom: clamp(5rem, 15vw, 10rem);">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 4rem;">
+                
+                <div class="shape-editorial-tall" style="width: 100%;">
+                    <img src="https://picsum.photos/seed/setup1/800/1000" alt="Event setup" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="shape-editorial-tall" style="width: 100%;">
+                    <img src="https://picsum.photos/seed/setup2/800/1000" alt="Plating details" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="shape-editorial-tall" style="width: 100%;">
+                    <img src="https://picsum.photos/seed/setup3/800/1000" alt="Dining experience" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="shape-editorial-tall" style="width: 100%;">
+                    <img src="https://picsum.photos/seed/setup4/800/1000" alt="Dessert spread" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <!-- Occasional circle shape to break monotony as per Noiré -->
+                <div class="shape-circle" style="width: 100%; align-self: center;">
+                    <img src="https://picsum.photos/seed/setup5/800/800" alt="Signature dish" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="shape-editorial-tall" style="width: 100%;">
+                    <img src="https://picsum.photos/seed/setup6/800/1000" alt="Drink station" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+
+            </div>
+        </section>
+    </main>
+    <footer class="haus-block-container" style="background-color: var(--clr-charcoal);">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <h2 class="haus-display" style="color: var(--clr-oat); margin: 0; font-size: clamp(3rem, 10vw, 8rem);">GET A <br> QUOTE</h2>
+            <div class="menu-index" style="color: rgba(255,255,255,0.4);">© 2026 Melting Moments</div>
+        </div>
+    </footer>
+</body>
+</html>
