@@ -4,6 +4,8 @@ import './globals.css'
 import GlobalNav from '@/components/GlobalNav'
 import Footer from '@/components/Footer'
 import ScrollIndicator from '@/components/ScrollIndicator'
+import Preloader from '@/components/Preloader'
+import PageTransition from '@/components/PageTransition'
 
 const instrumentSerif = Instrument_Serif({ 
   subsets: ['latin'], 
@@ -28,7 +30,7 @@ export const metadata: Metadata = {
     locale: 'en_CA',
     url: 'https://meltingmoments.ca',
     siteName: 'Melting Moments Catering',
-    images: [{ url: '/hero_mains.webp', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
+    images: [{ url: '/hero-main.jpg', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
   },
   twitter: { card: 'summary_large_image' },
 }
@@ -59,11 +61,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
+        <Preloader />
         <a href="#main-content" className="skip-nav">Skip to main content</a>
         <ScrollIndicator />
         <GlobalNav />
         <main id="main-content">
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
         </main>
         <Footer />
         <script 
