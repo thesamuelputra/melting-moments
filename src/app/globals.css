@@ -351,3 +351,142 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   50% { opacity: 0.8; transform: translate(-50%, 5px); }
   100% { opacity: 0.4; transform: translate(-50%, 0); }
 }
+
+/* ========================================================
+   6. PRELOADER
+======================================================== */
+
+.preloader {
+  will-change: transform;
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.preloader--exit {
+  transform: translateY(-100%);
+}
+
+.preloader__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 2rem;
+}
+
+.preloader__line {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 4rem);
+  letter-spacing: -0.02em;
+  display: block;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: preloaderReveal 0.6s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+.preloader__line:nth-child(1) { animation-delay: 0.1s; }
+.preloader__line:nth-child(2) { animation-delay: 0.25s; }
+
+.preloader__brand--exit .preloader__line {
+  opacity: 1;
+  transform: translateY(0);
+  animation: preloaderFadeOut 0.3s ease forwards;
+}
+
+@keyframes preloaderReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes preloaderFadeOut {
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* Loading bar */
+.preloader__bar-track {
+  width: clamp(80px, 15vw, 160px);
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.preloader__bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--clr-bone);
+  animation: preloaderBar 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.preloader__bar-fill--done {
+  width: 100% !important;
+  animation: none;
+  transition: width 0.2s ease;
+}
+
+@keyframes preloaderBar {
+  0% { width: 0%; }
+  30% { width: 40%; }
+  60% { width: 65%; }
+  80% { width: 80%; }
+  100% { width: 90%; }
+}
+
+/* ========================================================
+   7. PAGE TRANSITION SHUTTER
+======================================================== */
+
+.page-shutter {
+  position: fixed;
+  inset: 0;
+  z-index: 50000;
+  display: flex;
+  pointer-events: none;
+}
+
+.page-shutter__panel {
+  flex: 1;
+  background: var(--clr-ink);
+  transform: scaleY(0);
+  transform-origin: top;
+  will-change: transform;
+}
+
+/* Active: panels wipe down then back up */
+.page-shutter--active .page-shutter__panel {
+  animation: shutterDown 0.4s cubic-bezier(0.76, 0, 0.24, 1) forwards,
+             shutterUp 0.4s cubic-bezier(0.76, 0, 0.24, 1) 0.5s forwards;
+}
+
+.page-shutter--active .page-shutter__panel--1 { animation-delay: 0s, 0.5s; }
+.page-shutter--active .page-shutter__panel--2 { animation-delay: 0.06s, 0.56s; }
+.page-shutter--active .page-shutter__panel--3 { animation-delay: 0.12s, 0.62s; }
+
+@keyframes shutterDown {
+  from { transform: scaleY(0); transform-origin: top; }
+  to { transform: scaleY(1); transform-origin: top; }
+}
+
+@keyframes shutterUp {
+  from { transform: scaleY(1); transform-origin: bottom; }
+  to { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* ========================================================
+   8. PAGE CONTENT TRANSITIONS
+======================================================== */
+
+.page-content {
+  will-change: opacity, transform;
+}
+
+.page-content--enter {
+  animation: pageEnter 0.5s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
+}
+
+.page-content--exit {
+  opacity: 0;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
