@@ -51,7 +51,7 @@ export default function About() {
             </div>
 
             <div className="shape-oval" style={{ width: '100%', aspectRatio: '1/1', transform: 'translateY(-30%)', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
-              <Image src="/macro_steak.webp" alt="Premium Beef" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+              <Image src="/farm_island.jpg" alt="Vancouver Island farm with misty mountains" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
             </div>
           </div>
         </div>
