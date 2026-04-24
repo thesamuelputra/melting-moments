@@ -14,9 +14,11 @@ export default function GlobalNav() {
     const handleScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 50);
-      // On homepage, navbar appears after scrolling past 40% of viewport
-      if (isHomepage) {
-        setVisible(y > window.innerHeight * 0.4);
+      // On homepage, navbar appears after scrolling past 40% and stays forever
+      if (isHomepage && !visible) {
+        if (y > window.innerHeight * 0.4) {
+          setVisible(true);
+        }
       }
     };
     // On subpages, always visible
@@ -25,7 +27,7 @@ export default function GlobalNav() {
     }
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHomepage]);
+  }, [isHomepage, visible]);
 
   const navOpacity = visible ? 1 : 0;
   const navPointerEvents = visible ? 'auto' as const : 'none' as const;
