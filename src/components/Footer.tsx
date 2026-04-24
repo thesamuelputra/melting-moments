@@ -10,7 +10,7 @@ export default function Footer() {
                     GET A <br /> QUOTE
                 </h2>
             </Link>
-            <div className="menu-index" style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'right' }}>
+            <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'right' }}>
                 <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column', marginBottom: '2rem' }}>
                     <Link href="/about">About Us</Link>
                     <Link href="/chef-paul">Chef Paul</Link>

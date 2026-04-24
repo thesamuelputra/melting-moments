@@ -330,6 +330,35 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     grid-template-columns: 1fr !important;
     gap: 2rem !important;
   }
+
+  /* M-3: Stack about page 2-col grids on mobile */
+  .about-header-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    margin-top: 0 !important;
+  }
+
+  /* M-4: Stack homepage CTA grid on mobile */
+  .homepage-cta-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    text-align: center;
+  }
+  .homepage-cta-grid .shape-circle {
+    justify-self: center !important;
+    width: clamp(180px, 50vw, 280px) !important;
+  }
+
+  /* M-5: Prevent serif text overflow on mobile */
+  .noire-serif {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+
+  /* M-6: Center footer on mobile */
+  .footer-nav {
+    text-align: center !important;
+  }
 }
 
 @media (min-width: 769px) {
