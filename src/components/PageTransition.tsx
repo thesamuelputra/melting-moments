@@ -1,54 +1,54 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [transitioning, setTransitioning] = useState(false);
-  const [displayChildren, setDisplayChildren] = useState(children);
-  const [prevPathname, setPrevPathname] = useState(pathname);
-
-  const runEntrance = useCallback(() => {
-    // Scroll to top on new page
-    window.scrollTo(0, 0);
-    setDisplayChildren(children);
-    // Small delay to let DOM paint
-    requestAnimationFrame(() => {
-      setTransitioning(false);
-    });
-  }, [children]);
+  const [shutterActive, setShutterActive] = useState(false);
+  const prevPathname = useRef(pathname);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    if (pathname !== prevPathname) {
-      // Route changed — play exit shutter
-      setTransitioning(true);
-      setPrevPathname(pathname);
+    // Skip the very first render (initial page load — handled by Preloader)
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
 
-      // Wait for shutter to fully cover screen, then swap content
+    if (pathname !== prevPathname.current) {
+      prevPathname.current = pathname;
+
+      // Scroll to top immediately
+      window.scrollTo(0, 0);
+
+      // Fire shutter animation
+      setShutterActive(true);
+
+      // Remove shutter after animation completes (total ~900ms)
       const timer = setTimeout(() => {
-        runEntrance();
-      }, 600); // matches CSS shutter animation duration
+        setShutterActive(false);
+      }, 900);
 
       return () => clearTimeout(timer);
-    } else {
-      // Same route or initial render — just show children
-      setDisplayChildren(children);
     }
-  }, [pathname, children, prevPathname, runEntrance]);
+  }, [pathname]);
 
   return (
     <>
-      {/* Shutter overlay */}
-      <div className={`page-shutter ${transitioning ? 'page-shutter--active' : ''}`} aria-hidden="true">
+      {/* Shutter overlay — purely visual, doesn't block content */}
+      <div
+        className={`page-shutter ${shutterActive ? 'page-shutter--active' : ''}`}
+        aria-hidden="true"
+      >
         <div className="page-shutter__panel page-shutter__panel--1" />
         <div className="page-shutter__panel page-shutter__panel--2" />
         <div className="page-shutter__panel page-shutter__panel--3" />
       </div>
 
-      {/* Page content with fade-in */}
-      <div className={`page-content ${transitioning ? 'page-content--exit' : 'page-content--enter'}`}>
-        {displayChildren}
+      {/* Content always renders directly from Next.js — no buffering */}
+      <div key={pathname} className="page-content page-content--enter">
+        {children}
       </div>
     </>
   );
