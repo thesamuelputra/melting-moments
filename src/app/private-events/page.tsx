@@ -13,7 +13,7 @@ export default function PrivateEvents() {
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', marginTop: '4rem', alignItems: 'center' }}>
               <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%' }}>
-                <Image src="/macro_steak.webp" alt="Private Event Dinner" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+                <Image src="/private_dinner.jpg" alt="Intimate private dinner entree" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
               </div>
               <div>
                 <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Intimate Excellence</h2>
