@@ -481,12 +481,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 /* Active: panels wipe down then back up */
 .page-shutter--active .page-shutter__panel {
   animation: shutterDown 0.4s cubic-bezier(0.76, 0, 0.24, 1) forwards,
-             shutterUp 0.4s cubic-bezier(0.76, 0, 0.24, 1) 0.5s forwards;
+             shutterUp 0.4s cubic-bezier(0.76, 0, 0.24, 1) 0.7s forwards;
 }
 
-.page-shutter--active .page-shutter__panel--1 { animation-delay: 0s, 0.5s; }
-.page-shutter--active .page-shutter__panel--2 { animation-delay: 0.06s, 0.56s; }
-.page-shutter--active .page-shutter__panel--3 { animation-delay: 0.12s, 0.62s; }
+.page-shutter--active .page-shutter__panel--1 { animation-delay: 0s, 0.7s; }
+.page-shutter--active .page-shutter__panel--2 { animation-delay: 0.06s, 0.76s; }
+.page-shutter--active .page-shutter__panel--3 { animation-delay: 0.12s, 0.82s; }
 
 @keyframes shutterDown {
   from { transform: scaleY(0); transform-origin: top; }
@@ -508,10 +508,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .page-content--enter {
   animation: pageEnter 0.5s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
-}
-
-.page-content--exit {
-  opacity: 0;
 }
 
 @keyframes pageEnter {
