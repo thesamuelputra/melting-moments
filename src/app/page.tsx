@@ -53,7 +53,7 @@ export default function Home() {
           </div>
 
           <div className="shape-circle" style={{ position: 'relative', width: 'clamp(220px, 28vw, 420px)', aspectRatio: '1/1', justifySelf: 'end', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <Image src="/macro_charcuterie.webp" alt="Macro Charcuterie detail" fill sizes="(max-width: 768px) 100vw, 420px" style={{ objectFit: 'cover' }} />
+            <Image src="/macro_roulade.jpg" alt="Stuffed pork roulade with fig compote" fill sizes="(max-width: 768px) 100vw, 420px" style={{ objectFit: 'cover' }} />
           </div>
         </div>
       </section>
