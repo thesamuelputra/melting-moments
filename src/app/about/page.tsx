@@ -15,7 +15,7 @@ export default function About() {
           OBSESSIVE <br /> ARTISTRY
         </h1>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', marginTop: '-5vw', alignItems: 'end' }}>
+        <div className="about-header-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', marginTop: '-5vw', alignItems: 'end' }}>
           <div className="shape-editorial-tall" style={{ width: '100%', aspectRatio: '3/4', zIndex: 1, position: 'relative' }}>
             <Image src="/macro_olive_oil.webp" alt="Chef pouring fine olive oil" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
           </div>
@@ -40,7 +40,7 @@ export default function About() {
             SOURCED FROM <br /> THE EARTH
           </h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(4rem, 10vw, 8rem)', marginTop: 'clamp(2rem, 5vw, 6rem)', position: 'relative', zIndex: 2 }}>
+          <div className="about-header-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(4rem, 10vw, 8rem)', marginTop: 'clamp(2rem, 5vw, 6rem)', position: 'relative', zIndex: 2 }}>
             <div>
               <p style={{ fontSize: 'var(--text-secondary)', fontFamily: 'var(--font-serif)', color: 'var(--clr-oat)', lineHeight: 1.2, marginBottom: '2rem', maxWidth: '450px' }}>
                 We partner exclusively with local Vancouver Island farms and independent purveyors.

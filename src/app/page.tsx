@@ -30,7 +30,7 @@ export default function Home() {
       <section className="container" style={{ textAlign: 'center', padding: 'clamp(4rem, 8vw, 8rem) 0' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>02 — Experience</div>
         <h2 className="noire-serif" style={{ maxWidth: '800px', margin: '0 auto 3rem auto', fontSize: 'var(--text-secondary)' }}>
-          From the very first contact, you will enjoy the professionalism that has been achieved through 16 years of culinary excellence.
+          From the very first contact, you will enjoy the professionalism that has been achieved through 25 years of culinary experience.
         </h2>
         
         <div className="shape-oval" style={{ width: '100%', height: 'clamp(350px, 45vw, 700px)', maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
@@ -39,8 +39,8 @@ export default function Home() {
       </section>
 
       {/* HAUS INK OVERLAP (CTA) */}
-      <section className="haus-block-container" style={{ marginTop: 'clamp(2rem, 4vw, 4rem)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1fr', gap: 'clamp(2rem, 8vw, 6rem)', alignItems: 'center' }}>
+      <section className="haus-block-container" style={{ marginTop: 'clamp(0rem, 2vw, 2rem)' }}>
+        <div className="container homepage-cta-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1fr', gap: 'clamp(2rem, 8vw, 6rem)', alignItems: 'center' }}>
           <div style={{ position: 'relative', zIndex: 2 }}>
             <div className="menu-index" style={{ marginBottom: '2rem', color: 'rgba(255,255,255,0.5)' }}>03 — Celebration</div>
             <h2 className="noire-serif" style={{ color: 'white', marginBottom: '1.5rem' }}>
