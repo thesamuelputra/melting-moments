@@ -9,19 +9,19 @@ export const metadata: Metadata = {
 export default function Fountains() {
   return (
     <div>
-      <header className="container page-header-grid" style={{ paddingTop: 'calc(70px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1.5fr', gap: '3rem', alignItems: 'center' }}>
-        <div>
-            <div className="menu-index" style={{ marginBottom: '2rem' }}>Fountains</div>
-            <h1 className="haus-display">
-            CHOCOLATE <br /> CASCADES
-            </h1>
-            <p style={{ maxWidth: '40ch', marginTop: '2rem', opacity: 0.8, lineHeight: 1.6 }}>
+      <header className="container" style={{ paddingTop: 'calc(70px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
+        <div className="menu-index" style={{ marginBottom: '2rem' }}>Fountains</div>
+        <h1 className="haus-display" style={{ marginBottom: 'clamp(2rem, 4vw, 4rem)' }}>
+          CHOCOLATE <br /> CASCADES
+        </h1>
+        
+        <div className="page-header-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 'clamp(2rem, 4vw, 4rem)', alignItems: 'start' }}>
+          <p style={{ maxWidth: '40ch', opacity: 0.8, lineHeight: 1.6, fontSize: 'var(--text-body)' }}>
             The largest supplier of chocolate fountains on Vancouver Island. Fountains can be used for any event, from 20 to 1,000 guests. Pure Belgian chocolate cascading over tiers of perfection.
-            </p>
-        </div>
-
-        <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative' }}>
-          <Image src="/chocolate_fountain.jpg" alt="Chocolate fountain at event with strawberry dipping" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+          </p>
+          <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative' }}>
+            <Image src="/chocolate_fountain.jpg" alt="Chocolate fountain at event with strawberry dipping" fill sizes="(max-width: 768px) 100vw, 60vw" style={{ objectFit: 'cover' }} />
+          </div>
         </div>
       </header>
 
