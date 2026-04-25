@@ -37,7 +37,7 @@ export default function ScrollIndicator() {
       top: 0,
       right: 0,
       width: '4px',
-      height: '100vh',
+      height: '100dvh',
       backgroundColor: 'rgba(17, 17, 17, 0.05)',
       zIndex: 9999,
       pointerEvents: 'none',

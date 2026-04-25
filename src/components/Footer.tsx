@@ -11,16 +11,25 @@ export default function Footer() {
                 </h2>
             </Link>
             <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'right' }}>
-                <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column', marginBottom: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 2rem', marginBottom: '2rem' }}>
                     <Link href="/about">About Us</Link>
+                    <Link href="/menus">Menus</Link>
                     <Link href="/chef-paul">Chef Paul</Link>
+                    <Link href="/corporate">Corporate</Link>
                     <Link href="/weddings">Weddings</Link>
+                    <Link href="/fountains">Fountains</Link>
                     <Link href="/private-events">Private Events</Link>
+                    <Link href="/family-style">Family Style</Link>
+                    <Link href="/gallery">Gallery</Link>
                     <Link href="/testimonials">Testimonials</Link>
                     <Link href="/faq">FAQ</Link>
                     <Link href="/service-area">Service Area</Link>
                 </div>
-                <div>© 2026 Melting Moments Catering Victoria BC</div>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginBottom: '1rem', fontSize: '0.65rem', opacity: 0.5 }}>
+                    <Link href="/privacy">Privacy</Link>
+                    <Link href="/terms">Terms</Link>
+                </div>
+                <div>© {new Date().getFullYear()} Melting Moments Catering Victoria BC</div>
             </div>
         </div>
     </footer>

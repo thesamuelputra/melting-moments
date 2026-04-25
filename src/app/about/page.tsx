@@ -4,6 +4,11 @@ import Image from 'next/image';
 export const metadata: Metadata = {
   title: 'Our Philosophy | Melting Moments Catering Victoria',
   description: 'Melting Moments eschews mass-production for tailored, site-specific culinary installations across Vancouver Island.',
+  openGraph: {
+    title: 'Our Philosophy | Melting Moments Catering Victoria',
+    description: 'Tailored, site-specific culinary installations across Vancouver Island.',
+    images: ['/chef_plating_sauce.jpg'],
+  },
 }
 
 export default function About() {

@@ -1,3 +1,10 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Service Area | Melting Moments Catering Victoria BC',
+  description: 'Melting Moments serves the Greater Victoria area including Langford, Colwood, Oak Bay, Saanich, and is available up-island to Nanaimo and Tofino.',
+};
+
 export default function ServiceArea() {
   return (
     <div>

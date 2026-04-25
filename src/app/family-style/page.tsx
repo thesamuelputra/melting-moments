@@ -4,12 +4,17 @@ import Image from 'next/image';
 export const metadata: Metadata = {
   title: 'Family Style Service | Victoria BC Catering',
   description: 'Communal, immersive dining experiences featuring traditional family style meals.',
+  openGraph: {
+    title: 'Family Style Service | Victoria BC Catering',
+    description: 'Communal, immersive dining experiences featuring traditional family style meals.',
+    images: ['/family-spread.jpg'],
+  },
 }
 
 export default function FamilyStyle() {
   return (
     <div>
-      <header className="container" style={{ paddingTop: 'calc(70px + 3vw)', paddingBottom: 'clamp(1rem, 2vw, 2rem)' }}>
+      <header className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(1rem, 2vw, 2rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>Family Style Service</div>
         <h1 className="haus-display" style={{ marginBottom: '4rem' }}>
           COMMUNAL <br /> IMMERSION

@@ -1,4 +1,13 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Testimonials | Melting Moments Catering Victoria BC',
+  description: 'Read what our clients say about their experience with Melting Moments Catering in Victoria, BC.',
+};
+
 export default function Testimonials() {
+  // NOTE: These testimonials are intentionally hardcoded. To make them admin-manageable,
+  // add a Testimonial model to prisma/schema.prisma and create an admin CRUD interface.
   const reviews = [
     { author: "Sarah & James", text: "Melting Moments transformed our wedding. The food was not just catering; it was an experience. Guests are still talking about the duck confit." },
     { author: "Victoria Tech Group", text: "Chef Paul handled our 300-person corporate gala flawlessly. The execution was punctual, the staff invisible yet attentive, and the flavor profiles were exceptional." },
@@ -7,7 +16,7 @@ export default function Testimonials() {
 
   return (
     <div>
-        <header className="container" style={{ paddingTop: "calc(70px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
+        <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
             <div className="menu-index" style={{ marginBottom: "2rem" }}>Information</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>Testimonials</h1>
             
