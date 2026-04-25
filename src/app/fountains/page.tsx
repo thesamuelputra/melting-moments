@@ -20,7 +20,7 @@ export default function Fountains() {
           </p>
         </div>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '4/5' }}>
-          <Image src="/chocolate_fountain.jpg" alt="Chocolate fountain at event with strawberry dipping" fill sizes="(max-width: 768px) 100vw, 60vw" style={{ objectFit: 'cover' }} />
+          <Image src="/chocolate_fountain.jpg" alt="Chocolate fountain at event with strawberry dipping" fill sizes="100vw" quality={90} unoptimized style={{ objectFit: 'cover' }} />
         </div>
       </header>
 
