@@ -21,7 +21,7 @@ export default function Fountains() {
         </div>
 
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative' }}>
-          <Image src="/macro_chocolate.webp" alt="Chocolate Fountain Centerpiece" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+          <Image src="/chocolate_fountain.jpg" alt="Chocolate fountain at event with strawberry dipping" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
         </div>
       </header>
 
