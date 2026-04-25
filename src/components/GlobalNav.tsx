@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 function NavDropdown({ label, items, closeMenu }: { label: string; items: { href: string; label: string }[]; closeMenu?: () => void }) {
   const [open, setOpen] = useState(false);
-  const timeout = useRef<ReturnType<typeof setTimeout>>();
+  const timeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const ref = useRef<HTMLDivElement>(null);
 
   const enter = () => { clearTimeout(timeout.current); setOpen(true); };
