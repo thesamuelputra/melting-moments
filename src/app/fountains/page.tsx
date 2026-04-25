@@ -15,11 +15,11 @@ export default function Fountains() {
           CHOCOLATE <br /> CASCADES
         </h1>
         
-        <div className="page-header-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 'clamp(2rem, 4vw, 4rem)', alignItems: 'start' }}>
+        <div className="page-header-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(2rem, 4vw, 4rem)', alignItems: 'start' }}>
           <p style={{ maxWidth: '40ch', opacity: 0.8, lineHeight: 1.6, fontSize: 'var(--text-body)' }}>
             The largest supplier of chocolate fountains on Vancouver Island. Fountains can be used for any event, from 20 to 1,000 guests. Pure Belgian chocolate cascading over tiers of perfection.
           </p>
-          <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative' }}>
+          <div className="shape-editorial-tall" style={{ width: '100%', maxWidth: '420px', position: 'relative', justifySelf: 'end' }}>
             <Image src="/chocolate_fountain.jpg" alt="Chocolate fountain at event with strawberry dipping" fill sizes="(max-width: 768px) 100vw, 60vw" style={{ objectFit: 'cover' }} />
           </div>
         </div>
