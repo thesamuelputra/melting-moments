@@ -1,12 +1,18 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Melting Moments | Award-Winning Catering Victoria BC',
+  description: 'Bespoke catering for weddings, corporate galas, and private events in Victoria, BC. 16 years of culinary excellence by Chef Paul Silletta.',
+};
 
 export default function Home() {
   return (
     <>
     <div>
       {/* AWARD WINNING FULL BLEED HERO */}
-      <header style={{ width: '100%', height: '100vh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+      <header style={{ width: '100%', height: '100dvh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <Image src="/hero-main.jpg" alt="Michelin Star Lasagna Plating" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
         
         {/* Subtle, localized gradient behind text */}
@@ -30,11 +36,11 @@ export default function Home() {
       <section className="container" style={{ textAlign: 'center', padding: 'clamp(4rem, 8vw, 8rem) 0' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>02 — Experience</div>
         <h2 className="noire-serif" style={{ maxWidth: '800px', margin: '0 auto 3rem auto', fontSize: 'var(--text-secondary)' }}>
-          From the very first contact, you will enjoy the professionalism that has been achieved through 25 years of culinary experience.
+          From the very first contact, you will enjoy the professionalism that has been achieved through 16 years of culinary experience.
         </h2>
         
         <div className="shape-oval" style={{ width: '100%', height: 'clamp(350px, 45vw, 700px)', maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
-          <Image src="/copper_pots.jpg" alt="Copper pots hanging in professional kitchen" fill sizes="(max-width: 768px) 100vw, 900px" style={{ objectFit: 'cover' }} />
+          <Image src="/copper_pots.jpg" alt="Copper pots hanging in professional kitchen" fill sizes="(max-width: 768px) 90vw, (max-width: 1200px) 80vw, 1200px" style={{ objectFit: 'cover' }} />
         </div>
       </section>
 
@@ -53,7 +59,7 @@ export default function Home() {
           </div>
 
           <div className="shape-circle" style={{ position: 'relative', width: 'clamp(220px, 28vw, 420px)', aspectRatio: '1/1', justifySelf: 'end', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <Image src="/macro_roulade.jpg" alt="Stuffed pork roulade with fig compote" fill sizes="(max-width: 768px) 100vw, 420px" style={{ objectFit: 'cover' }} />
+            <Image src="/macro_roulade.jpg" alt="Stuffed pork roulade with fig compote" fill sizes="(max-width: 768px) 90vw, 420px" style={{ objectFit: 'cover' }} />
           </div>
         </div>
       </section>

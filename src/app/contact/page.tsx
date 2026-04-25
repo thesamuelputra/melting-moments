@@ -80,8 +80,30 @@ function CustomSelect({ options, value, onChange, placeholder }: { options: {val
   );
 }
 
+// Visual Progress Bar Component
+function ProgressBar({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) {
+  return (
+    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+      {Array.from({ length: totalSteps }).map((_, i) => (
+        <div
+          key={i}
+          style={{
+            flex: 1,
+            height: '3px',
+            backgroundColor: i < currentStep ? 'var(--clr-ink)' : 'rgba(0,0,0,0.1)',
+            transition: 'background-color 0.4s ease',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function Contact() {
   const [step, setStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [step1Error, setStep1Error] = useState('');
   const [formData, setFormData] = useState({
     eventType: '',
     guestCount: '50-100',
@@ -89,16 +111,27 @@ export default function Contact() {
     venue: '',
     name: '',
     email: '',
-    details: ''
+    phone: '',
+    details: '',
+    website: '', // Honeypot field — bots will fill this, humans won't see it
   });
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
+    // Step 1 validation: require event type
+    if (step === 1 && !formData.eventType) {
+      setStep1Error('Please select an event type to continue.');
+      return;
+    }
+    setStep1Error('');
+    setError('');
     setStep(step + 1);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    setError('');
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
@@ -109,13 +142,15 @@ export default function Contact() {
       setStep(4); // Success step
     } catch (err) {
       console.error(err);
-      alert('There was an error processing your request. Please try again.');
+      setError('We were unable to process your request. Please try again, or contact us directly at info@meltingmoments.ca.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <div>
-      <header className="container" style={{ paddingTop: 'calc(70px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
+      <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
         
         <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(400px, 1.5fr)', gap: 'clamp(4rem, 10vw, 8rem)' }}>
             
@@ -131,39 +166,43 @@ export default function Contact() {
                         Paul Silletta<br />
                         Melting Moments Catering<br />
                         614 Grenville Ave<br />
-                        Esquimalt, Bc V9A 6L2
+                        Esquimalt, BC V9A 6L2
                         </p>
                     </div>
                     <div>
                         <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>Direct Line</h3>
                         <p style={{ fontSize: 'var(--text-body)', opacity: 0.7, marginTop: '1rem', lineHeight: 1.6 }}>
-                        Ph: 250.385.2462<br />
-                        www.meltingmoments.ca<br />
-                        info@meltingmoments.ca
+                        Ph: <a href="tel:2503852462" style={{ textDecoration: 'underline' }}>250.385.2462</a><br />
+                        <a href="https://meltingmoments.ca" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>www.meltingmoments.ca</a><br />
+                        <a href="mailto:info@meltingmoments.ca" style={{ textDecoration: 'underline' }}>info@meltingmoments.ca</a>
                         </p>
                     </div>
                     <div>
                         <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>Socials</h3>
                         <p style={{ fontSize: 'var(--text-body)', opacity: 0.7, marginTop: '1rem', lineHeight: 1.6 }}>
-                        Facebook: Melting Moments Catering<br />
+                        <a href="https://www.facebook.com/MeltingMomentsCatering" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>Facebook: Melting Moments Catering</a><br />
                         <a href="https://www.google.ca/maps/@48.4304115,-123.4182687,17z?hl=en" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>View Map Location</a>
                         </p>
                     </div>
                 </div>
             </div>
 
-            {/* RIGHT COLUMN: MULTI-STEP AWARD WINNING FORM */}
+            {/* RIGHT COLUMN: MULTI-STEP FORM */}
             <div style={{ backgroundColor: 'white', padding: 'clamp(2rem, 5vw, 4rem)', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 20px 40px rgba(0,0,0,0.02)' }}>
+                
+                {/* Progress Bar — visible on steps 1-3 */}
+                {step < 4 && <ProgressBar currentStep={step} totalSteps={3} />}
+
                 {step === 1 && (
                     <form onSubmit={handleNext} style={{ animation: 'fadeIn 0.5s ease forwards' }}>
                         <div className="menu-index" style={{ marginBottom: '1rem' }}>Step 01 / 03</div>
                         <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Event Details</h2>
                         
                         <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                            <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Event Type</span>
+                            <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Event Type *</span>
                             <CustomSelect 
                                 value={formData.eventType}
-                                onChange={(val) => setFormData({...formData, eventType: val})}
+                                onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }}
                                 placeholder="Select event type..."
                                 options={[
                                     { value: "corporate", label: "Corporate Function" },
@@ -172,6 +211,11 @@ export default function Contact() {
                                     { value: "fountain", label: "Chocolate Fountain Rental" }
                                 ]}
                             />
+                            {step1Error && (
+                              <div style={{ color: '#B91C1C', fontSize: '0.8rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>
+                                {step1Error}
+                              </div>
+                            )}
                         </label>
 
                         <label style={{ display: 'block', marginBottom: '1.5rem' }}>
@@ -232,8 +276,20 @@ export default function Contact() {
                         <div className="menu-index" style={{ marginBottom: '1rem' }}>Step 03 / 03</div>
                         <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Your Information</h2>
                         
+                        {/* Honeypot — invisible to humans, bots auto-fill it */}
+                        <input 
+                          type="text" 
+                          name="website" 
+                          value={formData.website}
+                          onChange={(e) => setFormData({...formData, website: e.target.value})}
+                          style={{ display: 'none' }} 
+                          tabIndex={-1} 
+                          autoComplete="off"
+                          aria-hidden="true"
+                        />
+
                         <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                            <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Full Name</span>
+                            <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Full Name *</span>
                             <input 
                                 type="text"
                                 required
@@ -244,7 +300,7 @@ export default function Contact() {
                         </label>
 
                         <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                            <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Email Address</span>
+                            <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Email Address *</span>
                             <input 
                                 type="email"
                                 required
@@ -254,9 +310,49 @@ export default function Contact() {
                             />
                         </label>
 
+                        <label style={{ display: 'block', marginBottom: '1.5rem' }}>
+                            <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Phone Number (Optional)</span>
+                            <input 
+                                type="tel"
+                                placeholder="e.g. 250-555-0123"
+                                value={formData.phone}
+                                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }}
+                            />
+                        </label>
+
+                        <label style={{ display: 'block', marginBottom: '1.5rem' }}>
+                            <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Additional Details (Optional)</span>
+                            <textarea
+                                rows={4}
+                                placeholder="Dietary needs, theme preferences, budget range, etc."
+                                value={formData.details}
+                                onChange={(e) => setFormData({...formData, details: e.target.value})}
+                                style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem', resize: 'vertical', fontFamily: 'inherit' }}
+                            />
+                        </label>
+
+                        {/* Inline error message — replaces window.alert() */}
+                        {error && (
+                          <div style={{ 
+                            padding: '1rem', 
+                            backgroundColor: 'rgba(185, 28, 28, 0.05)', 
+                            border: '1px solid rgba(185, 28, 28, 0.2)', 
+                            color: '#B91C1C', 
+                            fontSize: '0.85rem', 
+                            lineHeight: 1.5,
+                            marginBottom: '1rem',
+                            animation: 'fadeIn 0.3s ease'
+                          }}>
+                            {error}
+                          </div>
+                        )}
+
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
                             <button type="button" onClick={() => setStep(2)} className="btn-outline" style={{ flex: 1, padding: '1rem' }}>Back</button>
-                            <button type="submit" className="btn-solid" style={{ flex: 2, padding: '1rem' }}>Request Quote</button>
+                            <button type="submit" className="btn-solid" style={{ flex: 2, padding: '1rem', opacity: submitting ? 0.7 : 1, cursor: submitting ? 'wait' : 'pointer' }} disabled={submitting}>
+                                {submitting ? 'Submitting...' : 'Request Quote'}
+                            </button>
                         </div>
                     </form>
                 )}
@@ -265,15 +361,18 @@ export default function Contact() {
                     <div style={{ animation: 'fadeIn 0.8s ease forwards', textAlign: 'center', padding: '4rem 0' }}>
                         <div className="shape-circle" style={{ width: '80px', height: '80px', backgroundColor: 'var(--clr-ink)', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2rem' }}>✓</div>
                         <h2 className="noire-serif" style={{ marginBottom: '1rem' }}>Request Received</h2>
-                        <p style={{ opacity: 0.7, maxWidth: '30ch', margin: '0 auto' }}>
+                        <p style={{ opacity: 0.7, maxWidth: '30ch', margin: '0 auto', marginBottom: '0.5rem' }}>
                             Thank you, {formData.name || 'Guest'}. Chef Paul or our concierge team will contact you shortly regarding your exquisite event.
+                        </p>
+                        <p style={{ opacity: 0.5, fontSize: '0.8rem' }}>
+                            A confirmation has been sent to {formData.email}.
                         </p>
                     </div>
                 )}
             </div>
 
         </div>
-      </header>
+      </section>
     </div>
   );
 }

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function Fountains() {
   return (
     <div>
-      <header className="container page-header-grid" style={{ paddingTop: 'calc(70px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1.2fr', gap: '3rem', alignItems: 'center' }}>
+      <header className="container page-header-grid" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1.2fr', gap: '3rem', alignItems: 'center' }}>
         <div>
           <div className="menu-index" style={{ marginBottom: '1.5rem' }}>Fountains</div>
           <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 6vw, 6rem)' }}>

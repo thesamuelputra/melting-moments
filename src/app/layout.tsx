@@ -1,11 +1,8 @@
 import type { Metadata } from 'next'
 import { Instrument_Serif, Inter } from 'next/font/google'
 import './globals.css'
-import GlobalNav from '@/components/GlobalNav'
-import Footer from '@/components/Footer'
-import ScrollIndicator from '@/components/ScrollIndicator'
-import Preloader from '@/components/Preloader'
-import PageTransition from '@/components/PageTransition'
+import PublicShell from '@/components/PublicShell'
+import { getBusinessInfo } from '@/lib/business'
 
 const instrumentSerif = Instrument_Serif({ 
   subsets: ['latin'], 
@@ -35,25 +32,29 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image' },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const biz = await getBusinessInfo();
+
+  const parsedStreetAddress = biz.address.split(',').length > 1 ? biz.address.split(',')[0].trim() : biz.address.trim();
+
   const schemaOrgJSONLD = {
     "@context": "https://schema.org",
     "@type": "CateringService",
-    "name": "Melting Moments Catering",
+    "name": biz.name,
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "614 Grenville Ave",
+      "streetAddress": parsedStreetAddress || "614 Grenville Ave",
       "addressLocality": "Esquimalt",
       "addressRegion": "BC",
       "postalCode": "V9A 6L2",
       "addressCountry": "CA"
     },
-    "telephone": "+1-250-385-2462",
-    "url": "https://meltingmoments.ca",
+    "telephone": biz.phone.startsWith('+') ? biz.phone : `+1-${biz.phone}`,
+    "url": biz.website,
     "priceRange": "$$",
     "servesCuisine": ["International", "Buffet", "West Coast"]
   };
@@ -61,16 +62,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
-        <Preloader />
-        <a href="#main-content" className="skip-nav">Skip to main content</a>
-        <ScrollIndicator />
-        <GlobalNav />
-        <main id="main-content">
-          <PageTransition>
-            {children}
-          </PageTransition>
-        </main>
-        <Footer />
+        <PublicShell>
+          {children}
+        </PublicShell>
         <script 
           type="application/ld+json" 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrgJSONLD) }} 

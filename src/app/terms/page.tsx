@@ -1,3 +1,10 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service | Melting Moments Catering',
+  description: 'Terms of service for booking events with Melting Moments Catering in Victoria, BC.',
+};
+
 export default function Terms() {
   return (
     <div>

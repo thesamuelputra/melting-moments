@@ -96,14 +96,33 @@ export default function GlobalNav() {
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
   const pathname = usePathname();
   const isHomepage = pathname === '/';
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+
+  // Focus trap + Escape handler for mobile nav (#6)
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setIsOpen(false); return; }
+      if (e.key === 'Tab' && mobileNavRef.current) {
+        const focusable = mobileNavRef.current.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])');
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 50);
-      // On homepage, navbar appears after scrolling past 40% and stays forever
+      // On homepage, navbar appears after scrolling past 15vh for quicker access
       if (isHomepage && !visible) {
-        if (y > window.innerHeight * 0.4) {
+        if (y > window.innerHeight * 0.15) {
           setVisible(true);
         }
       }
@@ -186,6 +205,7 @@ export default function GlobalNav() {
       {/* Mobile Navigation Panel */}
       {isOpen && (
         <div 
+          ref={mobileNavRef}
           className="nav-mobile-panel"
           style={{
             position: 'fixed',
@@ -263,16 +283,7 @@ export default function GlobalNav() {
           </div>
         </div>
       )}
-      <style dangerouslySetInnerHTML={{__html: `
-        @media (max-width: 768px) {
-          .nav-links-desktop { display: none !important; }
-          #mobile-menu-btn { display: flex !important; }
-        }
-        @media (min-width: 769px) {
-          #mobile-menu-btn { display: none !important; }
-          .nav-mobile-panel { display: none !important; }
-        }
-      `}} />
     </>
   );
 }
+
