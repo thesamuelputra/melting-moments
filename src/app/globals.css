@@ -136,9 +136,9 @@ body {
   gap: clamp(1rem, 3vw, 4rem);
   justify-content: center;
   align-items: start;
-  margin-bottom: clamp(2rem, 5vw, 4rem);
+  margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
   border-bottom: 1px solid rgba(17, 17, 17, 0.05);
-  padding-bottom: clamp(2rem, 5vw, 4rem);
+  padding-bottom: clamp(0.75rem, 2vw, 1.25rem);
 }
 
 /* Utility Containers */
