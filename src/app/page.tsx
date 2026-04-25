@@ -34,7 +34,7 @@ export default function Home() {
         </h2>
         
         <div className="shape-oval" style={{ width: '100%', height: 'clamp(350px, 45vw, 700px)', maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
-          <Image src="/chef_salmon.jpg" alt="Chef plating salmon with lemon" fill sizes="(max-width: 768px) 100vw, 900px" style={{ objectFit: 'cover' }} />
+          <Image src="/salmon_plating_hq.jpg" alt="Chef plating salmon with lemon" fill sizes="(max-width: 768px) 100vw, 900px" style={{ objectFit: 'cover', objectPosition: 'center 60%' }} />
         </div>
       </section>
 
