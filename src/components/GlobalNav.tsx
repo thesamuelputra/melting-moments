@@ -19,8 +19,8 @@ function NavDropdown({ label, items, closeMenu }: { label: string; items: { href
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           color: 'inherit', padding: 0,
-          fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 400,
-          textTransform: 'uppercase', letterSpacing: '0.08em', lineHeight: 'normal',
+          fontFamily: 'inherit', fontSize: '11px', fontWeight: 400,
+          textTransform: 'uppercase', letterSpacing: '1.65px', lineHeight: '16.5px',
           display: 'flex', alignItems: 'center', gap: '0.3rem',
         }}
       >
