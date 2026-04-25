@@ -18,8 +18,9 @@ function NavDropdown({ label, items, closeMenu }: { label: string; items: { href
         aria-expanded={open}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          color: 'inherit', font: 'inherit', textTransform: 'uppercase',
-          letterSpacing: 'inherit', fontSize: 'inherit', padding: 0,
+          color: 'inherit', padding: 0,
+          fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 400,
+          textTransform: 'uppercase', letterSpacing: '0.08em', lineHeight: 'normal',
           display: 'flex', alignItems: 'center', gap: '0.3rem',
         }}
       >
