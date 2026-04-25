@@ -20,7 +20,7 @@ export default function Weddings() {
                 <Link href="/contact" className="btn-solid">Start Planning</Link>
               </div>
               <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%' }}>
-                <Image src="/macro_fountain.webp" alt="Wedding Fountain" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+                <Image src="/wedding_entree.jpg" alt="Wedding reception lamb with rosemary" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
               </div>
             </div>
         </header>
