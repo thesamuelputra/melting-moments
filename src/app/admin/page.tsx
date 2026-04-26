@@ -75,7 +75,7 @@ export default async function AdminDashboard() {
                   </td>
                 </tr>
               )}
-              {inquiries.map((inq) => (
+              {inquiries.map((inq: { id: string; name: string; email: string; eventType: string; guestCount: string; date: string | null; status: string; submittedAt: Date }) => (
                 <tr key={inq.id}>
                   <td>
                     <div className="admin-table__name">{inq.name}</div>
