@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
 import { updateInquiryStatus, deleteInquiry } from './actions';
 
-// Ensure this matches the Prisma Inquiry model
+// Ensure this matches the Convex inquiries schema
 export type Inquiry = {
   id: string;
   name: string;
@@ -15,7 +15,7 @@ export type Inquiry = {
   venue: string | null;
   status: string; // 'new' | 'contacted' | 'booked' | 'declined' | 'archived'
   notes: string | null;
-  submittedAt: Date;
+  submittedAt: string;
 };
 
 export default function AdminInquiriesClient({ initialInquiries }: { initialInquiries: Inquiry[] }) {

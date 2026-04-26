@@ -1,29 +1,20 @@
-import db from '@/lib/db';
 import Link from 'next/link';
-
-export const dynamic = 'force-dynamic';
+import { fetchQuery } from 'convex/nextjs';
+import { api } from '@/../convex/_generated/api';
 
 export default async function AdminDashboard() {
-  const [inquiries, totalMenuItems, totalInquiries, bookedCount] = await Promise.all([
-    db.inquiry.findMany({
-      where: { status: { not: 'archived' } },
-      orderBy: { submittedAt: 'desc' },
-      take: 10,
-    }),
-    db.menuItem.count(),
-    db.inquiry.count({ where: { status: { not: 'archived' } } }),
-    db.inquiry.count({ where: { status: 'booked' } }),
+  const [allInquiries, totalMenuItems, categoryCount] = await Promise.all([
+    fetchQuery(api.inquiries.list),
+    fetchQuery(api.menuItems.count),
+    fetchQuery(api.menuItems.categoryCount),
   ]);
 
-  const newInquiriesCount = await db.inquiry.count({
-    where: { status: 'new' }
-  });
-
-  // Calculate unique categories count
-  const categoriesDb = await db.menuItem.groupBy({
-    by: ['category']
-  });
-  const categoryCount = categoriesDb.length;
+  // Derive counts from the full list
+  const nonArchived = allInquiries.filter((i) => i.status !== 'archived');
+  const inquiries = nonArchived.slice(0, 10); // recent 10
+  const totalInquiries = nonArchived.length;
+  const newInquiriesCount = allInquiries.filter((i) => i.status === 'new').length;
+  const bookedCount = allInquiries.filter((i) => i.status === 'booked').length;
 
   return (
     <div>
@@ -75,8 +66,8 @@ export default async function AdminDashboard() {
                   </td>
                 </tr>
               )}
-              {inquiries.map((inq: { id: string; name: string; email: string; eventType: string; guestCount: string; date: string | null; status: string; submittedAt: Date }) => (
-                <tr key={inq.id}>
+              {inquiries.map((inq) => (
+                <tr key={inq._id}>
                   <td>
                     <div className="admin-table__name">{inq.name}</div>
                     <div className="admin-table__email">{inq.email}</div>

@@ -1,7 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import db from '@/lib/db';
+import { fetchMutation } from 'convex/nextjs';
+import { api } from '@/../convex/_generated/api';
+import { Id } from '@/../convex/_generated/dataModel';
 
 export async function updateInquiryStatus(id: string, status: string) {
   if (!id) return { success: false, error: 'ID is required' };
@@ -9,9 +11,9 @@ export async function updateInquiryStatus(id: string, status: string) {
   if (!validStatuses.includes(status)) return { success: false, error: 'Invalid status' };
 
   try {
-    await db.inquiry.update({
-      where: { id },
-      data: { status }
+    await fetchMutation(api.inquiries.updateStatus, {
+      id: id as Id<"inquiries">,
+      status,
     });
     revalidatePath('/admin/inquiries');
     revalidatePath('/admin');
@@ -26,7 +28,9 @@ export async function deleteInquiry(id: string) {
   if (!id) return { success: false, error: 'ID is required' };
 
   try {
-    await db.inquiry.delete({ where: { id } });
+    await fetchMutation(api.inquiries.remove, {
+      id: id as Id<"inquiries">,
+    });
     revalidatePath('/admin/inquiries');
     revalidatePath('/admin');
     return { success: true };
