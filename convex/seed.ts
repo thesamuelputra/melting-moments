@@ -1,9 +1,4 @@
-// Comprehensive seed script for all Melting Moments menu items
-// Run with: npx tsx prisma/seed.ts
-
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { internalMutation } from "./_generated/server";
 
 const allItems = [
   // ===== BREADS =====
@@ -60,7 +55,7 @@ const allItems = [
 
   // ===== PEASANO DINNER =====
   { category: 'PEASANO', name: 'Peasano Family Dinner', description: 'Authentic Italian family-style dinner with antipasto, fresh pasta, roasted meats, vegetables, breads, and dessert', priceLabel: '$55/pp', orderIndex: 1 },
-  { category: 'PEASANO', name: 'Nonno\'s Table', description: 'Upgraded Italian feast with seafood, handmade ravioli, veal scallopini, tiramisu', priceLabel: '$72/pp', orderIndex: 2 },
+  { category: 'PEASANO', name: "Nonno's Table", description: 'Upgraded Italian feast with seafood, handmade ravioli, veal scallopini, tiramisu', priceLabel: '$72/pp', orderIndex: 2 },
 
   // ===== MEXICAN FIESTA =====
   { category: 'MEXICAN', name: 'Fiesta Buffet', description: 'Chicken, beef and veggie fajitas with all the fixings, Spanish rice, refried beans, tortilla chips with salsa and guacamole', priceLabel: '$45/pp', orderIndex: 1 },
@@ -73,9 +68,9 @@ const allItems = [
   { category: 'BBQ', name: 'Smoker Package', description: 'Pulled pork, smoked brisket, BBQ chicken, cornbread, beans, coleslaw, pickles', priceLabel: '$48/pp', orderIndex: 3 },
 
   // ===== CORPORATE BREAKFAST =====
-  { category: 'BREAKFAST', name: 'Continental', description: 'Baskets filled with delicious freshly-baked pastries, danishes and muffins served with cold fruit juices, fresh brewed coffee and hot tea.', priceLabel: '$9.95/pp', orderIndex: 1 },
-  { category: 'BREAKFAST', name: 'Royal Continental', description: 'Freshly-baked pastries, Danishes and muffins served with fresh seasonal sliced fruit as well as cold fruit juices, fresh brewed coffee and hot tea.', priceLabel: '$12.50/pp', orderIndex: 2 },
-  { category: 'BREAKFAST', name: 'Supreme Continental', description: 'Soft bagels, freshly-baked scones, fruit yogurt with granola, seasonal sliced fruit as well as cold fruit juices, fresh brewed coffee and hot tea.', priceLabel: '$14.50/pp', orderIndex: 3 },
+  { category: 'BREAKFAST', name: 'Continental', description: 'Freshly-baked pastries, danishes and muffins served with cold fruit juices, fresh brewed coffee and hot tea.', priceLabel: '$9.95/pp', orderIndex: 1 },
+  { category: 'BREAKFAST', name: 'Royal Continental', description: 'Freshly-baked pastries, Danishes and muffins served with fresh seasonal sliced fruit, juices, coffee and tea.', priceLabel: '$12.50/pp', orderIndex: 2 },
+  { category: 'BREAKFAST', name: 'Supreme Continental', description: 'Soft bagels, freshly-baked scones, fruit yogurt with granola, seasonal sliced fruit, juices, coffee and tea.', priceLabel: '$14.50/pp', orderIndex: 3 },
   { category: 'BREAKFAST', name: 'Hot Breakfast Buffet', description: 'Scrambled eggs, bacon, sausages, hash browns, toast, fresh fruit, coffee, tea and juices', priceLabel: '$18.95/pp', orderIndex: 4 },
   { category: 'BREAKFAST', name: 'Eggs Benedict Station', description: 'Classic, salmon, and mushroom Eggs Benedict with hollandaise, breakfast potatoes, fruit', priceLabel: '$22.50/pp', orderIndex: 5 },
 
@@ -86,8 +81,8 @@ const allItems = [
   { category: 'LUNCH', name: 'The Grilled Cheese', description: 'Black Forest ham on French bread with cheddar cheese and mayo, Grilled.', priceLabel: '$7.95/ea', orderIndex: 4 },
   { category: 'LUNCH', name: 'The Roasted Veggie', description: 'Assorted veggies roasted with baby greens and cheese.', priceLabel: '$7.95/ea', orderIndex: 5 },
   { category: 'LUNCH', name: 'Baron of Beef', description: 'Succulent roast beef cooked medium rare served with Au jus on a sub bun.', priceLabel: '$11.95/ea', orderIndex: 6 },
-  { category: 'LUNCH', name: 'Traditional BBQ Lunch', description: 'Hamburgers, Veggie or Chicken Burgers served with sliced cheese, lettuce, tomato pickles, onions, and a condiment tray.', priceLabel: '$12.95/ea', orderIndex: 7 },
-  { category: 'LUNCH', name: 'Chicken, Beef or Veggie Fajitas', description: 'With warm flour tortillas, accompanied by Spanish rice, refried beans, lettuce and tomato and topped with salsa, sour cream.', priceLabel: '$13.95/ea', orderIndex: 8 },
+  { category: 'LUNCH', name: 'Traditional BBQ Lunch', description: 'Hamburgers, Veggie or Chicken Burgers, cheese, lettuce, tomato, pickles, onions, condiments.', priceLabel: '$12.95/ea', orderIndex: 7 },
+  { category: 'LUNCH', name: 'Chicken, Beef or Veggie Fajitas', description: 'With warm flour tortillas, Spanish rice, refried beans, lettuce, tomato, salsa, sour cream.', priceLabel: '$13.95/ea', orderIndex: 8 },
   { category: 'LUNCH', name: 'Lasagna', description: 'Traditional meat or veggie lasagna stuffed full of your favorite Italian ingredients.', priceLabel: '$12.95/ea', orderIndex: 9 },
 
   // ===== BEVERAGES =====
@@ -97,36 +92,29 @@ const allItems = [
   { category: 'BEVERAGES', name: 'Hot Chocolate Station', description: 'Rich hot chocolate with marshmallows, whipped cream, and chocolate shavings', priceLabel: '$5.00/pp', orderIndex: 4 },
 ];
 
-async function main() {
-  console.log('🌱 Seeding database with all menu items...');
-  
-  // Clear existing menu items
-  const deleteResult = await prisma.menuItem.deleteMany();
-  console.log(`   Deleted ${deleteResult.count} existing items.`);
-  
-  // Insert all items
-  for (const item of allItems) {
-    await prisma.menuItem.create({
-      data: {
+// Run via Convex dashboard: npx convex run seed:seedMenuItems
+export const seedMenuItems = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    // Clear existing
+    const existing = await ctx.db.query("menuItems").collect();
+    for (const item of existing) {
+      await ctx.db.delete(item._id);
+    }
+
+    // Insert all
+    for (const item of allItems) {
+      await ctx.db.insert("menuItems", {
         category: item.category,
         name: item.name,
         description: item.description,
-        price: null,
         priceLabel: item.priceLabel,
         orderIndex: item.orderIndex,
-      }
-    });
-  }
-  
-  console.log(`✅ Seeded ${allItems.length} menu items across the following categories:`);
-  
-  const cats = [...new Set(allItems.map(i => i.category))];
-  for (const cat of cats) {
-    const count = allItems.filter(i => i.category === cat).length;
-    console.log(`   ${cat}: ${count} items`);
-  }
-}
+        isActive: true,
+        isFeatured: false,
+      });
+    }
 
-main()
-  .catch((e) => { console.error(e); process.exit(1); })
-  .finally(async () => { await prisma.$disconnect(); });
+    return { seeded: allItems.length };
+  },
+});

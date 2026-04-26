@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function Testimonials() {
   // NOTE: These testimonials are intentionally hardcoded. To make them admin-manageable,
-  // add a Testimonial model to prisma/schema.prisma and create an admin CRUD interface.
+  // add a testimonials table to convex/schema.ts and create an admin CRUD interface.
   const reviews = [
     { author: "Sarah & James", text: "Melting Moments transformed our wedding. The food was not just catering; it was an experience. Guests are still talking about the duck confit." },
     { author: "Victoria Tech Group", text: "Chef Paul handled our 300-person corporate gala flawlessly. The execution was punctual, the staff invisible yet attentive, and the flavor profiles were exceptional." },

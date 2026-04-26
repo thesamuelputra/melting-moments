@@ -1,15 +1,22 @@
+import { fetchQuery } from 'convex/nextjs';
+import { api } from '@/../convex/_generated/api';
 import AdminMenuClient from './AdminMenuClient';
-import db from '@/lib/db';
-
-export const dynamic = 'force-dynamic';
 
 export default async function MenusAdminPage() {
-  const items = await db.menuItem.findMany({
-    orderBy: [
-      { category: 'asc' },
-      { orderIndex: 'asc' }
-    ]
-  });
+  const items = await fetchQuery(api.menuItems.list);
   
-  return <AdminMenuClient initialItems={items} />;
+  // Serialize for client
+  const menuItems = items.map((item) => ({
+    id: item._id,
+    category: item.category,
+    name: item.name,
+    description: item.description,
+    price: item.price ?? null,
+    priceLabel: item.priceLabel,
+    orderIndex: item.orderIndex,
+    isActive: item.isActive,
+    isFeatured: item.isFeatured,
+  }));
+
+  return <AdminMenuClient initialItems={menuItems} />;
 }

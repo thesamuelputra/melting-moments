@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/db';
+import { fetchMutation } from 'convex/nextjs';
+import { api } from '@/../convex/_generated/api';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
@@ -18,17 +19,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
     
-    await db.inquiry.create({
-      data: {
-        name: body.name,
-        email: body.email,
-        phone: body.phone || '',
-        eventType: body.eventType,
-        guestCount: body.guestCount || '',
-        date: body.date || '',
-        venue: body.venue || '',
-        notes: body.details || '',
-      }
+    await fetchMutation(api.inquiries.create, {
+      name: body.name,
+      email: body.email,
+      phone: body.phone || '',
+      eventType: body.eventType,
+      guestCount: body.guestCount || '',
+      date: body.date || '',
+      venue: body.venue || '',
+      notes: body.details || '',
     });
     
     // Dispatch Email Notification to Owner

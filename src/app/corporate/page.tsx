@@ -1,18 +1,24 @@
 import Image from 'next/image';
-import db from '@/lib/db';
+import { fetchQuery } from 'convex/nextjs';
+import { api } from '@/../convex/_generated/api';
 import CorporateMenuClient from './CorporateMenuClient';
 
-export const dynamic = 'force-dynamic';
-
 export default async function Corporate() {
-  // Fetch corporate-relevant categories from database
-  const menuItems = await db.menuItem.findMany({
-    where: {
-      category: { in: ['BREAKFAST', 'LUNCH'] },
-      isActive: true,
-    },
-    orderBy: [{ category: 'asc' }, { orderIndex: 'asc' }],
-  });
+  const allItems = await fetchQuery(api.menuItems.listActive);
+
+  // Filter to corporate-relevant categories
+  const menuItems = allItems
+    .filter((item) => ['BREAKFAST', 'LUNCH'].includes(item.category))
+    .map((item) => ({
+      id: item._id,
+      category: item.category,
+      name: item.name,
+      description: item.description,
+      price: item.price ?? null,
+      priceLabel: item.priceLabel,
+      orderIndex: item.orderIndex,
+      isActive: item.isActive,
+    }));
 
   return (
     <div>

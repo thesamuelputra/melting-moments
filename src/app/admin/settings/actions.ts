@@ -1,17 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import db from '@/lib/db';
+import { fetchMutation } from 'convex/nextjs';
+import { api } from '@/../convex/_generated/api';
 
 export async function saveBusinessSettings(settings: Record<string, string>) {
   try {
-    for (const [key, value] of Object.entries(settings)) {
-      await db.businessSetting.upsert({
-        where: { key },
-        update: { value },
-        create: { key, value },
-      });
-    }
+    const entries = Object.entries(settings).map(([key, value]) => ({ key, value }));
+    await fetchMutation(api.businessSettings.save, { entries });
     revalidatePath('/admin/settings');
     return { success: true };
   } catch (error) {

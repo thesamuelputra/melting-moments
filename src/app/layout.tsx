@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Instrument_Serif, Inter } from 'next/font/google'
 import './globals.css'
 import PublicShell from '@/components/PublicShell'
-import { getBusinessInfo } from '@/lib/business'
+import ConvexClientProvider from './ConvexClientProvider'
 
 const instrumentSerif = Instrument_Serif({ 
   subsets: ['latin'], 
@@ -32,29 +32,25 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image' },
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const biz = await getBusinessInfo();
-
-  const parsedStreetAddress = biz.address.split(',').length > 1 ? biz.address.split(',')[0].trim() : biz.address.trim();
-
   const schemaOrgJSONLD = {
     "@context": "https://schema.org",
     "@type": "CateringService",
-    "name": biz.name,
+    "name": "Melting Moments Catering",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": parsedStreetAddress || "614 Grenville Ave",
+      "streetAddress": "614 Grenville Ave",
       "addressLocality": "Esquimalt",
       "addressRegion": "BC",
       "postalCode": "V9A 6L2",
       "addressCountry": "CA"
     },
-    "telephone": biz.phone.startsWith('+') ? biz.phone : `+1-${biz.phone}`,
-    "url": biz.website,
+    "telephone": "+1-250-385-2462",
+    "url": "https://meltingmoments.ca",
     "priceRange": "$$",
     "servesCuisine": ["International", "Buffet", "West Coast"]
   };
@@ -62,9 +58,11 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
-        <PublicShell>
-          {children}
-        </PublicShell>
+        <ConvexClientProvider>
+          <PublicShell>
+            {children}
+          </PublicShell>
+        </ConvexClientProvider>
         <script 
           type="application/ld+json" 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrgJSONLD) }} 
