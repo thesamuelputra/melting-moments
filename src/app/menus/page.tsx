@@ -3,6 +3,8 @@ import MenuClient from './MenuClient';
 import db from '@/lib/db';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Catering Menus | Melting Moments Victoria BC',
   description: 'Browse our catering menus — from Italian family-style dinners to corporate luncheons and BBQ packages. Award-winning cuisine in Victoria, BC.',

@@ -1,7 +1,7 @@
 import db from '@/lib/db';
 import AdminSettingsClient, { SettingsMap } from './AdminSettingsClient';
 
-export const revalidate = 0; // Ensure fresh data on load
+export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
   const settingsData = await db.businessSetting.findMany();

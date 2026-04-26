@@ -1,7 +1,7 @@
 import db from '@/lib/db';
 import Link from 'next/link';
 
-export const revalidate = 0; // Ensure fresh data on load
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
   const [inquiries, totalMenuItems, totalInquiries, bookedCount] = await Promise.all([

@@ -2,7 +2,7 @@ import Image from 'next/image';
 import db from '@/lib/db';
 import CorporateMenuClient from './CorporateMenuClient';
 
-export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export default async function Corporate() {
   // Fetch corporate-relevant categories from database
