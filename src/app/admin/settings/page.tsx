@@ -8,7 +8,7 @@ export default async function SettingsPage() {
   
   // Convert array of {key, value} to a flat object
   const settingsMap: Record<string, string> = {};
-  settingsData.forEach(setting => {
+  settingsData.forEach((setting: { key: string; value: string }) => {
     settingsMap[setting.key] = setting.value;
   });
 
