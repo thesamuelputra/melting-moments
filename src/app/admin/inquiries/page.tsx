@@ -1,7 +1,7 @@
 import db from '@/lib/db';
 import AdminInquiriesClient from './AdminInquiriesClient';
 
-export const revalidate = 0; // Ensure fresh data on load
+export const dynamic = 'force-dynamic';
 
 export default async function InquiriesPage() {
   const inquiries = await db.inquiry.findMany({
