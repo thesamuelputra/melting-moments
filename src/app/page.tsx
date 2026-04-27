@@ -1,13 +1,25 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
+import { getCmsContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Melting Moments | Award-Winning Catering Victoria BC',
   description: 'Bespoke catering for weddings, corporate galas, and private events in Victoria, BC. 16 years of culinary excellence by Chef Paul Silletta.',
 };
 
-export default function Home() {
+export default async function Home() {
+  const cms = await getCmsContent();
+
+  const heroTitle = cms('home_hero_title', 'MELTING\nMOMENTS');
+  const heroSubtitle = cms('home_hero_subtitle', 'Bespoke Catering · Victoria BC');
+  const expIndex = cms('home_experience_index', '02 — Experience');
+  const expHeading = cms('home_experience_heading', 'From the very first contact, you will enjoy the professionalism that has been achieved through 16 years of culinary experience.');
+  const ctaIndex = cms('home_cta_index', '03 — Celebration');
+  const ctaHeading = cms('home_cta_heading', 'Whether a visionary wedding, an elite corporate gala, or a private gathering, we leave a lasting impression.');
+  const ctaBody = cms('home_cta_body', 'Expect the absolute best.');
+  const ctaButton = cms('home_cta_button', 'Book An Event');
+
   return (
     <>
     <div>
@@ -20,10 +32,12 @@ export default function Home() {
         
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%', padding: '0 2rem' }}>
           <h1 className="haus-display" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
-            MELTING<br />MOMENTS
+            {heroTitle.split('\n').map((line, i) => (
+              <span key={i}>{line}{i < heroTitle.split('\n').length - 1 && <br />}</span>
+            ))}
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--text-micro)', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: '2rem' }}>
-            Bespoke Catering · Victoria BC
+            {heroSubtitle}
           </p>
         </div>
         
@@ -34,9 +48,9 @@ export default function Home() {
 
       {/* NOIRÉ STYLE OVAL SECTION (Value Proposition) */}
       <section className="container" style={{ textAlign: 'center', padding: 'clamp(4rem, 8vw, 8rem) 0' }}>
-        <div className="menu-index" style={{ marginBottom: '2rem' }}>02 — Experience</div>
+        <div className="menu-index" style={{ marginBottom: '2rem' }}>{expIndex}</div>
         <h2 className="noire-serif" style={{ maxWidth: '800px', margin: '0 auto 3rem auto', fontSize: 'var(--text-secondary)' }}>
-          From the very first contact, you will enjoy the professionalism that has been achieved through 16 years of culinary experience.
+          {expHeading}
         </h2>
         
         <div className="shape-oval" style={{ width: '100%', height: 'clamp(350px, 45vw, 700px)', maxWidth: '900px', margin: '0 auto', position: 'relative' }}>
@@ -48,14 +62,14 @@ export default function Home() {
       <section className="haus-block-container" style={{ marginTop: 'clamp(0rem, 2vw, 2rem)' }}>
         <div className="container homepage-cta-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1fr', gap: 'clamp(2rem, 8vw, 6rem)', alignItems: 'center' }}>
           <div style={{ position: 'relative', zIndex: 2 }}>
-            <div className="menu-index" style={{ marginBottom: '2rem', color: 'rgba(255,255,255,0.5)' }}>03 — Celebration</div>
+            <div className="menu-index" style={{ marginBottom: '2rem', color: 'rgba(255,255,255,0.5)' }}>{ctaIndex}</div>
             <h2 className="noire-serif" style={{ color: 'white', marginBottom: '1.5rem' }}>
-              Whether a visionary wedding, an elite corporate gala, or a private gathering, we leave a lasting impression.
+              {ctaHeading}
             </h2>
             <p style={{ fontSize: 'var(--text-body)', maxWidth: '45ch', opacity: 0.6, marginBottom: '2.5rem', color: 'white' }}>
-              Expect the absolute best.
+              {ctaBody}
             </p>
-            <Link href="/contact" className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>Book An Event</Link>
+            <Link href="/contact" className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>{ctaButton}</Link>
           </div>
 
           <div className="shape-circle" style={{ position: 'relative', width: 'clamp(220px, 28vw, 420px)', aspectRatio: '1/1', justifySelf: 'end', border: '1px solid rgba(255,255,255,0.08)' }}>

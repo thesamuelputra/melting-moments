@@ -15,10 +15,9 @@ type MenuItem = {
   isFeatured: boolean;
 };
 
-export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
+export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuItem[]; disclaimer: string }) {
   const [filter, setFilter] = useState('ALL');
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   // Show/hide scroll-to-top button (#22)
   useEffect(() => {
@@ -61,12 +60,18 @@ export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
     return map[cat] || cat;
   };
 
+  const filterRef = useRef<HTMLDivElement>(null);
+
   // Auto-scroll to content when filter is clicked (#21)
+  // Offset so the filter bar + category title remain visible
   const handleFilterClick = (cat: string) => {
     setFilter(cat);
     // Small delay to allow React to render the filtered content
     setTimeout(() => {
-      contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (filterRef.current) {
+        const top = filterRef.current.getBoundingClientRect().top + window.scrollY - 90;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
     }, 50);
   };
 
@@ -74,7 +79,7 @@ export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
     <section className="container" style={{ paddingTop: 'clamp(2rem, 4vw, 4rem)', paddingBottom: '8rem' }}>
       
       {/* INTERACTIVE FILTER */}
-      <div className="filter-container" style={{ flexWrap: 'wrap' }}>
+      <div ref={filterRef} className="filter-container" style={{ flexWrap: 'wrap' }}>
           <button className={`btn-outline ${filter === 'ALL' ? 'active' : ''}`} onClick={() => handleFilterClick('ALL')}>All</button>
           {availableCategories.map(cat => (
             <button key={cat} className={`btn-outline ${filter === cat ? 'active' : ''}`} onClick={() => handleFilterClick(cat)}>
@@ -83,7 +88,7 @@ export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
           ))}
       </div>
 
-      <div ref={contentRef}>
+      <div>
         {availableCategories.map((cat, groupIdx) => {
           if (filter !== 'ALL' && filter !== cat) return null;
           
@@ -127,7 +132,7 @@ export default function MenuClient({ menuItems }: { menuItems: MenuItem[] }) {
       {filter === 'ALL' && (
         <div style={{ marginTop: '4rem', borderTop: '1px solid var(--clr-charcoal)', paddingTop: '3rem' }}>
           <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.8, maxWidth: '65ch' }}>
-            These catering menus are just a sample of what you can expect — we can customize any menu to suit your needs. All 5% taxes and 15% gratuity are extra. A deposit of 25% is required at time of booking. Balance due 7 days prior to function. Guaranteed number of guests required 2 weeks in advance. Per person pricing based on a minimum of 75 guests. Prices may change without notice.
+            {disclaimer}
           </p>
           <div style={{ marginTop: '2rem' }}>
             <Link href="/contact" className="btn-solid">Book Your Event</Link>

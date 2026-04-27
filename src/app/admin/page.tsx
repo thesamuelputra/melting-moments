@@ -42,6 +42,31 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <Link href="/admin/content" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.25rem', background: 'white', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '8px', textDecoration: 'none', color: 'var(--clr-ink)', transition: 'box-shadow 0.2s' }}>
+          <span style={{ fontSize: '1.25rem' }}>✏️</span>
+          <div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>Edit Site Content</div>
+            <div style={{ fontSize: '0.7rem', color: 'rgba(0,0,0,0.35)' }}>Headers, descriptions, text</div>
+          </div>
+        </Link>
+        <Link href="/admin/menus" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.25rem', background: 'white', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '8px', textDecoration: 'none', color: 'var(--clr-ink)', transition: 'box-shadow 0.2s' }}>
+          <span style={{ fontSize: '1.25rem' }}>📋</span>
+          <div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>Manage Menus</div>
+            <div style={{ fontSize: '0.7rem', color: 'rgba(0,0,0,0.35)' }}>Add, edit, or hide menu items</div>
+          </div>
+        </Link>
+        <Link href="/admin/settings" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 1.25rem', background: 'white', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '8px', textDecoration: 'none', color: 'var(--clr-ink)', transition: 'box-shadow 0.2s' }}>
+          <span style={{ fontSize: '1.25rem' }}>⚙️</span>
+          <div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>Settings</div>
+            <div style={{ fontSize: '0.7rem', color: 'rgba(0,0,0,0.35)' }}>Business info & notifications</div>
+          </div>
+        </Link>
+      </div>
+
       {/* Recent Inquiries List */}
       <div className="admin-table-container">
         <div className="admin-table-header">
