@@ -3,6 +3,7 @@ import { Instrument_Serif, Inter } from 'next/font/google'
 import './globals.css'
 import PublicShell from '@/components/PublicShell'
 import ConvexClientProvider from './ConvexClientProvider'
+import BannerWrapper from '@/components/BannerWrapper'
 
 const instrumentSerif = Instrument_Serif({ 
   subsets: ['latin'], 
@@ -58,6 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
+        <BannerWrapper />
         <ConvexClientProvider>
           <PublicShell>
             {children}

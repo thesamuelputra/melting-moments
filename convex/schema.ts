@@ -31,4 +31,30 @@ export default defineSchema({
     key: v.string(),
     value: v.string(),
   }).index("by_key", ["key"]),
+
+  // FAQs — CMS-managed
+  faqs: defineTable({
+    question: v.string(),
+    answer: v.string(),
+    orderIndex: v.float64(),
+    isActive: v.boolean(),
+  }),
+
+  // Testimonials — CMS-managed
+  testimonials: defineTable({
+    author: v.string(),
+    role: v.optional(v.string()),    // e.g. "Wedding Client" or "CEO, Victoria Tech Group"
+    text: v.string(),
+    rating: v.optional(v.float64()), // 1-5
+    orderIndex: v.float64(),
+    isActive: v.boolean(),
+  }),
+
+  // Activity log — tracks CMS changes
+  activityLog: defineTable({
+    action: v.string(),        // e.g. "Updated site content", "Added FAQ", "Toggled banner"
+    section: v.string(),       // e.g. "Site Content", "FAQ", "Banner"
+    details: v.optional(v.string()),
+    performedAt: v.float64(),  // timestamp ms
+  }).index("by_performedAt", ["performedAt"]),
 });

@@ -8,10 +8,13 @@
  * @module
  */
 
+import type * as activityLog from "../activityLog.js";
 import type * as businessSettings from "../businessSettings.js";
+import type * as faqs from "../faqs.js";
 import type * as inquiries from "../inquiries.js";
 import type * as menuItems from "../menuItems.js";
 import type * as seed from "../seed.js";
+import type * as testimonials from "../testimonials.js";
 
 import type {
   ApiFromModules,
@@ -20,10 +23,13 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  activityLog: typeof activityLog;
   businessSettings: typeof businessSettings;
+  faqs: typeof faqs;
   inquiries: typeof inquiries;
   menuItems: typeof menuItems;
   seed: typeof seed;
+  testimonials: typeof testimonials;
 }>;
 
 /**

@@ -16,10 +16,11 @@ const navItems = [
       <polyline points="22,6 12,13 2,6" />
     </svg>
   )},
-  { href: '/admin/menus', label: 'Menu Editor', icon: (
+  { divider: 'Content' },
+  { href: '/admin/banner', label: 'Banner', icon: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+      <path d="M22 17H2a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h20a3 3 0 0 0-3 3v5a3 3 0 0 0 3 3z" />
+      <path d="M12 12h.01" />
     </svg>
   )},
   { href: '/admin/content', label: 'Site Content', icon: (
@@ -28,12 +29,31 @@ const navItems = [
       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
     </svg>
   )},
+  { href: '/admin/menus', label: 'Menu Editor', icon: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+    </svg>
+  )},
+  { href: '/admin/faq', label: 'FAQ', icon: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  )},
+  { href: '/admin/testimonials', label: 'Testimonials', icon: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  )},
+  { divider: 'System' },
   { href: '/admin/settings', label: 'Settings', icon: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
       <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   )},
 ];
+
 
 import { useState, useEffect } from 'react';
 
@@ -61,13 +81,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <nav className="admin-sidebar__nav">
-          {navItems.map((item) => {
+          {navItems.map((item, i) => {
+            if ('divider' in item) {
+              return (
+                <div key={`divider-${i}`} style={{ padding: '1rem 1rem 0.4rem 1rem', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.25)', marginTop: i > 0 ? '0.5rem' : 0 }}>
+                  {item.divider}
+                </div>
+              );
+            }
             const isActive = pathname === item.href || 
-              (item.href !== '/admin' && pathname.startsWith(item.href));
+              (item.href !== '/admin' && pathname.startsWith(item.href!));
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href!}
                 className={`admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`}
               >
                 {item.icon}
@@ -98,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </svg>
             </button>
             <div className="admin-topbar__title">
-              {navItems.find(i => pathname === i.href || (i.href !== '/admin' && pathname.startsWith(i.href)))?.label || 'Dashboard'}
+              {navItems.filter(i => 'href' in i).find(i => pathname === i.href || (i.href !== '/admin' && pathname.startsWith(i.href!)))?.label || 'Dashboard'}
             </div>
           </div>
           <div className="admin-topbar__actions" style={{ display: 'flex', alignItems: 'center' }}>
