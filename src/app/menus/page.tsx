@@ -37,7 +37,7 @@ export default async function MenusPage() {
           CATERING <br /> MENUS
         </h1>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '16/9', marginBottom: '4rem' }}>
-          <Image src="/macro_charcuterie.webp" alt="Artisan charcuterie spread" fill sizes="(max-width: 768px) 100vw, 100vw" style={{ objectFit: 'cover' }} priority />
+          <Image src="/catering_menu_hero.jpg" alt="Assorted catering dishes including pasta, steak, and chicken roulade" fill sizes="(max-width: 768px) 100vw, 100vw" style={{ objectFit: 'cover' }} priority />
         </div>
       </header>
       <MenuClient menuItems={menuItems} />
