@@ -91,15 +91,7 @@ export default async function AdminDashboard() {
           <Link
             key={href}
             href={href}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.75rem',
-              padding: '0.875rem 1rem', background: 'white',
-              border: '1px solid rgba(0,0,0,0.06)', borderRadius: '8px',
-              textDecoration: 'none', color: 'var(--clr-ink)',
-              transition: 'box-shadow 0.2s, transform 0.15s',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}
+            className="admin-quick-action"
           >
             <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{icon}</span>
             <div>
@@ -173,10 +165,7 @@ export default async function AdminDashboard() {
               </div>
             )}
             {recentActivity.map((entry) => (
-              <div key={entry._id} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.75rem', borderRadius: '6px', transition: 'background 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.02)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-              >
+              <div key={entry._id} className="admin-activity-entry">
                 <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '0.1rem' }}>
                   {SECTION_ICONS[entry.section] || '📝'}
                 </span>
