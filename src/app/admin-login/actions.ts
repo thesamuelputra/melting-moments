@@ -6,7 +6,8 @@ import crypto from 'crypto';
 
 // Generate a signed token from the password to prevent cookie guessing
 function generateToken(): string {
-  const secret = process.env.ADMIN_PASSWORD || 'default-secret';
+  const secret = process.env.ADMIN_PASSWORD;
+  if (!secret) throw new Error('ADMIN_PASSWORD is not configured.');
   return crypto.createHmac('sha256', secret).update('melting-moments-admin-session').digest('hex');
 }
 

@@ -155,7 +155,7 @@ export default function AdminTestimonialsClient({ initialTestimonials, isSeeded 
       </div>
 
       {creating && (
-        <div className="admin-section" style={{ marginBottom: '1.5rem', padding: '1.5rem', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px' }}>
+        <div className="admin-section" style={{ marginBottom: '1.5rem', padding: '1.25rem 1.5rem', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px' }}>
           <h3 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>New Testimonial</h3>
           <TestimonialForm onSave={handleCreate} onCancel={() => setCreating(false)} />
         </div>
@@ -168,7 +168,7 @@ export default function AdminTestimonialsClient({ initialTestimonials, isSeeded 
           </div>
         )}
         {sorted.map((item, idx) => (
-          <div key={item.id} className="admin-section" style={{ opacity: item.isActive ? 1 : 0.5 }}>
+          <div key={item.id} className="admin-section" style={{ opacity: item.isActive ? 1 : 0.5, padding: '1.25rem 1.5rem' }}>
             {deleteConfirm === item.id ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
                 <span style={{ fontSize: '0.85rem', color: '#B91C1C' }}>Delete testimonial by &ldquo;{item.author}&rdquo;?</span>

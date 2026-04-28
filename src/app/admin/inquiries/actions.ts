@@ -4,8 +4,10 @@ import { revalidatePath } from 'next/cache';
 import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { Id } from '@/../convex/_generated/dataModel';
+import { requireAdmin } from '@/lib/auth';
 
 export async function updateInquiryStatus(id: string, status: string) {
+  await requireAdmin();
   if (!id) return { success: false, error: 'ID is required' };
   const validStatuses = ['new', 'contacted', 'booked', 'declined', 'archived'];
   if (!validStatuses.includes(status)) return { success: false, error: 'Invalid status' };
@@ -25,6 +27,7 @@ export async function updateInquiryStatus(id: string, status: string) {
 }
 
 export async function deleteInquiry(id: string) {
+  await requireAdmin();
   if (!id) return { success: false, error: 'ID is required' };
 
   try {

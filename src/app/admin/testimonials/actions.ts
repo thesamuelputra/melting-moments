@@ -4,8 +4,10 @@ import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { revalidatePath } from 'next/cache';
 import { Id } from '@/../convex/_generated/dataModel';
+import { requireAdmin } from '@/lib/auth';
 
 export async function createTestimonial(data: { author: string; role?: string; text: string; rating?: number; orderIndex: number }) {
+  await requireAdmin();
   try {
     await fetchMutation(api.testimonials.create, data);
     await fetchMutation(api.activityLog.log, { action: 'Added testimonial', section: 'Testimonials', details: `From ${data.author}` });
@@ -15,6 +17,7 @@ export async function createTestimonial(data: { author: string; role?: string; t
 }
 
 export async function updateTestimonial(id: string, fields: { author?: string; role?: string; text?: string; rating?: number; orderIndex?: number; isActive?: boolean }) {
+  await requireAdmin();
   try {
     await fetchMutation(api.testimonials.update, { id: id as Id<'testimonials'>, ...fields });
     await fetchMutation(api.activityLog.log, { action: 'Updated testimonial', section: 'Testimonials', details: fields.author });
@@ -24,6 +27,7 @@ export async function updateTestimonial(id: string, fields: { author?: string; r
 }
 
 export async function deleteTestimonial(id: string) {
+  await requireAdmin();
   try {
     await fetchMutation(api.testimonials.remove, { id: id as Id<'testimonials'> });
     await fetchMutation(api.activityLog.log, { action: 'Deleted testimonial', section: 'Testimonials' });

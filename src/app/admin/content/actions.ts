@@ -3,8 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
+import { requireAdmin } from '@/lib/auth';
 
 export async function saveSiteContent(entries: Record<string, string>) {
+  await requireAdmin();
   try {
     const payload = Object.entries(entries).map(([key, value]) => ({ key, value }));
     await fetchMutation(api.businessSettings.save, { entries: payload });
@@ -25,6 +27,7 @@ export async function saveSiteContent(entries: Record<string, string>) {
 }
 
 export async function saveBanner(data: { enabled: boolean; text: string; link: string; style: string }) {
+  await requireAdmin();
   try {
     await fetchMutation(api.businessSettings.save, {
       entries: [

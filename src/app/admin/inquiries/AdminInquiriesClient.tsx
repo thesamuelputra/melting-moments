@@ -24,12 +24,13 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [isPending, startTransition] = useTransition();
   const modalRef = useRef<HTMLDivElement>(null);
+  const [actionError, setActionError] = useState('');
 
   const filtered = filterStatus === 'all' 
     ? inquiries.filter(i => i.status !== 'archived') 
     : inquiries.filter(i => i.status === filterStatus);
 
-  // Focus trap + Escape handler for modal (#7)
+  // Focus trap + Escape handler for modal
   useEffect(() => {
     if (!selected) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,6 +48,13 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selected]);
 
+  // Auto-dismiss error
+  useEffect(() => {
+    if (!actionError) return;
+    const t = setTimeout(() => setActionError(''), 5000);
+    return () => clearTimeout(t);
+  }, [actionError]);
+
   const handleUpdateStatus = async (id: string, status: string) => {
     setInquiries(prev => prev.map(i => i.id === id ? { ...i, status } : i));
     if (selected?.id === id) setSelected(prev => prev ? { ...prev, status } : null);
@@ -54,26 +62,27 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
     startTransition(async () => {
       const res = await updateInquiryStatus(id, status);
       if (!res.success) {
-        alert('Failed to update status');
+        setActionError('Failed to update status. Please try again.');
       }
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!confirm('Are you sure you want to permanently delete this inquiry? This action cannot be undone.')) return;
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
+  const handleDelete = (id: string) => {
     setInquiries(prev => prev.filter(i => i.id !== id));
     setSelected(null);
+    setDeleteConfirmId(null);
 
     startTransition(async () => {
       const res = await deleteInquiry(id);
       if (!res.success) {
-        alert('Failed to delete inquiry');
+        setActionError('Failed to delete inquiry. Please try again.');
       }
     });
   };
 
-  // CSV Export (#19)
+  // CSV Export
   const exportCSV = useCallback(() => {
     const headers = ['Name', 'Email', 'Phone', 'Event Type', 'Guest Count', 'Date', 'Venue', 'Status', 'Notes', 'Submitted'];
     const rows = inquiries.map(i => [
@@ -102,7 +111,15 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
 
   return (
     <div>
-      {/* Filter Tabs — now includes archived (#3) */}
+      {/* Error banner */}
+      {actionError && (
+        <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(185,28,28,0.06)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.82rem', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{actionError}</span>
+          <button onClick={() => setActionError('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B91C1C', fontWeight: 600, fontSize: '0.9rem' }}>×</button>
+        </div>
+      )}
+
+      {/* Filter Tabs */}
       <div className="admin-tabs" style={{ flexWrap: 'wrap' }}>
         {(['all', 'new', 'contacted', 'booked', 'declined', 'archived'] as const).map((status) => (
           <button
@@ -114,9 +131,9 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
             <span style={{ marginLeft: '0.35rem', opacity: 0.4 }}>{statusCounts[status]}</span>
           </button>
         ))}
-        {/* Export CSV button (#19) */}
+        {/* Export CSV button */}
         <button className="admin-btn admin-btn--sm" onClick={exportCSV} style={{ marginLeft: 'auto' }}>
-          ↓ Export CSV
+          Export CSV
         </button>
       </div>
 
@@ -175,7 +192,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                       )}
                       {inq.status !== 'archived' && (
                         <button className="admin-btn admin-btn--sm" style={{ opacity: 0.5 }} onClick={() => handleUpdateStatus(inq.id, 'archived')} disabled={isPending} title="Archive">
-                          📦
+                          Archive
                         </button>
                       )}
                       {inq.status === 'archived' && (
@@ -192,14 +209,14 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
         </div>
       </div>
 
-      {/* Detail Panel Modal — with focus trap and Escape (#7) */}
+      {/* Detail Panel Modal — with focus trap and Escape */}
       {selected && (
         <>
-          <div className="admin-modal-overlay" onClick={() => setSelected(null)} />
+          <div className="admin-modal-overlay" onClick={() => { setSelected(null); setDeleteConfirmId(null); }} />
           <div className="admin-modal" ref={modalRef} role="dialog" aria-modal="true" aria-label="Inquiry Detail">
             <div className="admin-modal__header">
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 400 }}>Inquiry Detail</h3>
-              <button className="admin-modal__close" onClick={() => setSelected(null)} aria-label="Close dialog">✕</button>
+              <button className="admin-modal__close" onClick={() => { setSelected(null); setDeleteConfirmId(null); }} aria-label="Close dialog">✕</button>
             </div>
 
             <div className="admin-modal__field">
@@ -259,13 +276,13 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
             </div>
 
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap' }}>
-              {/* Reply via Email (#20) */}
+              {/* Reply via Email */}
               <a 
                 href={`mailto:${selected.email}?subject=Re: Your ${selected.eventType} inquiry — Melting Moments Catering`}
                 className="admin-btn admin-btn--sm"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
               >
-                ✉ Reply via Email
+                Reply via Email
               </a>
               {selected.status !== 'booked' && (
                 <button className="admin-btn admin-btn--primary" onClick={() => { handleUpdateStatus(selected.id, 'booked'); setSelected(null); }} disabled={isPending}>
@@ -292,9 +309,17 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                   Decline
                 </button>
               )}
-              <button className="admin-btn" style={{ color: '#B91C1C', borderColor: '#FECACA', marginLeft: 'auto' }} onClick={() => handleDelete(selected.id)} disabled={isPending}>
-                Delete
-              </button>
+              {/* Delete with inline confirmation */}
+              {deleteConfirmId === selected.id ? (
+                <div style={{ display: 'flex', gap: '0.35rem', marginLeft: 'auto' }}>
+                  <button className="admin-btn admin-btn--sm" style={{ background: '#B91C1C', color: 'white', borderColor: '#B91C1C' }} onClick={() => handleDelete(selected.id)} disabled={isPending}>Confirm delete</button>
+                  <button className="admin-btn admin-btn--sm" onClick={() => setDeleteConfirmId(null)}>Cancel</button>
+                </div>
+              ) : (
+                <button className="admin-btn" style={{ color: '#B91C1C', borderColor: '#FECACA', marginLeft: 'auto' }} onClick={() => setDeleteConfirmId(selected.id)} disabled={isPending}>
+                  Delete
+                </button>
+              )}
             </div>
           </div>
         </>

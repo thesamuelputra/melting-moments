@@ -4,6 +4,7 @@ import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { revalidatePath } from 'next/cache';
 import { Id } from '@/../convex/_generated/dataModel';
+import { requireAdmin } from '@/lib/auth';
 
 type MenuItemInput = {
   category: string;
@@ -17,6 +18,7 @@ type MenuItemInput = {
 };
 
 export async function addMenuItem(data: MenuItemInput) {
+  await requireAdmin();
   if (!data.category || !data.name) {
     throw new Error('Category and name are required');
   }
@@ -35,7 +37,6 @@ export async function addMenuItem(data: MenuItemInput) {
   revalidatePath('/admin/menus');
   revalidatePath('/menus');
 
-  // Return shape matching what AdminMenuClient expects
   return {
     id: id as string,
     category: data.category,
@@ -50,6 +51,7 @@ export async function addMenuItem(data: MenuItemInput) {
 }
 
 export async function updateMenuItem(id: string, data: MenuItemInput) {
+  await requireAdmin();
   if (!id) throw new Error('Item ID is required');
 
   await fetchMutation(api.menuItems.update, {
@@ -69,6 +71,7 @@ export async function updateMenuItem(id: string, data: MenuItemInput) {
 }
 
 export async function deleteMenuItem(id: string) {
+  await requireAdmin();
   if (!id) throw new Error('Item ID is required');
   
   await fetchMutation(api.menuItems.remove, {

@@ -111,7 +111,7 @@ export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs:
 
       {/* Add New FAQ */}
       {creating && (
-        <div className="admin-section" style={{ marginBottom: '1.5rem', background: 'rgba(0,0,0,0.01)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '1.5rem' }}>
+        <div className="admin-section" style={{ marginBottom: '1.5rem', background: 'rgba(0,0,0,0.01)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px', padding: '1.25rem 1.5rem' }}>
           <h3 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>New FAQ</h3>
           <div style={{ display: 'grid', gap: '1rem' }}>
             <div>
@@ -138,7 +138,7 @@ export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs:
           </div>
         )}
         {sorted.map((faq, idx) => (
-          <div key={faq.id} className="admin-section" style={{ opacity: faq.isActive ? 1 : 0.5 }}>
+          <div key={faq.id} className="admin-section" style={{ opacity: faq.isActive ? 1 : 0.5, padding: '1.25rem 1.5rem' }}>
             {/* Delete confirmation */}
             {deleteConfirm === faq.id ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>

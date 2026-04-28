@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-async function getExpectedToken(): Promise<string> {
-  const secret = process.env.ADMIN_PASSWORD || 'default-secret';
+async function getExpectedToken(): Promise<string | null> {
+  const secret = process.env.ADMIN_PASSWORD;
+  if (!secret) return null; // No password configured — block all access
+
   const encoder = new TextEncoder();
   const keyData = encoder.encode(secret);
   const messageData = encoder.encode('melting-moments-admin-session');
@@ -16,16 +18,19 @@ async function getExpectedToken(): Promise<string> {
 }
 
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get('admin_token')?.value
-  
   if (request.nextUrl.pathname.startsWith('/admin')) {
     const expected = await getExpectedToken();
-    if (token !== expected) {
-      return NextResponse.redirect(new URL('/admin-login', request.url))
+    // If no password is configured, block all admin access
+    if (!expected) {
+      return NextResponse.redirect(new URL('/admin-login', request.url));
+    }
+    const token = request.cookies.get('admin_token')?.value;
+    if (!token || token !== expected) {
+      return NextResponse.redirect(new URL('/admin-login', request.url));
     }
   }
   
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
