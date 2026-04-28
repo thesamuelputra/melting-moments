@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Family Style Service | Victoria BC Catering',
     description: 'Communal, immersive dining experiences featuring traditional family style meals.',
-    images: ['/family-spread.jpg'],
+    images: ['/family-spread.webp'],
   },
 }
 
@@ -20,7 +20,7 @@ export default function FamilyStyle() {
           COMMUNAL <br /> IMMERSION
         </h1>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '16/9', marginBottom: '4rem' }}>
-          <Image src="/family-spread.jpg" alt="Italian family style dining spread" fill sizes="(max-width: 768px) 100vw, 100vw" style={{ objectFit: 'cover' }} />
+          <Image src="/family-spread.webp" alt="Italian family style dining spread" fill sizes="(max-width: 768px) 100vw, 100vw" style={{ objectFit: 'cover' }} />
         </div>
       </header>
 

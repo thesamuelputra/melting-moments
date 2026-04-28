@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Our Philosophy | Melting Moments Catering Victoria',
     description: 'Tailored, site-specific culinary installations across Vancouver Island.',
-    images: ['/chef_plating_sauce.jpg'],
+    images: ['/chef_plating_sauce.webp'],
   },
 }
 
@@ -36,7 +36,7 @@ export default async function About() {
         
         <div className="about-header-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', marginTop: '-5vw', alignItems: 'end' }}>
           <div className="shape-editorial-tall" style={{ width: '100%', aspectRatio: '3/4', zIndex: 1, position: 'relative' }}>
-            <Image src="/chef_plating_sauce.jpg" alt="Chef plating with red wine reduction" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
+            <Image src="/chef_plating_sauce.webp" alt="Chef plating with red wine reduction" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
           </div>
           
           <div style={{ paddingBottom: '4rem' }}>
@@ -72,7 +72,7 @@ export default async function About() {
             </div>
 
             <div className="shape-oval" style={{ width: '100%', aspectRatio: '1/1', transform: 'translateY(-30%)', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
-              <Image src="/farm_island.jpg" alt="Vancouver Island farm with misty mountains" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+              <Image src="/farm_island.webp" alt="Vancouver Island farm with misty mountains" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
             </div>
           </div>
         </div>

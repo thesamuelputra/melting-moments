@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     locale: 'en_CA',
     url: 'https://meltingmoments.ca',
     siteName: 'Melting Moments Catering',
-    images: [{ url: '/hero-main.jpg', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
+    images: [{ url: '/hero-main.webp', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
   },
   twitter: { card: 'summary_large_image' },
 }

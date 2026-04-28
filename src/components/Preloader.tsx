@@ -13,8 +13,16 @@ export default function Preloader() {
         // Wait for fonts to be ready
         await document.fonts.ready;
         
+        // Wait up to 2 seconds for priority images to be rendered into the DOM by React
+        let heroImages = document.querySelectorAll('img[fetchpriority="high"]');
+        let attempts = 0;
+        while (heroImages.length === 0 && attempts < 40) {
+          await new Promise(r => setTimeout(r, 50));
+          heroImages = document.querySelectorAll('img[fetchpriority="high"]');
+          attempts++;
+        }
+        
         // Wait for all images with priority attribute to load
-        const heroImages = document.querySelectorAll('img[fetchpriority="high"]');
         const imagePromises = Array.from(heroImages).map((img) => {
           const imgEl = img as HTMLImageElement;
           if (imgEl.complete) return Promise.resolve();
@@ -24,10 +32,10 @@ export default function Preloader() {
           });
         });
         
-        // Wait for images with a timeout fallback of 4s
+        // Wait for images with a timeout fallback of 5s
         await Promise.race([
           Promise.all(imagePromises),
-          new Promise(resolve => setTimeout(resolve, 4000))
+          new Promise(resolve => setTimeout(resolve, 5000))
         ]);
       } catch {
         // Fallback: proceed anyway

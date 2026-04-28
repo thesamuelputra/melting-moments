@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Wedding Catering | Melting Moments Victoria BC',
     description: 'Bespoke wedding catering by Chef Paul Silletta.',
-    images: ['/wedding_entree.jpg'],
+    images: ['/wedding_entree.webp'],
   },
 };
 
@@ -50,7 +50,7 @@ export default async function Weddings() {
                 <Link href="/contact" className="btn-solid">{ctaButton}</Link>
               </div>
               <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%' }}>
-                <Image src="/wedding_entree.jpg" alt="Wedding reception lamb with rosemary" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
+                <Image src="/wedding_entree.webp" alt="Wedding reception lamb with rosemary" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
               </div>
             </div>
         </header>
