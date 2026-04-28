@@ -122,12 +122,12 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
         {/* Text */}
         <div style={{ marginBottom: '1.25rem' }}>
           <label className="admin-modal__label">Banner Text *</label>
-          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Keep it short — under 80 characters works best</p>
+          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Keep it short. Under 80 characters works best</p>
           <input
             className="admin-inline-input"
             value={data.text}
             onChange={e => update({ text: e.target.value })}
-            placeholder="Now booking 2027 Wedding Season — Limited dates available"
+            placeholder="Now booking 2027 Wedding Season. Limited dates available"
             maxLength={120}
           />
           <div style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginTop: '0.3rem', textAlign: 'right' }}>{data.text.length}/120</div>
@@ -136,7 +136,7 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
         {/* Link */}
         <div style={{ marginBottom: '1.25rem' }}>
           <label className="admin-modal__label">Link (Optional)</label>
-          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Where clicking the banner takes visitors — leave blank for no link</p>
+          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Where clicking the banner takes visitors. Leave blank for no link</p>
           <input
             className="admin-inline-input"
             value={data.link}

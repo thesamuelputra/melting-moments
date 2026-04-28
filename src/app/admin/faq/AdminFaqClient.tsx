@@ -184,7 +184,7 @@ export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs:
                 </div>
                 <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
                   <button className="admin-btn admin-btn--sm" onClick={() => setEditing(faq)}>Edit</button>
-                  <button className="admin-btn admin-btn--sm" onClick={() => handleToggle(faq)} style={{ color: faq.isActive ? '#059669' : '#6B7280' }} title={faq.isActive ? 'Active — click to hide' : 'Hidden — click to show'}>
+                  <button className="admin-btn admin-btn--sm" onClick={() => handleToggle(faq)} style={{ color: faq.isActive ? '#059669' : '#6B7280' }} title={faq.isActive ? 'Active. Click to hide' : 'Hidden. Click to show'}>
                     {faq.isActive ? '● Visible' : '○ Hidden'}
                   </button>
                   <button className="admin-btn admin-btn--sm" style={{ color: '#B91C1C' }} onClick={() => setDeleteConfirm(faq.id)}>Delete</button>

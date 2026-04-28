@@ -47,7 +47,7 @@ export default async function AdminDashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1.25rem', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#D97706', flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
-            <strong>Announcement Banner is LIVE</strong> &mdash; &ldquo;{settings['banner_text']}&rdquo;
+            <strong>Announcement Banner is LIVE</strong> &middot; &ldquo;{settings['banner_text']}&rdquo;
           </div>
           <Link href="/admin/banner" className="admin-btn admin-btn--sm">Manage</Link>
         </div>

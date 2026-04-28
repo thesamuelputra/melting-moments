@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: 'Melting Moments <onboarding@resend.dev>',
         to: email,
-        subject: 'Thank you for your inquiry — Melting Moments Catering',
+        subject: 'Thank you for your inquiry. Melting Moments Catering',
         html: `
           <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #070707;">
             <div style="text-align: center; padding: 3rem 2rem; border-bottom: 1px solid #eee;">

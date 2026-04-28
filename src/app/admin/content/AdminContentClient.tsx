@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from 'react';
 import { saveSiteContent } from './actions';
 
 /*
- * Content registry — every editable text on the site is registered here.
+ * Content registry: every editable text on the site is registered here.
  * Each page has sections, and each section has fields.
  * The `key` maps directly to a businessSettings key in Convex.
  * The `hint` tells the admin *exactly* where this text appears on the live site.
@@ -24,7 +24,7 @@ const CONTENT_SCHEMA = [
       },
       {
         section: 'Experience Section',
-        hint: 'Oval image area — "02 — Experience"',
+        hint: 'Oval image area, "02 · Experience"',
         fields: [
           { key: 'home_experience_index', label: 'Section Index', hint: 'Small label (e.g. 02 · Experience)', type: 'text' as const, default: '02 · Experience' },
           { key: 'home_experience_heading', label: 'Heading', hint: 'Serif paragraph below the label', type: 'textarea' as const, default: 'From the very first contact, you will enjoy the professionalism that has been achieved through 16 years of culinary experience.' },
@@ -32,7 +32,7 @@ const CONTENT_SCHEMA = [
       },
       {
         section: 'CTA Section',
-        hint: 'Dark block with circular image — "03 — Celebration"',
+        hint: 'Dark block with circular image, "03 · Celebration"',
         fields: [
           { key: 'home_cta_index', label: 'Section Index', hint: 'Small label (e.g. 03 · Celebration)', type: 'text' as const, default: '03 · Celebration' },
           { key: 'home_cta_heading', label: 'Heading', hint: 'Main CTA heading', type: 'textarea' as const, default: 'Whether a visionary wedding, an elite corporate gala, or a private gathering, we leave a lasting impression.' },
@@ -48,7 +48,7 @@ const CONTENT_SCHEMA = [
     sections: [
       {
         section: 'Header',
-        hint: 'Top of the About page — "01 — The Studio"',
+        hint: 'Top of the About page, "01 · The Studio"',
         fields: [
           { key: 'about_header_index', label: 'Section Index', hint: 'Small label (e.g. 01 · The Studio)', type: 'text' as const, default: '01 · The Studio' },
           { key: 'about_header_title', label: 'Title', hint: 'Large display title (e.g. OBSESSIVE ARTISTRY)', type: 'text' as const, default: 'OBSESSIVE\nARTISTRY' },
@@ -58,7 +58,7 @@ const CONTENT_SCHEMA = [
       },
       {
         section: 'Philosophy Section',
-        hint: 'Dark block — "02 — Our Philosophy"',
+        hint: 'Dark block, "02 · Our Philosophy"',
         fields: [
           { key: 'about_philosophy_index', label: 'Section Index', hint: 'Small label', type: 'text' as const, default: '02 · Our Philosophy' },
           { key: 'about_philosophy_title', label: 'Title', hint: 'Large display title', type: 'text' as const, default: 'SOURCED FROM\nTHE EARTH' },
