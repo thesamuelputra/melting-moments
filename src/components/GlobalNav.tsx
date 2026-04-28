@@ -155,7 +155,7 @@ export default function GlobalNav() {
           backgroundColor: scrolled ? 'var(--clr-bone)' : 'transparent', 
           borderBottom: scrolled ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
           position: 'fixed',
-          top: 0,
+          top: 'var(--banner-height, 0px)',
           left: 0,
           right: 0,
           zIndex: 9999,

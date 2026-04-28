@@ -56,15 +56,26 @@ function TestimonialForm({ initial, onSave, onCancel }: {
   );
 }
 
-export default function AdminTestimonialsClient({ initialTestimonials }: { initialTestimonials: Testimonial[] }) {
+export default function AdminTestimonialsClient({ initialTestimonials, isSeeded }: { initialTestimonials: Testimonial[]; isSeeded: boolean }) {
   const [items, setItems] = useState<Testimonial[]>([...initialTestimonials].sort((a, b) => a.orderIndex - b.orderIndex));
   const [editing, setEditing] = useState<Testimonial | null>(null);
   const [creating, setCreating] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [seeded, setSeeded] = useState(isSeeded);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+
+  const handleSeedAll = () => {
+    startTransition(async () => {
+      for (const t of items) {
+        await createTestimonial({ author: t.author, role: t.role, text: t.text, rating: t.rating, orderIndex: t.orderIndex });
+      }
+      setSeeded(true);
+      showToast('All testimonials saved to CMS');
+    });
+  };
 
   const handleCreate = (data: Omit<Testimonial, 'id' | 'isActive'>) => {
     const optimistic: Testimonial = { ...data, id: `temp-${Date.now()}`, isActive: true, orderIndex: items.length };
@@ -120,6 +131,16 @@ export default function AdminTestimonialsClient({ initialTestimonials }: { initi
 
   return (
     <div style={{ opacity: isPending ? 0.85 : 1, transition: 'opacity 0.2s' }}>
+      {/* Not-seeded notice */}
+      {!seeded && (
+        <div style={{ marginBottom: '1.5rem', padding: '0.875rem 1.25rem', background: 'rgba(217,119,6,0.06)', border: '1px solid rgba(217,119,6,0.25)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: '0.82rem', color: '#92400E', marginBottom: '0.2rem' }}>Previewing static defaults</div>
+            <div style={{ fontSize: '0.75rem', color: '#B45309' }}>These are the fallback testimonials shown on your public site. Save them to the CMS to manage them here.</div>
+          </div>
+          <button className="admin-btn admin-btn--primary" style={{ flexShrink: 0 }} onClick={handleSeedAll} disabled={isPending}>Save to CMS</button>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 400 }}>Testimonials</h2>

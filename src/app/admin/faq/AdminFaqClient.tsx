@@ -5,7 +5,7 @@ import { createFaq, updateFaq, deleteFaq } from './actions';
 
 type Faq = { id: string; question: string; answer: string; orderIndex: number; isActive: boolean };
 
-export default function AdminFaqClient({ initialFaqs }: { initialFaqs: Faq[] }) {
+export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs: Faq[]; isSeeded: boolean }) {
   const [faqs, setFaqs] = useState<Faq[]>([...initialFaqs].sort((a, b) => a.orderIndex - b.orderIndex));
   const [editing, setEditing] = useState<Faq | null>(null);
   const [creating, setCreating] = useState(false);
@@ -14,8 +14,20 @@ export default function AdminFaqClient({ initialFaqs }: { initialFaqs: Faq[] }) 
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [seeded, setSeeded] = useState(isSeeded);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+
+  const handleSeedAll = () => {
+    startTransition(async () => {
+      // Create each static FAQ in Convex
+      for (const faq of faqs) {
+        await createFaq(faq.question, faq.answer, faq.orderIndex);
+      }
+      setSeeded(true);
+      showToast('All FAQs saved to CMS');
+    });
+  };
 
   const handleCreate = () => {
     if (!newQ.trim() || !newA.trim()) return;
@@ -74,6 +86,16 @@ export default function AdminFaqClient({ initialFaqs }: { initialFaqs: Faq[] }) 
 
   return (
     <div style={{ opacity: isPending ? 0.85 : 1, transition: 'opacity 0.2s' }}>
+      {/* Not-seeded notice */}
+      {!seeded && (
+        <div style={{ marginBottom: '1.5rem', padding: '0.875rem 1.25rem', background: 'rgba(217,119,6,0.06)', border: '1px solid rgba(217,119,6,0.25)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: '0.82rem', color: '#92400E', marginBottom: '0.2rem' }}>Previewing static defaults</div>
+            <div style={{ fontSize: '0.75rem', color: '#B45309' }}>These are the fallback FAQs shown on your public site. Save them to the CMS to manage them here.</div>
+          </div>
+          <button className="admin-btn admin-btn--primary" style={{ flexShrink: 0 }} onClick={handleSeedAll} disabled={isPending}>Save to CMS</button>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 400 }}>Frequently Asked Questions</h2>
