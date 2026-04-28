@@ -31,7 +31,7 @@ function TestimonialForm({ initial, onSave, onCancel }: {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
         <div>
           <label className="admin-modal__label">Author Name *</label>
-          <input className="admin-inline-input" value={author} onChange={e => setAuthor(e.target.value)} placeholder="e.g. Sarah & James" />
+          <input className="admin-inline-input" value={author} onChange={e => setAuthor(e.target.value)} placeholder="e.g. Sarah &amp; James" />
         </div>
         <div>
           <label className="admin-modal__label">Role / Context</label>
@@ -47,7 +47,9 @@ function TestimonialForm({ initial, onSave, onCancel }: {
         <StarRating value={rating} onChange={setRating} />
       </div>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <button className="admin-btn admin-btn--primary" onClick={() => onSave({ author, role: role || undefined, text, rating, orderIndex: initial?.orderIndex ?? 0 })} disabled={!author.trim() || !text.trim()}>Save</button>
+        <button className="admin-btn admin-btn--primary"
+          onClick={() => onSave({ author, role: role || undefined, text, rating, orderIndex: initial?.orderIndex ?? 0 })}
+          disabled={!author.trim() || !text.trim()}>Save</button>
         <button className="admin-btn" onClick={onCancel}>Cancel</button>
       </div>
     </div>
@@ -55,17 +57,18 @@ function TestimonialForm({ initial, onSave, onCancel }: {
 }
 
 export default function AdminTestimonialsClient({ initialTestimonials }: { initialTestimonials: Testimonial[] }) {
-  const [items, setItems] = useState<Testimonial[]>(initialTestimonials);
+  const [items, setItems] = useState<Testimonial[]>([...initialTestimonials].sort((a, b) => a.orderIndex - b.orderIndex));
   const [editing, setEditing] = useState<Testimonial | null>(null);
   const [creating, setCreating] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
 
   const handleCreate = (data: Omit<Testimonial, 'id' | 'isActive'>) => {
     const optimistic: Testimonial = { ...data, id: `temp-${Date.now()}`, isActive: true, orderIndex: items.length };
-    setItems(prev => [...prev, optimistic]);
+    setItems(prev => [...prev, optimistic].sort((a, b) => a.orderIndex - b.orderIndex));
     setCreating(false);
     startTransition(async () => {
       const res = await createTestimonial({ ...data, orderIndex: items.length });
@@ -89,19 +92,43 @@ export default function AdminTestimonialsClient({ initialTestimonials }: { initi
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm('Delete this testimonial?')) return;
     setItems(prev => prev.filter(t => t.id !== id));
+    setDeleteConfirm(null);
     startTransition(async () => { await deleteTestimonial(id); showToast('Deleted'); });
   };
 
+  const handleMove = (id: string, direction: 'up' | 'down') => {
+    setItems(prev => {
+      const sorted = [...prev].sort((a, b) => a.orderIndex - b.orderIndex);
+      const idx = sorted.findIndex(t => t.id === id);
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= sorted.length) return prev;
+      const newOrder = sorted.map((t, i) => {
+        if (i === idx) return { ...t, orderIndex: sorted[swapIdx].orderIndex };
+        if (i === swapIdx) return { ...t, orderIndex: sorted[idx].orderIndex };
+        return t;
+      }).sort((a, b) => a.orderIndex - b.orderIndex);
+      startTransition(async () => {
+        await updateTestimonial(sorted[idx].id, { orderIndex: sorted[swapIdx].orderIndex });
+        await updateTestimonial(sorted[swapIdx].id, { orderIndex: sorted[idx].orderIndex });
+      });
+      return newOrder;
+    });
+  };
+
+  const sorted = [...items].sort((a, b) => a.orderIndex - b.orderIndex);
+
   return (
-    <div style={{ opacity: isPending ? 0.8 : 1, transition: 'opacity 0.2s' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+    <div style={{ opacity: isPending ? 0.85 : 1, transition: 'opacity 0.2s' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 400 }}>Testimonials</h2>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.25rem' }}>
-            Displayed on the public <code style={{ background: 'rgba(0,0,0,0.04)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>/testimonials</code> page
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem' }}>
+            <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)' }}>
+              Displayed on <code style={{ background: 'rgba(0,0,0,0.04)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>/testimonials</code>
+            </p>
+            <a href="/testimonials" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.35)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>View live →</a>
+          </div>
         </div>
         <button className="admin-btn admin-btn--primary" onClick={() => setCreating(true)}>+ Add Testimonial</button>
       </div>
@@ -114,33 +141,48 @@ export default function AdminTestimonialsClient({ initialTestimonials }: { initi
       )}
 
       <div style={{ display: 'grid', gap: '0.75rem' }}>
-        {items.length === 0 && (
+        {sorted.length === 0 && (
           <div style={{ textAlign: 'center', padding: '3rem', color: 'rgba(0,0,0,0.3)', border: '1px dashed rgba(0,0,0,0.1)', borderRadius: '8px' }}>
             No testimonials yet. Add your first one above.
           </div>
         )}
-        {items.map(item => (
+        {sorted.map((item, idx) => (
           <div key={item.id} className="admin-section" style={{ opacity: item.isActive ? 1 : 0.5 }}>
-            {editing?.id === item.id ? (
+            {deleteConfirm === item.id ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                <span style={{ fontSize: '0.85rem', color: '#B91C1C' }}>Delete testimonial by &ldquo;{item.author}&rdquo;?</span>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button className="admin-btn admin-btn--sm" style={{ background: '#B91C1C', color: 'white', borderColor: '#B91C1C' }} onClick={() => handleDelete(item.id)}>Yes, delete</button>
+                  <button className="admin-btn admin-btn--sm" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+                </div>
+              </div>
+            ) : editing?.id === item.id ? (
               <TestimonialForm initial={editing} onSave={handleSaveEdit} onCancel={() => setEditing(null)} />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', alignItems: 'start' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '1rem', alignItems: 'start' }}>
+                {/* Reorder */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', paddingTop: '0.2rem' }}>
+                  <button onClick={() => handleMove(item.id, 'up')} disabled={idx === 0}
+                    style={{ background: 'none', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '4px', width: '22px', height: '22px', cursor: idx === 0 ? 'default' : 'pointer', opacity: idx === 0 ? 0.3 : 1, fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    title="Move up">↑</button>
+                  <button onClick={() => handleMove(item.id, 'down')} disabled={idx === sorted.length - 1}
+                    style={{ background: 'none', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '4px', width: '22px', height: '22px', cursor: idx === sorted.length - 1 ? 'default' : 'pointer', opacity: idx === sorted.length - 1 ? 0.3 : 1, fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    title="Move down">↓</button>
+                </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                     <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{item.author}</span>
                     {item.role && <span style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)' }}>{item.role}</span>}
-                    {item.rating && (
-                      <span style={{ color: '#F59E0B', fontSize: '0.8rem' }}>{'★'.repeat(item.rating)}</span>
-                    )}
+                    {item.rating && <span style={{ color: '#F59E0B', fontSize: '0.8rem' }}>{'★'.repeat(item.rating)}</span>}
                   </div>
-                  <p style={{ fontSize: '0.82rem', color: 'rgba(0,0,0,0.6)', lineHeight: 1.6, fontStyle: 'italic' }}>"{item.text}"</p>
+                  <p style={{ fontSize: '0.82rem', color: 'rgba(0,0,0,0.6)', lineHeight: 1.6, fontStyle: 'italic' }}>&ldquo;{item.text}&rdquo;</p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
                   <button className="admin-btn admin-btn--sm" onClick={() => setEditing(item)}>Edit</button>
                   <button className="admin-btn admin-btn--sm" onClick={() => handleToggle(item)} style={{ color: item.isActive ? '#059669' : '#6B7280' }}>
                     {item.isActive ? '● Visible' : '○ Hidden'}
                   </button>
-                  <button className="admin-btn admin-btn--sm" style={{ color: '#B91C1C' }} onClick={() => handleDelete(item.id)}>Delete</button>
+                  <button className="admin-btn admin-btn--sm" style={{ color: '#B91C1C' }} onClick={() => setDeleteConfirm(item.id)}>Delete</button>
                 </div>
               </div>
             )}
