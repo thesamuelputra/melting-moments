@@ -26,7 +26,7 @@ const CONTENT_SCHEMA = [
         section: 'Experience Section',
         hint: 'Oval image area — "02 — Experience"',
         fields: [
-          { key: 'home_experience_index', label: 'Section Index', hint: 'Small label (e.g. 02 — Experience)', type: 'text' as const, default: '02 — Experience' },
+          { key: 'home_experience_index', label: 'Section Index', hint: 'Small label (e.g. 02 · Experience)', type: 'text' as const, default: '02 · Experience' },
           { key: 'home_experience_heading', label: 'Heading', hint: 'Serif paragraph below the label', type: 'textarea' as const, default: 'From the very first contact, you will enjoy the professionalism that has been achieved through 16 years of culinary experience.' },
         ],
       },
@@ -34,7 +34,7 @@ const CONTENT_SCHEMA = [
         section: 'CTA Section',
         hint: 'Dark block with circular image — "03 — Celebration"',
         fields: [
-          { key: 'home_cta_index', label: 'Section Index', hint: 'Small label (e.g. 03 — Celebration)', type: 'text' as const, default: '03 — Celebration' },
+          { key: 'home_cta_index', label: 'Section Index', hint: 'Small label (e.g. 03 · Celebration)', type: 'text' as const, default: '03 · Celebration' },
           { key: 'home_cta_heading', label: 'Heading', hint: 'Main CTA heading', type: 'textarea' as const, default: 'Whether a visionary wedding, an elite corporate gala, or a private gathering, we leave a lasting impression.' },
           { key: 'home_cta_body', label: 'Body Text', hint: 'Short body below heading', type: 'text' as const, default: 'Expect the absolute best.' },
           { key: 'home_cta_button', label: 'Button Text', hint: 'CTA button label', type: 'text' as const, default: 'Book An Event' },
@@ -50,7 +50,7 @@ const CONTENT_SCHEMA = [
         section: 'Header',
         hint: 'Top of the About page — "01 — The Studio"',
         fields: [
-          { key: 'about_header_index', label: 'Section Index', hint: 'Small label (e.g. 01 — The Studio)', type: 'text' as const, default: '01 — The Studio' },
+          { key: 'about_header_index', label: 'Section Index', hint: 'Small label (e.g. 01 · The Studio)', type: 'text' as const, default: '01 · The Studio' },
           { key: 'about_header_title', label: 'Title', hint: 'Large display title (e.g. OBSESSIVE ARTISTRY)', type: 'text' as const, default: 'OBSESSIVE\nARTISTRY' },
           { key: 'about_header_tagline', label: 'Tagline', hint: 'Serif tagline to the right of the image', type: 'text' as const, default: 'We believe that dining is the ultimate sensory performance.' },
           { key: 'about_header_body', label: 'Body Text', hint: 'Paragraph below the tagline', type: 'textarea' as const, default: 'Founded on the principle of unyielding quality in Victoria BC, Melting Moments rejects mass-production in favor of tailored, site-specific culinary installations.' },
@@ -60,7 +60,7 @@ const CONTENT_SCHEMA = [
         section: 'Philosophy Section',
         hint: 'Dark block — "02 — Our Philosophy"',
         fields: [
-          { key: 'about_philosophy_index', label: 'Section Index', hint: 'Small label', type: 'text' as const, default: '02 — Our Philosophy' },
+          { key: 'about_philosophy_index', label: 'Section Index', hint: 'Small label', type: 'text' as const, default: '02 · Our Philosophy' },
           { key: 'about_philosophy_title', label: 'Title', hint: 'Large display title', type: 'text' as const, default: 'SOURCED FROM\nTHE EARTH' },
           { key: 'about_philosophy_tagline', label: 'Tagline', hint: 'Serif paragraph', type: 'text' as const, default: 'We partner exclusively with local Vancouver Island farms and independent purveyors.' },
           { key: 'about_philosophy_body', label: 'Body Text', hint: 'Paragraph below the tagline', type: 'textarea' as const, default: 'Our commitment extends beyond the kitchen. We believe the story of the food begins with the soil. By utilizing extreme seasonal restraints, our menus reflect the exact moment of your celebration.' },
@@ -84,7 +84,7 @@ const CONTENT_SCHEMA = [
         section: 'Services Notice',
         hint: 'Footer disclaimer text at the bottom of all menus',
         fields: [
-          { key: 'menus_disclaimer', label: 'Disclaimer Text', hint: 'Pricing, deposit & guest requirements', type: 'textarea' as const, default: 'These catering menus are just a sample of what you can expect — we can customize any menu to suit your needs. All 5% taxes and 15% gratuity are extra. A deposit of 25% is required at time of booking. Balance due 7 days prior to function. Guaranteed number of guests required 2 weeks in advance. Per person pricing based on a minimum of 75 guests. Prices may change without notice.' },
+          { key: 'menus_disclaimer', label: 'Disclaimer Text', hint: 'Pricing, deposit & guest requirements', type: 'textarea' as const, default: 'These catering menus are just a sample of what you can expect. We can customize any menu to suit your needs. All 5% taxes and 15% gratuity are extra. A deposit of 25% is required at time of booking. Balance due 7 days prior to function. Guaranteed number of guests required 2 weeks in advance. Per person pricing based on a minimum of 75 guests. Prices may change without notice.' },
         ],
       },
     ],
@@ -101,7 +101,7 @@ const CONTENT_SCHEMA = [
           { key: 'weddings_header_title', label: 'Title', hint: 'Large display title', type: 'text' as const, default: 'Weddings' },
           { key: 'weddings_heading', label: 'Section Heading', hint: 'e.g. A Symphony of Taste', type: 'text' as const, default: 'A Symphony of Taste' },
           { key: 'weddings_body_1', label: 'Paragraph 1', hint: 'First paragraph of body text', type: 'textarea' as const, default: 'Your wedding day requires absolute perfection. Chef Paul brings 16 years of elite catering experience to curate a bespoke menu that tells your unique story.' },
-          { key: 'weddings_body_2', label: 'Paragraph 2', hint: 'Second paragraph of body text', type: 'textarea' as const, default: 'From intimate ceremonies on Vancouver Island to grand receptions for 300+ guests, every detail is orchestrated with obsessive precision — from the first canapé to the final dessert course.' },
+          { key: 'weddings_body_2', label: 'Paragraph 2', hint: 'Second paragraph of body text', type: 'textarea' as const, default: 'From intimate ceremonies on Vancouver Island to grand receptions for 300+ guests, every detail is orchestrated with obsessive precision, from the first canapé through to the final dessert course.' },
           { key: 'weddings_cta_button', label: 'CTA Button Text', hint: 'Button label', type: 'text' as const, default: 'Start Planning' },
         ],
       },
@@ -115,7 +115,7 @@ const CONTENT_SCHEMA = [
           { key: 'weddings_step2_title', label: 'Step 2 Title', hint: 'e.g. Private Tasting', type: 'text' as const, default: 'Private Tasting' },
           { key: 'weddings_step2_desc', label: 'Step 2 Description', hint: 'Body text for step 2', type: 'textarea' as const, default: 'You and your partner experience the proposed menu firsthand with Chef Paul for final refinements.' },
           { key: 'weddings_step3_title', label: 'Step 3 Title', hint: 'e.g. Your Day', type: 'text' as const, default: 'Your Day' },
-          { key: 'weddings_step3_desc', label: 'Step 3 Description', hint: 'Body text for step 3', type: 'textarea' as const, default: 'Our team arrives hours early for seamless setup. You focus on the celebration — we handle everything else.' },
+          { key: 'weddings_step3_desc', label: 'Step 3 Description', hint: 'Body text for step 3', type: 'textarea' as const, default: 'Our team arrives hours early for seamless setup. You focus on the celebration. We handle everything else.' },
         ],
       },
     ],
@@ -141,11 +141,11 @@ const CONTENT_SCHEMA = [
         hint: 'Three card grid below the main content',
         fields: [
           { key: 'events_card1_title', label: 'Card 1 Title', hint: 'e.g. Your Venue, Our Craft', type: 'text' as const, default: 'Your Venue, Our Craft' },
-          { key: 'events_card1_desc', label: 'Card 1 Description', hint: 'Body text for card 1', type: 'textarea' as const, default: 'We bring a full-service kitchen to any location — your home, a vineyard, a yacht, or a heritage venue.' },
+          { key: 'events_card1_desc', label: 'Card 1 Description', hint: 'Body text for card 1', type: 'textarea' as const, default: 'We bring a full-service kitchen to any location: your home, a vineyard, a yacht, or a heritage venue.' },
           { key: 'events_card2_title', label: 'Card 2 Title', hint: 'e.g. Tailored Menus', type: 'text' as const, default: 'Tailored Menus' },
           { key: 'events_card2_desc', label: 'Card 2 Description', hint: 'Body text for card 2', type: 'textarea' as const, default: 'No templates. Every menu is designed from scratch after a personal consultation with Chef Paul.' },
           { key: 'events_card3_title', label: 'Card 3 Title', hint: 'e.g. Invisible Service', type: 'text' as const, default: 'Invisible Service' },
-          { key: 'events_card3_desc', label: 'Card 3 Description', hint: 'Body text for card 3', type: 'textarea' as const, default: 'Our staff is trained to be attentive yet unobtrusive — your guests experience the food, not the logistics.' },
+          { key: 'events_card3_desc', label: 'Card 3 Description', hint: 'Body text for card 3', type: 'textarea' as const, default: 'Our staff is trained to be attentive yet unobtrusive. Your guests experience the food, not the logistics.' },
         ],
       },
     ],
@@ -202,6 +202,8 @@ export default function AdminContentClient({ initialContent }: { initialContent:
     setDirty(true);
   };
 
+  const [saveError, setSaveError] = useState('');
+
   const handleSave = () => {
     startTransition(async () => {
       // Only save content keys (from schema), not all businessSettings
@@ -215,9 +217,10 @@ export default function AdminContentClient({ initialContent }: { initialContent:
       if (res.success) {
         setSaved(true);
         setDirty(false);
+        setSaveError('');
         setTimeout(() => setSaved(false), 2500);
       } else {
-        alert('Failed to save content. Please try again.');
+        setSaveError('Failed to save content. Please try again.');
       }
     });
   };
@@ -226,6 +229,11 @@ export default function AdminContentClient({ initialContent }: { initialContent:
 
   return (
     <div>
+      {saveError && (
+        <div style={{ marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px' }}>
+          {saveError}
+        </div>
+      )}
       {/* Page Tabs */}
       <div className="admin-tabs" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {CONTENT_SCHEMA.map(schema => (

@@ -20,13 +20,13 @@ export default async function Weddings() {
   const title = cms('weddings_header_title', 'Weddings');
   const heading = cms('weddings_heading', 'A Symphony of Taste');
   const body1 = cms('weddings_body_1', 'Your wedding day requires absolute perfection. Chef Paul brings 16 years of elite catering experience to curate a bespoke menu that tells your unique story.');
-  const body2 = cms('weddings_body_2', 'From intimate ceremonies on Vancouver Island to grand receptions for 300+ guests, every detail is orchestrated with obsessive precision — from the first canapé to the final dessert course.');
+  const body2 = cms('weddings_body_2', 'From intimate ceremonies on Vancouver Island to grand receptions for 300+ guests, every detail is orchestrated with obsessive precision, from the first canapé through to the final dessert course.');
   const ctaButton = cms('weddings_cta_button', 'Start Planning');
   const processHeading = cms('weddings_process_heading', 'From Vision to Celebration');
   const steps = [
     { step: '01', title: cms('weddings_step1_title', 'Consultation'), desc: cms('weddings_step1_desc', 'We discuss your vision, dietary needs, venue logistics, and budget to craft a personalized proposal.') },
     { step: '02', title: cms('weddings_step2_title', 'Private Tasting'), desc: cms('weddings_step2_desc', 'You and your partner experience the proposed menu firsthand with Chef Paul for final refinements.') },
-    { step: '03', title: cms('weddings_step3_title', 'Your Day'), desc: cms('weddings_step3_desc', 'Our team arrives hours early for seamless setup. You focus on the celebration — we handle everything else.') },
+    { step: '03', title: cms('weddings_step3_title', 'Your Day'), desc: cms('weddings_step3_desc', 'Our team arrives hours early for seamless setup. You focus on the celebration. We handle everything else.') },
   ];
 
   return (

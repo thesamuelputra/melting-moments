@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | Melting Moments Catering',
-  description: 'Privacy policy for Melting Moments Catering — how we handle your personal information.',
+  description: 'Privacy policy for Melting Moments Catering. How we handle your personal information.',
 };
 
 export default function PrivacyPolicy() {

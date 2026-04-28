@@ -67,7 +67,7 @@ export default function Fountains() {
             <p style={{ maxWidth: '50ch', lineHeight: 1.6, opacity: 0.8 }}>Strawberries, pineapples, cantaloupe, marshmallows, graham crackers, angel food cake, pound cake, chocolate chip cookies, sugar and shortbread cookies, Oreo cookies, cream puffs, Rice Krispies, and lady fingers.</p>
             <div className="menu-price" style={{ color: 'white', fontSize: '1.5rem' }}>$5.50<span style={{ fontSize: '0.8rem', opacity: 0.5 }}> / PP</span></div>
         </div>
-        <p style={{ fontSize: 'var(--text-body)', opacity: 0.5, marginTop: '1.5rem', lineHeight: 1.6 }}>All rentals include 4 hours of enjoyment, skewers, napkins. Delivery fees apply within the Victoria area — $30 per trip. Lindt chocolate in milk or dark. White chocolate and other colours available upon request.</p>
+        <p style={{ fontSize: 'var(--text-body)', opacity: 0.5, marginTop: '1.5rem', lineHeight: 1.6 }}>All rentals include 4 hours of enjoyment, skewers, napkins. Delivery fees apply within the Victoria area. Delivery is $30 per trip. Lindt chocolate in milk or dark. White chocolate and other colours available upon request.</p>
       </section>
 
       <section className="container" style={{ paddingBottom: '10rem' }}>

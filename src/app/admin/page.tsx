@@ -13,13 +13,13 @@ function formatRelativeTime(ts: number): string {
   return `${days}d ago`;
 }
 
-const SECTION_ICONS: Record<string, string> = {
-  'Banner': '📣',
-  'Site Content': '✏️',
-  'FAQ': '❓',
-  'Testimonials': '⭐',
-  'Menu': '📋',
-  'Settings': '⚙️',
+const SECTION_DOT: Record<string, string> = {
+  'Banner': '#D97706',
+  'Site Content': '#3B82F6',
+  'FAQ': '#8B5CF6',
+  'Testimonials': '#EC4899',
+  'Menu': '#059669',
+  'Settings': '#6B7280',
 };
 
 export default async function AdminDashboard() {
@@ -45,9 +45,9 @@ export default async function AdminDashboard() {
       {/* Banner Status Alert */}
       {bannerEnabled && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1.25rem', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
-          <span>📣</span>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#D97706', flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
-            <strong>Announcement Banner is LIVE</strong> — "{settings['banner_text']}"
+            <strong>Announcement Banner is LIVE</strong> &mdash; &ldquo;{settings['banner_text']}&rdquo;
           </div>
           <Link href="/admin/banner" className="admin-btn admin-btn--sm">Manage</Link>
         </div>
@@ -77,23 +77,23 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* Quick Actions — full control center grid */}
+      {/* Quick Actions */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '0.75rem', marginBottom: '2rem' }}>
         {[
-          { href: '/admin/banner', icon: '📣', label: 'Announcement', sub: bannerEnabled ? '🟢 Banner live' : '⚪ Banner off' },
-          { href: '/admin/content', icon: '✏️', label: 'Site Content', sub: 'Headers & descriptions' },
-          { href: '/admin/menus', icon: '📋', label: 'Menu Editor', sub: `${totalMenuItems} items` },
-          { href: '/admin/faq', icon: '❓', label: 'FAQ', sub: `${faqCount.length} questions` },
-          { href: '/admin/testimonials', icon: '⭐', label: 'Testimonials', sub: `${testimonialCount.length} reviews` },
-          { href: '/admin/inquiries', icon: '📩', label: 'Inquiries', sub: `${newInquiriesCount} new` },
-          { href: '/admin/settings', icon: '⚙️', label: 'Settings', sub: 'Business info' },
-        ].map(({ href, icon, label, sub }) => (
+          { href: '/admin/banner', label: 'Announcement', sub: bannerEnabled ? 'Banner live' : 'Banner off', dotColor: bannerEnabled ? '#059669' : 'rgba(0,0,0,0.15)' },
+          { href: '/admin/content', label: 'Site Content', sub: 'Headers & descriptions' },
+          { href: '/admin/menus', label: 'Menu Editor', sub: `${totalMenuItems} items` },
+          { href: '/admin/faq', label: 'FAQ', sub: `${faqCount.length} questions` },
+          { href: '/admin/testimonials', label: 'Testimonials', sub: `${testimonialCount.length} reviews` },
+          { href: '/admin/inquiries', label: 'Inquiries', sub: `${newInquiriesCount} new` },
+          { href: '/admin/settings', label: 'Settings', sub: 'Business info' },
+        ].map(({ href, label, sub, dotColor }) => (
           <Link
             key={href}
             href={href}
             className="admin-quick-action"
           >
-            <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{icon}</span>
+            {dotColor && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: dotColor, flexShrink: 0 }} />}
             <div>
               <div style={{ fontSize: '0.82rem', fontWeight: 600 }}>{label}</div>
               <div style={{ fontSize: '0.68rem', color: 'rgba(0,0,0,0.35)', marginTop: '0.1rem' }}>{sub}</div>
@@ -139,7 +139,7 @@ export default async function AdminDashboard() {
                       <span style={{ fontWeight: 500 }}>{inq.eventType}</span>
                       <div style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.1rem' }}>{inq.guestCount} guests</div>
                     </td>
-                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '–'}</td>
                     <td>
                       <span className={`admin-badge admin-badge--${inq.status}`}>
                         <span className="admin-badge__dot" />
@@ -166,9 +166,7 @@ export default async function AdminDashboard() {
             )}
             {recentActivity.map((entry) => (
               <div key={entry._id} className="admin-activity-entry">
-                <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '0.1rem' }}>
-                  {SECTION_ICONS[entry.section] || '📝'}
-                </span>
+                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: SECTION_DOT[entry.section] || '#9CA3AF', flexShrink: 0, marginTop: '0.4rem' }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--clr-ink)' }}>{entry.action}</div>
                   {entry.details && (
