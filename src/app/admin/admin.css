@@ -693,3 +693,28 @@
 .admin-activity-entry:hover {
   background: rgba(0,0,0,0.02);
 }
+
+/* CSS custom property for sidebar width — used by sticky save bar */
+:root {
+  --admin-sidebar-width: 240px;
+}
+
+/* Responsive dashboard two-column */
+@media (max-width: 900px) {
+  .admin-dashboard-cols {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* On mobile, sticky save bar goes full width */
+@media (max-width: 768px) {
+  .admin-quick-action {
+    padding: 0.75rem;
+  }
+}
+
+/* Pulsing dot for banner Live badge */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

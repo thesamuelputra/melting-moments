@@ -32,6 +32,7 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
   });
 
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [isPending, startTransition] = useTransition();
 
   const handleSave = () => {
@@ -47,19 +48,27 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
         emailOnBooking: notifications.emailOnBooking ? 'true' : 'false',
         weeklyDigest: notifications.weeklyDigest ? 'true' : 'false',
       };
-      
       const res = await saveBusinessSettings(payload);
       if (res.success) {
         setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
+        setSaveError('');
+        setTimeout(() => setSaved(false), 2500);
       } else {
-        alert('Failed to save settings');
+        setSaveError('Failed to save settings. Please try again.');
       }
     });
   };
 
   return (
     <div style={{ maxWidth: '700px' }}>
+      {saveError && (
+        <div style={{ marginBottom: '1.5rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px' }}>
+          {saveError}
+        </div>
+      )}
+      <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginBottom: '1.5rem', padding: '0.75rem', background: 'rgba(0,0,0,0.02)', borderRadius: '6px', lineHeight: 1.5 }}>
+        ℹ️ Changes saved here are automatically reflected on the public <strong>Contact</strong> and <strong>Corporate</strong> pages.
+      </p>
       {/* Business Information */}
       <div className="admin-section">
         <div className="admin-section__header">

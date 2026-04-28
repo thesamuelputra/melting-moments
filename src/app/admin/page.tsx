@@ -103,7 +103,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Two-column: Inquiries + Activity Feed */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
+      <div className="admin-dashboard-cols" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
         {/* Recent Inquiries */}
         <div className="admin-table-container">

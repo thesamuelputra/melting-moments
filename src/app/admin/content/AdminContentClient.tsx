@@ -150,6 +150,22 @@ const CONTENT_SCHEMA = [
       },
     ],
   },
+  {
+    page: 'Corporate',
+    slug: '/corporate',
+    sections: [
+      {
+        section: 'Header',
+        hint: 'Top of the Corporate page',
+        fields: [
+          { key: 'corporate_header_index', label: 'Section Label', hint: 'Small label above the title', type: 'text' as const, default: 'Corporate Functions' },
+          { key: 'corporate_header_title', label: 'Title', hint: 'Large display title (use \\n for line break)', type: 'text' as const, default: 'BOARDROOM\nTO BANQUET' },
+          { key: 'corporate_body_1', label: 'Paragraph 1', hint: 'First body paragraph', type: 'textarea' as const, default: "You've got less than 24 hours to plan a continental breakfast or a lunch. It has to be good. It has to be quick. It has to be now. Why bother trying to get reservations somewhere, or trying to find something that will please everyone, when we can bring it all right to you?" },
+          { key: 'corporate_body_2', label: 'Paragraph 2', hint: 'Second body paragraph', type: 'textarea' as const, default: "Whether it's that breakfast for 300 in your lobby or a formal boardroom luncheon for 20, a simple brown-bag lunch or a full china and crystal setting we've got it covered." },
+        ],
+      },
+    ],
+  },
 ];
 
 type ContentField = {
@@ -224,14 +240,17 @@ export default function AdminContentClient({ initialContent }: { initialContent:
       </div>
 
       {/* Page Context */}
-      <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 400, marginBottom: '0.25rem' }}>
             {activeSchema.page}
           </h2>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)' }}>
-            Editing content on <code style={{ background: 'rgba(0,0,0,0.04)', padding: '0.15rem 0.4rem', borderRadius: '3px', fontSize: '0.7rem' }}>{activeSchema.slug}</code>
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)' }}>
+              Editing <code style={{ background: 'rgba(0,0,0,0.04)', padding: '0.15rem 0.4rem', borderRadius: '3px', fontSize: '0.7rem' }}>{activeSchema.slug}</code>
+            </p>
+            <a href={activeSchema.slug} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.35)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>View live →</a>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           {dirty && <span style={{ fontSize: '0.7rem', color: '#D97706', fontWeight: 500 }}>Unsaved changes</span>}
@@ -294,7 +313,7 @@ export default function AdminContentClient({ initialContent }: { initialContent:
         <div style={{
           position: 'fixed',
           bottom: 0,
-          left: 240,
+          left: 'var(--admin-sidebar-width, 240px)',
           right: 0,
           padding: '1rem 2rem',
           background: 'white',
