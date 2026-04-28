@@ -36,7 +36,7 @@ export default async function About() {
         
         <div className="about-header-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', marginTop: '-5vw', alignItems: 'end' }}>
           <div className="shape-editorial-tall" style={{ width: '100%', aspectRatio: '3/4', zIndex: 1, position: 'relative' }}>
-            <Image src="/chef_plating_sauce.jpg" alt="Chef plating with red wine reduction" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+            <Image src="/chef_plating_sauce.jpg" alt="Chef plating with red wine reduction" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
           </div>
           
           <div style={{ paddingBottom: '4rem' }}>
