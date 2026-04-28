@@ -21,14 +21,36 @@ const ALL_CATEGORIES = [
   'MEXICAN', 'BBQ', 'LUNCH', 'BREAKFAST', 'BEVERAGES'
 ];
 
+// Contextual map — tells admin WHERE each category lives on the site
+const CATEGORY_CONTEXT: Record<string, { page: string; slug: string; description: string }> = {
+  'BREADS':     { page: 'Catering Menus', slug: '/menus', description: 'Artisan bread selection shown on the main Menus page' },
+  'ANTIPASTO':  { page: 'Catering Menus', slug: '/menus', description: 'Antipasto items displayed on the main Menus page' },
+  'SALADS':     { page: 'Catering Menus', slug: '/menus', description: 'Salad options on the main Menus page' },
+  'STARCHES':   { page: 'Catering Menus', slug: '/menus', description: 'Starch sides on the main Menus page' },
+  'VEGETABLES': { page: 'Catering Menus', slug: '/menus', description: 'Vegetable sides on the main Menus page' },
+  'SEAFOOD':    { page: 'Catering Menus', slug: '/menus', description: 'Seafood entrees on the main Menus page' },
+  'ENTREES':    { page: 'Catering Menus', slug: '/menus', description: 'Main entrees on the Menus page' },
+  'PACKAGES':   { page: 'Catering Menus', slug: '/menus', description: 'Full catering packages on the Menus page' },
+  'SOIREE':     { page: 'Catering Menus', slug: '/menus', description: 'Soiree/cocktail offerings on the Menus page' },
+  'PEASANO':    { page: 'Catering Menus', slug: '/menus', description: 'Peasano family-style menu on the Menus page' },
+  'MEXICAN':    { page: 'Catering Menus', slug: '/menus', description: 'Mexican-themed options on the Menus page' },
+  'BBQ':        { page: 'Catering Menus', slug: '/menus', description: 'BBQ packages on the Menus page' },
+  'LUNCH':      { page: 'Catering Menus & Corporate', slug: '/menus', description: 'Lunch items shown on Menus and filtered into the Corporate page' },
+  'BREAKFAST':  { page: 'Catering Menus & Corporate', slug: '/menus', description: 'Breakfast items shown on Menus and filtered into the Corporate page' },
+  'BEVERAGES':  { page: 'Catering Menus', slug: '/menus', description: 'Beverage options on the Menus page' },
+};
+
 export default function AdminMenuClient({ initialItems }: { initialItems: MenuItem[] }) {
   const [items, setItems] = useState<MenuItem[]>(initialItems);
   const [editId, setEditId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<MenuItem>>({});
   const [isPending, startTransition] = useTransition();
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const categories = Array.from(new Set([...ALL_CATEGORIES, ...initialItems.map(i => i.category)]));
   const [activeCategory, setActiveCategory] = useState(categories[0]);
+
+  const ctx = CATEGORY_CONTEXT[activeCategory];
 
   const startEdit = (item: MenuItem) => {
     setEditId(item.id);
@@ -83,10 +105,9 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
   };
 
   const deleteItem = (id: string) => {
-    if (!confirm('Are you sure you want to delete this menu item? This action cannot be undone.')) return;
-
     startTransition(async () => {
       setItems(prev => prev.filter(i => i.id !== id));
+      setDeleteConfirm(null);
       if (!id.startsWith('new-')) {
         await deleteMenuItem(id);
       }
@@ -136,13 +157,28 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
           <button
             key={cat}
             className={`admin-tab ${activeCategory === cat ? 'admin-tab--active' : ''}`}
-            onClick={() => { setActiveCategory(cat); cancelEdit(); }}
+            onClick={() => { setActiveCategory(cat); cancelEdit(); setDeleteConfirm(null); }}
           >
             {cat}
             <span style={{ marginLeft: '0.35rem', opacity: 0.4 }}>{items.filter(i => i.category === cat).length}</span>
           </button>
         ))}
       </div>
+
+      {/* Category Context Bar */}
+      {ctx && (
+        <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.02)', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.5)', lineHeight: 1.4 }}>
+              {ctx.description}
+            </div>
+            <div style={{ fontSize: '0.68rem', color: 'rgba(0,0,0,0.3)', marginTop: '0.2rem' }}>
+              Appears on: <strong style={{ color: 'rgba(0,0,0,0.5)' }}>{ctx.page}</strong>
+            </div>
+          </div>
+          <a href={ctx.slug} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.35)', textDecoration: 'underline', textUnderlineOffset: '2px', flexShrink: 0 }}>View live page</a>
+        </div>
+      )}
 
       <div className="admin-table-container">
         <div className="admin-table-header">
@@ -155,7 +191,7 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
               <tr>
                 <th style={{ width: '40px' }}>#</th>
                 <th style={{ width: '50px' }}>Vis</th>
-                <th style={{ width: '40px' }}>⭐</th>
+                <th style={{ width: '55px' }}>Featured</th>
                 <th style={{ width: '25%' }}>Name</th>
                 <th style={{ width: '35%' }}>Description</th>
                 <th style={{ width: '15%' }}>Price Label</th>
@@ -176,11 +212,12 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
                   <td>
                     <button 
                       onClick={() => toggleActive(item)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: 0 }}
+                      className="admin-btn admin-btn--sm"
+                      style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', color: item.isActive ? '#059669' : '#6B7280' }}
                       title={item.isActive ? 'Hide Item' : 'Show Item'}
                       disabled={isPending || editId === item.id}
                     >
-                      {item.isActive ? '👁️' : '🚫'}
+                      {item.isActive ? 'On' : 'Off'}
                     </button>
                   </td>
                   <td>
@@ -197,11 +234,12 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
                           }
                         });
                       }}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: 0, opacity: item.isFeatured ? 1 : 0.3 }}
+                      className="admin-btn admin-btn--sm"
+                      style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', color: item.isFeatured ? '#D97706' : 'rgba(0,0,0,0.2)' }}
                       title={item.isFeatured ? 'Remove Chef Pick' : 'Set as Chef Pick'}
                       disabled={isPending || editId === item.id}
                     >
-                      ⭐
+                      {item.isFeatured ? 'Yes' : '–'}
                     </button>
                   </td>
                   <td>
@@ -241,7 +279,12 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
                     )}
                   </td>
                   <td>
-                    {editId === item.id ? (
+                    {deleteConfirm === item.id ? (
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
+                        <button className="admin-btn admin-btn--sm" style={{ background: '#B91C1C', color: 'white', borderColor: '#B91C1C' }} onClick={() => deleteItem(item.id)} disabled={isPending}>Confirm</button>
+                        <button className="admin-btn admin-btn--sm" onClick={() => setDeleteConfirm(null)} disabled={isPending}>No</button>
+                      </div>
+                    ) : editId === item.id ? (
                       <div style={{ display: 'flex', gap: '0.35rem' }}>
                         <button className="admin-btn admin-btn--sm admin-btn--primary" onClick={saveEdit} disabled={isPending}>Save</button>
                         <button className="admin-btn admin-btn--sm" onClick={cancelEdit} disabled={isPending}>Cancel</button>
@@ -249,7 +292,7 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
                     ) : (
                       <div style={{ display: 'flex', gap: '0.35rem' }}>
                         <button className="admin-btn admin-btn--sm" onClick={() => startEdit(item)} disabled={isPending}>Edit</button>
-                        <button className="admin-btn admin-btn--sm" style={{ color: '#B91C1C' }} onClick={() => deleteItem(item.id)} disabled={isPending}>Delete</button>
+                        <button className="admin-btn admin-btn--sm" style={{ color: '#B91C1C' }} onClick={() => setDeleteConfirm(item.id)} disabled={isPending}>Delete</button>
                       </div>
                     )}
                   </td>

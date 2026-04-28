@@ -13,9 +13,9 @@ export default async function Home() {
 
   const heroTitle = cms('home_hero_title', 'MELTING\nMOMENTS');
   const heroSubtitle = cms('home_hero_subtitle', 'Bespoke Catering · Victoria BC');
-  const expIndex = cms('home_experience_index', '02 — Experience');
+  const expIndex = cms('home_experience_index', '02 · Experience');
   const expHeading = cms('home_experience_heading', 'From the very first contact, you will enjoy the professionalism that has been achieved through 16 years of culinary experience.');
-  const ctaIndex = cms('home_cta_index', '03 — Celebration');
+  const ctaIndex = cms('home_cta_index', '03 · Celebration');
   const ctaHeading = cms('home_cta_heading', 'Whether a visionary wedding, an elite corporate gala, or a private gathering, we leave a lasting impression.');
   const ctaBody = cms('home_cta_body', 'Expect the absolute best.');
   const ctaButton = cms('home_cta_button', 'Book An Event');

@@ -7,10 +7,10 @@ import MenuClient from './MenuClient';
 
 export const metadata: Metadata = {
   title: 'Catering Menus | Melting Moments Victoria BC',
-  description: 'Browse our catering menus — from Italian family-style dinners to corporate luncheons and BBQ packages. Award-winning cuisine in Victoria, BC.',
+  description: 'Browse our catering menus, from Italian family-style dinners to corporate luncheons and BBQ packages. Award-winning cuisine in Victoria, BC.',
   openGraph: {
     title: 'Catering Menus | Melting Moments Victoria BC',
-    description: 'Browse our catering menus — Italian family-style, corporate, BBQ, and more.',
+    description: 'Browse our catering menus. Italian family-style, corporate, BBQ, and more.',
   },
 };
 
@@ -22,7 +22,7 @@ export default async function MenusPage() {
 
   const headerIndex = cms('menus_header_index', 'Explore Our Offerings');
   const headerTitle = cms('menus_header_title', 'CATERING\nMENUS');
-  const disclaimer = cms('menus_disclaimer', 'These catering menus are just a sample of what you can expect — we can customize any menu to suit your needs. All 5% taxes and 15% gratuity are extra. A deposit of 25% is required at time of booking. Balance due 7 days prior to function. Guaranteed number of guests required 2 weeks in advance. Per person pricing based on a minimum of 75 guests. Prices may change without notice.');
+  const disclaimer = cms('menus_disclaimer', 'These catering menus are just a sample of what you can expect. We can customize any menu to suit your needs. All 5% taxes and 15% gratuity are extra. A deposit of 25% is required at time of booking. Balance due 7 days prior to function. Guaranteed number of guests required 2 weeks in advance. Per person pricing based on a minimum of 75 guests. Prices may change without notice.');
 
   // Serialize Convex items to plain objects for the client component
   const menuItems = items.map((item) => ({

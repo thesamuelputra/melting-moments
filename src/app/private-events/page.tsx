@@ -5,7 +5,7 @@ import { getCmsContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Private Events | Melting Moments Catering Victoria BC',
-  description: 'Intimate, Michelin-level private event catering — from formal dinners to yacht catering in Victoria, BC.',
+  description: 'Intimate, Michelin-level private event catering for formal dinners to yacht catering in Victoria, BC.',
   openGraph: {
     title: 'Private Events | Melting Moments Catering Victoria BC',
     description: 'Intimate, Michelin-level private event catering in Victoria, BC.',
@@ -24,9 +24,9 @@ export default async function PrivateEvents() {
   const ctaButton = cms('events_cta_button', 'Plan Your Event');
 
   const cards = [
-    { title: cms('events_card1_title', 'Your Venue, Our Craft'), desc: cms('events_card1_desc', 'We bring a full-service kitchen to any location — your home, a vineyard, a yacht, or a heritage venue.') },
+    { title: cms('events_card1_title', 'Your Venue, Our Craft'), desc: cms('events_card1_desc', 'We bring a full-service kitchen to any location: your home, a vineyard, a yacht, or a heritage venue.') },
     { title: cms('events_card2_title', 'Tailored Menus'), desc: cms('events_card2_desc', 'No templates. Every menu is designed from scratch after a personal consultation with Chef Paul.') },
-    { title: cms('events_card3_title', 'Invisible Service'), desc: cms('events_card3_desc', 'Our staff is trained to be attentive yet unobtrusive — your guests experience the food, not the logistics.') },
+    { title: cms('events_card3_title', 'Invisible Service'), desc: cms('events_card3_desc', 'Our staff is trained to be attentive yet unobtrusive. Your guests experience the food, not the logistics.') },
   ];
 
   return (

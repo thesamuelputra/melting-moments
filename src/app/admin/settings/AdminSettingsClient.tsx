@@ -67,7 +67,7 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
         </div>
       )}
       <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginBottom: '1.5rem', padding: '0.75rem', background: 'rgba(0,0,0,0.02)', borderRadius: '6px', lineHeight: 1.5 }}>
-        ℹ️ Changes saved here are automatically reflected on the public <strong>Contact</strong> and <strong>Corporate</strong> pages.
+        Changes saved here are automatically reflected on the public <strong>Contact</strong> and <strong>Corporate</strong> pages.
       </p>
       {/* Business Information */}
       <div className="admin-section">
@@ -182,7 +182,7 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
             ))}
           </div>
           <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', backgroundColor: 'rgba(217, 119, 6, 0.05)', borderLeft: '3px solid #D97706', fontSize: '0.75rem', color: 'rgba(0,0,0,0.6)', lineHeight: 1.5 }}>
-            <strong>⚠ Coming Soon:</strong> Notification preferences are saved to your account. Email delivery requires the <code>RESEND_API_KEY</code> environment variable to be configured. The &quot;Email on new inquiry&quot; feature is active when Resend is configured.
+            <strong>Coming Soon:</strong> Notification preferences are saved to your account. Email delivery requires the <code>RESEND_API_KEY</code> environment variable to be configured. The &quot;Email on new inquiry&quot; feature is active when Resend is configured.
           </div>
         </div>
       </div>

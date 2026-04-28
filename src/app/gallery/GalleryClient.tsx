@@ -98,7 +98,7 @@ export default function GalleryClient() {
 
           {/* Caption */}
           <div style={{ position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            {photos[lightbox].title} — {lightbox + 1} / {photos.length}
+            {photos[lightbox].title} · {lightbox + 1} / {photos.length}
           </div>
         </div>
       )}
