@@ -17,7 +17,7 @@ export default function ChefPaul() {
         
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) 1fr', gap: '4rem', marginTop: 'clamp(4rem, 8vw, 8rem)' }}>
           <div className="shape-editorial-tall" style={{ width: '100%', aspectRatio: '3/4', position: 'relative' }}>
-            <Image src="/chef_salmon.jpg" alt="Chef Paul plating salmon with lemon" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
+            <Image src="/chef_salmon.webp" alt="Chef Paul plating salmon with lemon" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
           </div>
           
           <div style={{ paddingBottom: '4rem' }}>
