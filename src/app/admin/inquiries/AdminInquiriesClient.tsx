@@ -278,7 +278,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap' }}>
               {/* Reply via Email */}
               <a 
-                href={`mailto:${selected.email}?subject=Re: Your ${selected.eventType} inquiry — Melting Moments Catering`}
+                href={`mailto:${selected.email}?subject=Re: Your ${selected.eventType} inquiry, Melting Moments Catering`}
                 className="admin-btn admin-btn--sm"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
               >
