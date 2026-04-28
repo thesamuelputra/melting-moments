@@ -1,11 +1,27 @@
 'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 
 type NavLink = { href: string; label: string; icon: React.ReactNode; liveTag?: boolean };
 type NavDivider = { divider: string };
 type NavItem = NavLink | NavDivider;
+
+// Breadcrumb config — maps pathname prefixes to human-readable label chains
+const BREADCRUMBS: Array<{ match: (p: string) => boolean; crumbs: Array<{ label: string; href?: string }> }> = [
+  { match: p => p === '/admin', crumbs: [{ label: 'Dashboard' }] },
+  { match: p => p.startsWith('/admin/inquiries'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Inquiries' }] },
+  { match: p => p.startsWith('/admin/banner'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Banner' }] },
+  { match: p => p.startsWith('/admin/content'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Site Content' }] },
+  { match: p => p.startsWith('/admin/menus'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Menu Editor' }] },
+  { match: p => p.startsWith('/admin/faq'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'FAQ' }] },
+  { match: p => p.startsWith('/admin/testimonials'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Testimonials' }] },
+  { match: p => p.startsWith('/admin/settings'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'System', href: undefined }, { label: 'Settings' }] },
+];
+
+function getBreadcrumbs(pathname: string) {
+  return BREADCRUMBS.find(b => b.match(pathname))?.crumbs ?? [{ label: 'Dashboard' }];
+}
 
 function buildNavItems(bannerEnabled: boolean): NavItem[] {
   return [
@@ -60,20 +76,55 @@ function buildNavItems(bannerEnabled: boolean): NavItem[] {
   ];
 }
 
+// Shared dirty-state registry — forms can register/unregister themselves
+// so the layout can intercept navigation if there are unsaved changes.
+type DirtyListener = () => boolean;
+const _listeners = new Set<DirtyListener>();
+export function registerDirtyListener(fn: DirtyListener) { _listeners.add(fn); return () => _listeners.delete(fn); }
+export function isAnyFormDirty() { return [..._listeners].some(fn => fn()); }
+
 export default function AdminLayoutClient({ children, bannerEnabled }: { children: React.ReactNode; bannerEnabled: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [navConfirm, setNavConfirm] = useState<{ href: string } | null>(null);
   const navItems = buildNavItems(bannerEnabled);
+  const breadcrumbs = getBreadcrumbs(pathname);
 
   useEffect(() => { setIsSidebarOpen(false); }, [pathname]);
 
-  const activeLabel = navItems
-    .filter((i): i is NavLink => 'href' in i)
-    .find(i => pathname === i.href || (i.href !== '/admin' && pathname.startsWith(i.href)))
-    ?.label || 'Dashboard';
+  const handleNavClick = useCallback((href: string, e: React.MouseEvent) => {
+    if (href === pathname) return;
+    if (isAnyFormDirty()) {
+      e.preventDefault();
+      setNavConfirm({ href });
+    }
+  }, [pathname]);
 
   return (
     <div className="admin-layout">
+      {/* Dirty-nav confirmation modal */}
+      {navConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'white', borderRadius: '10px', padding: '2rem', maxWidth: '380px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 400, marginBottom: '0.75rem' }}>Unsaved Changes</h3>
+            <p style={{ fontSize: '0.85rem', color: 'rgba(0,0,0,0.5)', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+              You have unsaved changes on this page. If you leave now, your edits will be lost.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button className="admin-btn" onClick={() => setNavConfirm(null)}>Stay</button>
+              <button
+                className="admin-btn"
+                style={{ background: '#111', color: 'white', borderColor: '#111' }}
+                onClick={() => { setNavConfirm(null); router.push(navConfirm.href); }}
+              >
+                Leave anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Overlay */}
       <div className={`admin-sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)} />
 
@@ -95,7 +146,12 @@ export default function AdminLayoutClient({ children, bannerEnabled }: { childre
             }
             const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
             return (
-              <Link key={item.href} href={item.href} className={`admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`}>
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`admin-sidebar__link ${isActive ? 'admin-sidebar__link--active' : ''}`}
+                onClick={(e) => handleNavClick(item.href, e)}
+              >
                 {item.icon}
                 <span style={{ flex: 1 }}>{item.label}</span>
                 {item.liveTag && (
@@ -123,7 +179,31 @@ export default function AdminLayoutClient({ children, bannerEnabled }: { childre
                 <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
-            <div className="admin-topbar__title">{activeLabel}</div>
+            {/* Breadcrumb */}
+            <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              {breadcrumbs.map((crumb, idx) => (
+                <span key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  {idx > 0 && (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, flexShrink: 0 }}>
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  )}
+                  {crumb.href ? (
+                    <Link
+                      href={crumb.href}
+                      onClick={(e) => handleNavClick(crumb.href!, e)}
+                      style={{ fontSize: '0.8rem', color: 'rgba(0,0,0,0.35)', textDecoration: 'none', fontWeight: 400 }}
+                    >
+                      {crumb.label}
+                    </Link>
+                  ) : (
+                    <span style={{ fontSize: '0.8rem', color: idx === breadcrumbs.length - 1 ? 'var(--clr-ink)' : 'rgba(0,0,0,0.35)', fontWeight: idx === breadcrumbs.length - 1 ? 500 : 400 }}>
+                      {crumb.label}
+                    </span>
+                  )}
+                </span>
+              ))}
+            </nav>
           </div>
           <div className="admin-topbar__actions" style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', alignSelf: 'center' }}>Chef Paul Silletta</span>

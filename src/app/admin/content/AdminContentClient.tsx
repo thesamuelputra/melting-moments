@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect, useRef } from 'react';
 import { saveSiteContent } from './actions';
 
 /*
@@ -196,9 +196,32 @@ export default function AdminContentClient({ initialContent }: { initialContent:
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [dirty, setDirty] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const dirtyRef = useRef(false);
+
+  // Unsaved-changes navigation guard
+  useEffect(() => {
+    dirtyRef.current = dirty;
+  }, [dirty]);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, []);
 
   const updateField = (key: string, value: string) => {
     setContent(prev => ({ ...prev, [key]: value }));
+    setDirty(true);
+  };
+
+  const resetField = (field: ContentField) => {
+    setContent(prev => ({ ...prev, [field.key]: field.default }));
     setDirty(true);
   };
 
@@ -206,7 +229,6 @@ export default function AdminContentClient({ initialContent }: { initialContent:
 
   const handleSave = () => {
     startTransition(async () => {
-      // Only save content keys (from schema), not all businessSettings
       const contentKeys = CONTENT_SCHEMA.flatMap(p => p.sections.flatMap(s => s.fields.map(f => f.key)));
       const payload: Record<string, string> = {};
       for (const key of contentKeys) {
@@ -218,6 +240,7 @@ export default function AdminContentClient({ initialContent }: { initialContent:
         setSaved(true);
         setDirty(false);
         setSaveError('');
+        setLastSavedAt(new Date());
         setTimeout(() => setSaved(false), 2500);
       } else {
         setSaveError('Failed to save content. Please try again.');
@@ -226,6 +249,10 @@ export default function AdminContentClient({ initialContent }: { initialContent:
   };
 
   const activeSchema = CONTENT_SCHEMA.find(p => p.page === activePage)!;
+
+  function formatTime(d: Date): string {
+    return d.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' });
+  }
 
   return (
     <div>
@@ -284,33 +311,57 @@ export default function AdminContentClient({ initialContent }: { initialContent:
           </div>
           <div className="admin-section__body">
             <div style={{ display: 'grid', gap: '1.25rem', opacity: isPending ? 0.6 : 1, transition: 'opacity 0.2s ease' }}>
-              {section.fields.map((field: ContentField) => (
-                <div key={field.key}>
-                  <label className="admin-modal__label" style={{ marginBottom: '0.4rem' }}>
-                    {field.label}
-                  </label>
-                  <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem', lineHeight: 1.3 }}>
-                    {field.hint}
-                  </p>
-                  {field.type === 'textarea' ? (
-                    <textarea
-                      className="admin-inline-input"
-                      value={content[field.key] ?? field.default}
-                      onChange={e => updateField(field.key, e.target.value)}
-                      disabled={isPending}
-                      rows={3}
-                      style={{ resize: 'vertical', minHeight: '72px' }}
-                    />
-                  ) : (
-                    <input
-                      className="admin-inline-input"
-                      value={content[field.key] ?? field.default}
-                      onChange={e => updateField(field.key, e.target.value)}
-                      disabled={isPending}
-                    />
-                  )}
-                </div>
-              ))}
+              {section.fields.map((field: ContentField) => {
+                const currentValue = content[field.key] ?? field.default;
+                const isModified = currentValue !== field.default;
+                return (
+                  <div key={field.key}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem' }}>
+                      <label className="admin-modal__label" style={{ margin: 0 }}>
+                        {field.label}
+                        {isModified && (
+                          <span style={{ marginLeft: '0.5rem', fontSize: '0.6rem', color: '#D97706', fontWeight: 500, letterSpacing: '0.04em' }}>MODIFIED</span>
+                        )}
+                      </label>
+                      {isModified && (
+                        <button
+                          onClick={() => resetField(field)}
+                          disabled={isPending}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.68rem', color: 'rgba(0,0,0,0.35)', textDecoration: 'underline', textUnderlineOffset: '2px', padding: 0, lineHeight: 1 }}
+                          title="Reset to site default"
+                        >
+                          Reset to default
+                        </button>
+                      )}
+                    </div>
+                    <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem', lineHeight: 1.3 }}>
+                      {field.hint}
+                    </p>
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        className="admin-inline-input"
+                        value={currentValue}
+                        onChange={e => updateField(field.key, e.target.value)}
+                        disabled={isPending}
+                        rows={3}
+                        style={{ resize: 'vertical', minHeight: '72px' }}
+                      />
+                    ) : (
+                      <input
+                        className="admin-inline-input"
+                        value={currentValue}
+                        onChange={e => updateField(field.key, e.target.value)}
+                        disabled={isPending}
+                      />
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
+                      <span style={{ fontSize: '0.62rem', color: currentValue.length > 200 ? '#D97706' : 'rgba(0,0,0,0.25)', fontVariantNumeric: 'tabular-nums' }}>
+                        {currentValue.length} char{currentValue.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -323,27 +374,52 @@ export default function AdminContentClient({ initialContent }: { initialContent:
           bottom: 0,
           left: 'var(--admin-sidebar-width, 240px)',
           right: 0,
-          padding: '1rem 2rem',
+          padding: '0.875rem 2rem',
           background: 'white',
           borderTop: '1px solid rgba(0,0,0,0.08)',
           display: 'flex',
-          justifyContent: 'flex-end',
+          justifyContent: 'space-between',
           alignItems: 'center',
           gap: '1rem',
           zIndex: 50,
           boxShadow: '0 -4px 20px rgba(0,0,0,0.04)',
         }}>
-          <span style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)' }}>
-            You have unsaved changes
-          </span>
-          <button
-            className="admin-btn admin-btn--primary"
-            onClick={handleSave}
-            disabled={isPending}
-            style={{ padding: '0.6rem 1.5rem' }}
-          >
-            {isPending ? 'Saving...' : 'Save Changes'}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#D97706' }}>Unsaved changes</span>
+            {lastSavedAt && (
+              <span style={{ fontSize: '0.68rem', color: 'rgba(0,0,0,0.35)' }}>Last saved at {formatTime(lastSavedAt)}</span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <button
+              className="admin-btn"
+              onClick={() => {
+                // Revert all fields to initial values
+                const map: Record<string, string> = { ...initialContent };
+                for (const page of CONTENT_SCHEMA) {
+                  for (const section of page.sections) {
+                    for (const field of section.fields) {
+                      if (!(field.key in map)) map[field.key] = field.default;
+                    }
+                  }
+                }
+                setContent(map);
+                setDirty(false);
+              }}
+              disabled={isPending}
+              style={{ fontSize: '0.78rem' }}
+            >
+              Discard
+            </button>
+            <button
+              className="admin-btn admin-btn--primary"
+              onClick={handleSave}
+              disabled={isPending}
+              style={{ padding: '0.6rem 1.5rem' }}
+            >
+              {isPending ? 'Saving...' : 'Publish Changes'}
+            </button>
+          </div>
         </div>
       )}
 
