@@ -12,12 +12,26 @@ type BannerData = {
 
 export default function AnnouncementBanner({ data }: { data: BannerData }) {
   const [dismissed, setDismissed] = useState(false);
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // Respect session dismissal
     const key = `banner-dismissed-${data.text.slice(0, 20)}`;
     if (sessionStorage.getItem(key)) setDismissed(true);
   }, [data.text]);
+
+  useEffect(() => {
+    // Tell the nav how tall the banner is via a CSS custom property
+    if (ref && !dismissed) {
+      const height = ref.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--banner-height', `${height}px`);
+    } else {
+      document.documentElement.style.setProperty('--banner-height', '0px');
+    }
+    return () => {
+      document.documentElement.style.setProperty('--banner-height', '0px');
+    };
+  }, [ref, dismissed]);
 
   if (!data.enabled || dismissed) return null;
 
@@ -43,6 +57,7 @@ export default function AnnouncementBanner({ data }: { data: BannerData }) {
 
   return (
     <div
+      ref={setRef}
       style={{
         position: 'fixed',
         top: 0,
