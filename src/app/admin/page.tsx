@@ -19,11 +19,13 @@ const SECTION_DOT: Record<string, string> = {
   'FAQ': '#8B5CF6',
   'Testimonials': '#EC4899',
   'Menu': '#059669',
+  "Guido's Products": '#B45309',
+  "Guido's Orders": '#DC2626',
   'Settings': '#6B7280',
 };
 
 export default async function AdminDashboard() {
-  const [allInquiries, totalMenuItems, categoryCount, faqCount, testimonialCount, recentActivity, settings] = await Promise.all([
+  const [allInquiries, totalMenuItems, categoryCount, faqCount, testimonialCount, recentActivity, settings, guidosProductCount, allGuidosOrders] = await Promise.all([
     fetchQuery(api.inquiries.list),
     fetchQuery(api.menuItems.count),
     fetchQuery(api.menuItems.categoryCount),
@@ -31,6 +33,8 @@ export default async function AdminDashboard() {
     fetchQuery(api.testimonials.list),
     fetchQuery(api.activityLog.recent, { limit: 8 }),
     fetchQuery(api.businessSettings.getAll),
+    fetchQuery(api.guidosProducts.count),
+    fetchQuery(api.guidosOrders.list),
   ]);
 
   const nonArchived = allInquiries.filter((i) => i.status !== 'archived');
@@ -39,6 +43,8 @@ export default async function AdminDashboard() {
   const newInquiriesCount = allInquiries.filter((i) => i.status === 'new').length;
   const bookedCount = allInquiries.filter((i) => i.status === 'booked').length;
   const bannerEnabled = settings['banner_enabled'] === 'true';
+  const newGuidosOrders = allGuidosOrders.filter((o: { status: string }) => o.status === 'received').length;
+  const activeGuidosOrders = allGuidosOrders.filter((o: { status: string }) => !['delivered', 'picked_up'].includes(o.status)).length;
 
   return (
     <div>
@@ -77,6 +83,31 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
+      {/* Guido's KPI Cards */}
+      <div style={{ marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6B7280', marginTop: '1rem' }}>Guido&apos;s Gourmet</div>
+      <div className="admin-kpi-grid" style={{ marginBottom: '2rem' }}>
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-card__label">New Orders</div>
+          <div className="admin-kpi-card__value">{newGuidosOrders}</div>
+          <div className="admin-kpi-card__trend admin-kpi-card__trend--up">Awaiting confirmation</div>
+        </div>
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-card__label">Active Orders</div>
+          <div className="admin-kpi-card__value">{activeGuidosOrders}</div>
+          <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">In progress</div>
+        </div>
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-card__label">Total Orders</div>
+          <div className="admin-kpi-card__value">{allGuidosOrders.length}</div>
+          <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">All time</div>
+        </div>
+        <div className="admin-kpi-card">
+          <div className="admin-kpi-card__label">Products</div>
+          <div className="admin-kpi-card__value">{guidosProductCount}</div>
+          <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">In catalog</div>
+        </div>
+      </div>
+
       {/* Quick Actions */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '0.75rem', marginBottom: '2rem' }}>
         {[
@@ -86,6 +117,8 @@ export default async function AdminDashboard() {
           { href: '/admin/faq', label: 'FAQ', sub: `${faqCount.length} questions` },
           { href: '/admin/testimonials', label: 'Testimonials', sub: `${testimonialCount.length} reviews` },
           { href: '/admin/inquiries', label: 'Inquiries', sub: `${newInquiriesCount} new` },
+          { href: '/admin/guidos-products', label: 'Guido\'s Products', sub: `${guidosProductCount} items` },
+          { href: '/admin/guidos-orders', label: 'Guido\'s Orders', sub: `${newGuidosOrders} new` },
           { href: '/admin/settings', label: 'Settings', sub: 'Business info' },
         ].map(({ href, label, sub, dotColor }) => (
           <Link

@@ -1,8 +1,8 @@
 import { fetchQuery } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
-import GuidosMenuClient from './GuidosMenuClient';
+import AdminGuidosProductsClient from './AdminGuidosProductsClient';
 
-export default async function GuidosMenuPage() {
+export default async function GuidosProductsAdminPage() {
   const items = await fetchQuery(api.guidosProducts.list);
 
   const products = items.map((item) => ({
@@ -11,16 +11,11 @@ export default async function GuidosMenuPage() {
     category: item.category,
     priceFrom: item.priceFrom,
     sizes: item.sizes ?? [],
-    image: item.image ?? '/guidos/placeholder.webp',
+    image: item.image ?? '',
     isAvailable: item.isAvailable,
     isLimitedEdition: item.isLimitedEdition,
+    orderIndex: item.orderIndex,
   }));
 
-  // If no CMS data yet, show the hardcoded fallback
-  if (products.length === 0) {
-    const { default: GuidosMenuFallback } = await import('./GuidosMenuFallback');
-    return <GuidosMenuFallback />;
-  }
-
-  return <GuidosMenuClient products={products} />;
+  return <AdminGuidosProductsClient initialProducts={products} />;
 }
