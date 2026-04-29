@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { fetchMutation } from 'convex/nextjs';
+import { api } from '@/../convex/_generated/api';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
@@ -46,6 +48,17 @@ export async function POST(request: Request) {
     const eItems = escapeHtml(items);
     const eDeliveryMethod = deliveryMethod === 'delivery' ? `Delivery ($12.50) to ${escapeHtml(address)}` : 'Pickup at 614 Grenville Ave';
     const eNotes = escapeHtml(notes);
+
+    // Persist to Convex database
+    await fetchMutation(api.guidosOrders.create, {
+      customerName: name,
+      customerEmail: email,
+      customerPhone: phone,
+      items,
+      deliveryMethod,
+      deliveryAddress: address || undefined,
+      notes: notes || undefined,
+    });
     
     // Dispatch Email Notification to Owner
     if (process.env.RESEND_API_KEY) {

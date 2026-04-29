@@ -11,6 +11,8 @@
 import type * as activityLog from "../activityLog.js";
 import type * as businessSettings from "../businessSettings.js";
 import type * as faqs from "../faqs.js";
+import type * as guidosOrders from "../guidosOrders.js";
+import type * as guidosProducts from "../guidosProducts.js";
 import type * as inquiries from "../inquiries.js";
 import type * as menuItems from "../menuItems.js";
 import type * as seed from "../seed.js";
@@ -26,6 +28,8 @@ declare const fullApi: ApiFromModules<{
   activityLog: typeof activityLog;
   businessSettings: typeof businessSettings;
   faqs: typeof faqs;
+  guidosOrders: typeof guidosOrders;
+  guidosProducts: typeof guidosProducts;
   inquiries: typeof inquiries;
   menuItems: typeof menuItems;
   seed: typeof seed;

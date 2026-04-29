@@ -16,6 +16,8 @@ const BREADCRUMBS: Array<{ match: (p: string) => boolean; crumbs: Array<{ label:
   { match: p => p.startsWith('/admin/menus'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Menu Editor' }] },
   { match: p => p.startsWith('/admin/faq'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'FAQ' }] },
   { match: p => p.startsWith('/admin/testimonials'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Testimonials' }] },
+  { match: p => p.startsWith('/admin/guidos-products'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Products' }] },
+  { match: p => p.startsWith('/admin/guidos-orders'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Orders' }] },
   { match: p => p.startsWith('/admin/settings'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'System', href: undefined }, { label: 'Settings' }] },
 ];
 
@@ -65,6 +67,19 @@ function buildNavItems(bannerEnabled: boolean): NavItem[] {
     { href: '/admin/testimonials', label: 'Testimonials', icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    )},
+    { divider: "Guido's Gourmet" },
+    { href: '/admin/guidos-products', label: 'Products', icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+    )},
+    { href: '/admin/guidos-orders', label: 'Orders', icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+        <path d="M9 11l3 3L22 4" />
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
       </svg>
     )},
     { divider: 'System' },
