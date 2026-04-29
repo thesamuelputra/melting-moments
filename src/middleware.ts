@@ -89,8 +89,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- Admin Route Protection ---
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  // --- Admin Route Protection (exclude login page itself) ---
+  if (request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin-login') {
     const expected = await getExpectedToken();
     // If no password is configured, block all admin access
     if (!expected) {
