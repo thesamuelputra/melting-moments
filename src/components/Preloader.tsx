@@ -70,10 +70,19 @@ export default function Preloader() {
         color: 'var(--clr-bone)',
       }}
     >
-      {/* Brand Mark */}
+      {/* Brand Mark — Dual brand lockup */}
       <div className={`preloader__brand ${loaded ? 'preloader__brand--exit' : ''}`}>
-        <span className="preloader__line">Melting</span>
-        <span className="preloader__line">Moments</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(1rem, 3vw, 2rem)' }} className="preloader-lockup">
+          <div style={{ textAlign: 'center' }}>
+            <span className="preloader__line">Melting</span>
+            <span className="preloader__line">Moments</span>
+          </div>
+          <div className="preloader__separator" style={{ width: '1px', height: 'clamp(40px, 6vw, 60px)', backgroundColor: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
+          <div style={{ textAlign: 'center' }}>
+            <span className="preloader__line" style={{ animationDelay: '0.35s' }}>Guido&apos;s</span>
+            <span className="preloader__line" style={{ animationDelay: '0.45s' }}>Gourmet</span>
+          </div>
+        </div>
       </div>
 
       {/* Loading bar */}
