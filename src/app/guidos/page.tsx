@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Guido\'s Gourmet | Ready-Made Italian Meals Victoria BC',
@@ -86,8 +86,8 @@ export default function GuidosPage() {
           <h2 className="noire-serif" style={{ color: 'white', marginBottom: '1.5rem' }}>
             Flat rate: $12.50 anywhere in Victoria.
           </h2>
-          <p style={{ opacity: 0.5, marginBottom: '0.5rem' }}>Pickup by appointment.</p>
-          <p style={{ opacity: 0.5, marginBottom: '2.5rem' }}>614 Grenville Ave, Esquimalt.</p>
+          <p style={{ opacity: 0.5, marginBottom: '0.5rem', color: 'white' }}>Pickup by appointment.</p>
+          <p style={{ opacity: 0.5, marginBottom: '2.5rem', color: 'white' }}>614 Grenville Ave, Esquimalt.</p>
           <Link href="/guidos/order" className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>
             Order Now
           </Link>

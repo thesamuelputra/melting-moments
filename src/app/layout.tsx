@@ -42,6 +42,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "CateringService",
     "name": "Melting Moments Catering",
+    "alternateName": "Guido's Gourmet",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "614 Grenville Ave",
@@ -53,7 +54,13 @@ export default function RootLayout({
     "telephone": "+1-250-385-2462",
     "url": "https://meltingmoments.ca",
     "priceRange": "$$",
-    "servesCuisine": ["International", "Buffet", "West Coast"]
+    "servesCuisine": ["Italian", "International", "Buffet", "West Coast"],
+    "makesOffer": {
+      "@type": "Offer",
+      "name": "Guido's Gourmet Ready-Made Meals",
+      "description": "Homemade Italian meals ready to heat and serve. Delivery available in Victoria, BC.",
+      "url": "https://meltingmoments.ca/guidos"
+    }
   };
 
   return (
