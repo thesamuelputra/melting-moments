@@ -46,6 +46,7 @@ export default defineSchema({
     role: v.optional(v.string()),    // e.g. "Wedding Client" or "CEO, Victoria Tech Group"
     text: v.string(),
     rating: v.optional(v.float64()), // 1-5
+    brand: v.optional(v.string()),   // "catering" | "guidos" | undefined (shows on both)
     orderIndex: v.float64(),
     isActive: v.boolean(),
   }),

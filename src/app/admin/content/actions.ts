@@ -26,7 +26,7 @@ export async function saveSiteContent(entries: Record<string, string>) {
   }
 }
 
-export async function saveBanner(data: { enabled: boolean; text: string; link: string; style: string }) {
+export async function saveBanner(data: { enabled: boolean; text: string; link: string; style: string; showOn?: string }) {
   await requireAdmin();
   try {
     await fetchMutation(api.businessSettings.save, {
@@ -35,6 +35,7 @@ export async function saveBanner(data: { enabled: boolean; text: string; link: s
         { key: 'banner_text', value: data.text },
         { key: 'banner_link', value: data.link },
         { key: 'banner_style', value: data.style },
+        { key: 'banner_show_on', value: data.showOn || 'all' },
       ],
     });
     await fetchMutation(api.activityLog.log, {

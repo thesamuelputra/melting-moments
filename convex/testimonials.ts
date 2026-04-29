@@ -22,6 +22,7 @@ export const create = mutation({
     role: v.optional(v.string()),
     text: v.string(),
     rating: v.optional(v.float64()),
+    brand: v.optional(v.string()),
     orderIndex: v.float64(),
   },
   handler: async (ctx, args) => {
@@ -39,6 +40,7 @@ export const update = mutation({
     role: v.optional(v.string()),
     text: v.optional(v.string()),
     rating: v.optional(v.float64()),
+    brand: v.optional(v.string()),
     orderIndex: v.optional(v.float64()),
     isActive: v.optional(v.boolean()),
   },

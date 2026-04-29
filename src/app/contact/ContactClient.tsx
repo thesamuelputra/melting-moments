@@ -153,8 +153,8 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Event Details</h2>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Event Type *</span>
-                  <CustomSelect value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="Select event type..."
-                    options={[{ value: "corporate", label: "Corporate Function" }, { value: "wedding", label: "Wedding" }, { value: "private", label: "Private Gathering" }, { value: "fountain", label: "Chocolate Fountain Rental" }]} />
+                  <CustomSelect value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="What is this about?..."
+                    options={[{ value: "corporate", label: "Corporate Function" }, { value: "wedding", label: "Wedding" }, { value: "private", label: "Private Gathering" }, { value: "fountain", label: "Chocolate Fountain Rental" }, { value: "ready-made", label: "Ready-Made Meals (Guido's)" }, { value: "other", label: "General Inquiry" }]} />
                   {step1Error && <div style={{ color: '#B91C1C', fontSize: '0.8rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>{step1Error}</div>}
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>

@@ -65,8 +65,18 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 }
 
 export async function middleware(request: NextRequest) {
-  // --- Contact API Rate Limiting ---
-  if (request.nextUrl.pathname === '/api/contact' && request.method === 'POST') {
+  // --- guidosgourmet.ca domain redirect ---
+  const host = request.headers.get('host') || '';
+  if (host.includes('guidosgourmet')) {
+    return NextResponse.redirect(
+      new URL('/guidos', 'https://meltingmoments.ca'),
+      301
+    );
+  }
+
+  // --- Contact & Order API Rate Limiting ---
+  const rateLimitedPaths = ['/api/contact', '/api/guidos-order'];
+  if (rateLimitedPaths.includes(request.nextUrl.pathname) && request.method === 'POST') {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       || request.headers.get('x-real-ip')
       || 'unknown';
@@ -101,5 +111,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/contact', '/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/admin/:path*', '/api/contact', '/api/guidos-order', '/((?!_next/static|_next/image|favicon.ico).*)'],
 }
