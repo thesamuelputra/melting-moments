@@ -121,7 +121,7 @@ export default function GuidosOrderPage() {
                     name="deliveryMethod"
                     value="pickup"
                     checked={formData.deliveryMethod === 'pickup'}
-                    onChange={() => setFormData({...formData, deliveryMethod: 'pickup'})}
+                    onChange={() => setFormData({...formData, deliveryMethod: 'pickup', address: ''})}
                     style={{ accentColor: 'var(--clr-ink)' }}
                   />
                   Pickup

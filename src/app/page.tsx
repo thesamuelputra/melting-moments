@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { getCmsContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
@@ -16,7 +16,6 @@ export default async function Home() {
   const ctaButton = cms('home_cta_button', 'Get in Touch');
 
   return (
-    <>
     <div>
       {/* ================================================
           HERO — Split brand names with vertical separator
@@ -51,7 +50,7 @@ export default async function Home() {
       {/* ================================================
           CHOOSER — Two editorial cards
           ================================================ */}
-      <section className="container" style={{ padding: 'clamp(4rem, 8vw, 8rem) 0' }}>
+      <section className="container" style={{ paddingTop: 'clamp(4rem, 8vw, 8rem)', paddingBottom: 'clamp(4rem, 8vw, 8rem)' }}>
         <div className="chooser-grid">
           {/* Catering Card */}
           <Link href="/menus" className="chooser-card">
@@ -94,13 +93,12 @@ export default async function Home() {
           <h2 className="noire-serif" style={{ color: 'white', marginBottom: '1.5rem' }}>
             {ctaHeading}
           </h2>
-          <p style={{ fontSize: 'var(--text-body)', maxWidth: '45ch', opacity: 0.6, marginBottom: '2.5rem', color: 'white', margin: '0 auto 2.5rem auto' }}>
+          <p style={{ fontSize: 'var(--text-body)', maxWidth: '45ch', opacity: 0.6, color: 'white', margin: '0 auto 2.5rem auto' }}>
             {ctaBody}
           </p>
           <Link href="/contact" className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>{ctaButton}</Link>
         </div>
       </section>
     </div>
-    </>
   );
 }
