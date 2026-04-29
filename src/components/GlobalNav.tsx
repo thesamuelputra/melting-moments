@@ -73,11 +73,19 @@ function NavDropdown({ label, items, closeMenu }: { label: string; items: { href
   );
 }
 
-const servicesItems = [
+const cateringItems = [
+  { href: '/menus', label: 'Menus' },
   { href: '/corporate', label: 'Corporate' },
   { href: '/family-style', label: 'Family Style' },
   { href: '/weddings', label: 'Weddings' },
   { href: '/private-events', label: 'Private Events' },
+  { href: '/fountains', label: 'Fountains' },
+];
+
+const guidosItems = [
+  { href: '/guidos', label: 'About' },
+  { href: '/guidos/menu', label: 'Menu' },
+  { href: '/guidos/order', label: 'Order' },
 ];
 
 const aboutItems = [
@@ -92,10 +100,12 @@ export default function GlobalNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [mobileCateringOpen, setMobileCateringOpen] = useState(false);
+  const [mobileGuidosOpen, setMobileGuidosOpen] = useState(false);
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
   const pathname = usePathname();
   const isHomepage = pathname === '/';
+  const isGuidosPage = pathname.startsWith('/guidos');
   const mobileNavRef = useRef<HTMLDivElement>(null);
 
   // Focus trap + Escape handler for mobile nav (#6)
@@ -138,12 +148,17 @@ export default function GlobalNav() {
   // Close mobile menu on route change
   useEffect(() => {
     setIsOpen(false);
-    setMobileServicesOpen(false);
+    setMobileCateringOpen(false);
+    setMobileGuidosOpen(false);
     setMobileAboutOpen(false);
   }, [pathname]);
 
   const navOpacity = visible ? 1 : 0;
   const navPointerEvents = visible ? 'auto' as const : 'none' as const;
+
+  // Context-aware CTA
+  const ctaLabel = isGuidosPage ? 'Order Now' : 'Get in Touch';
+  const ctaHref = isGuidosPage ? '/guidos/order' : '/contact';
 
   return (
     <>
@@ -171,12 +186,11 @@ export default function GlobalNav() {
           
           {/* Desktop Navigation */}
           <div className="nav-links-desktop" style={{ display: 'flex', gap: '2rem', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', alignItems: 'center' }}>
-              <Link href="/menus">Menus</Link>
-              <NavDropdown label="Services" items={servicesItems} />
-              <Link href="/fountains">Fountains</Link>
+              <NavDropdown label="Catering" items={cateringItems} />
+              <NavDropdown label="Guido's" items={guidosItems} />
               <NavDropdown label="About" items={aboutItems} />
               <Link href="/contact">Contact</Link>
-              <Link href="/contact" className="btn-solid" style={{ minHeight: 'auto', padding: '0.6rem 1.2rem', fontSize: '0.75rem' }}>Book Event</Link>
+              <Link href={ctaHref} className="btn-solid" style={{ minHeight: 'auto', padding: '0.6rem 1.2rem', fontSize: '0.75rem' }}>{ctaLabel}</Link>
           </div>
 
           {/* Mobile Hamburger Button */}
@@ -223,25 +237,24 @@ export default function GlobalNav() {
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', alignItems: 'center', textAlign: 'center' }}>
-            <Link href="/menus" onClick={() => setIsOpen(false)} style={{ padding: '0.75rem 0' }}>Menus</Link>
-
-            {/* Mobile Services Accordion */}
+            
+            {/* Mobile Catering Accordion */}
             <button
-              onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+              onClick={() => setMobileCateringOpen(!mobileCateringOpen)}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 font: 'inherit', color: 'inherit', padding: '0.75rem 0',
                 display: 'flex', alignItems: 'center', gap: '0.5rem',
               }}
             >
-              Services
-              <svg width="10" height="6" viewBox="0 0 8 5" fill="none" style={{ transition: 'transform 0.2s', transform: mobileServicesOpen ? 'rotate(180deg)' : 'none' }}>
+              Catering
+              <svg width="10" height="6" viewBox="0 0 8 5" fill="none" style={{ transition: 'transform 0.2s', transform: mobileCateringOpen ? 'rotate(180deg)' : 'none' }}>
                 <path d="M1 1L4 4L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
-            {mobileServicesOpen && (
+            {mobileCateringOpen && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
-                {servicesItems.map((item) => (
+                {cateringItems.map((item) => (
                   <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}
                     style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.5)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
@@ -250,7 +263,30 @@ export default function GlobalNav() {
               </div>
             )}
 
-            <Link href="/fountains" onClick={() => setIsOpen(false)} style={{ padding: '0.75rem 0' }}>Fountains</Link>
+            {/* Mobile Guido's Accordion */}
+            <button
+              onClick={() => setMobileGuidosOpen(!mobileGuidosOpen)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                font: 'inherit', color: 'inherit', padding: '0.75rem 0',
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+              }}
+            >
+              Guido&apos;s Gourmet
+              <svg width="10" height="6" viewBox="0 0 8 5" fill="none" style={{ transition: 'transform 0.2s', transform: mobileGuidosOpen ? 'rotate(180deg)' : 'none' }}>
+                <path d="M1 1L4 4L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            {mobileGuidosOpen && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
+                {guidosItems.map((item) => (
+                  <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}
+                    style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.5)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
 
             {/* Mobile About Accordion */}
             <button
@@ -279,11 +315,10 @@ export default function GlobalNav() {
 
             <div className="spacer-large" style={{ margin: '0.75rem 0' }}><div className="noire-divider"></div></div>
             <Link href="/contact" onClick={() => setIsOpen(false)} style={{ padding: '0.75rem 0' }}>Contact</Link>
-            <Link href="/contact" onClick={() => setIsOpen(false)} className="btn-solid" style={{ minHeight: 'auto', marginTop: '1rem', padding: '1rem 3rem', fontSize: '1rem', fontFamily: 'var(--font-sans)' }}>Book Event</Link>
+            <Link href={ctaHref} onClick={() => setIsOpen(false)} className="btn-solid" style={{ minHeight: 'auto', marginTop: '1rem', padding: '1rem 3rem', fontSize: '1rem', fontFamily: 'var(--font-sans)' }}>{ctaLabel}</Link>
           </div>
         </div>
       )}
     </>
   );
 }
-

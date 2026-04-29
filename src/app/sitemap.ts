@@ -24,6 +24,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Legal pages
     { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
     { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },
+    // Guido's Gourmet
+    { path: '/guidos', priority: 0.9, changeFrequency: 'monthly' },
+    { path: '/guidos/menu', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/guidos/order', priority: 0.8, changeFrequency: 'monthly' },
   ];
 
   return routes.map((route) => ({
