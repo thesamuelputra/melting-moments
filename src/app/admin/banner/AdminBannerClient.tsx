@@ -5,11 +5,14 @@ import { saveBanner } from '../content/actions';
 
 type Style = 'dark' | 'accent' | 'light';
 
+type ShowOn = 'all' | 'catering' | 'guidos';
+
 type BannerData = {
   enabled: boolean;
   text: string;
   link: string;
   style: Style;
+  showOn: ShowOn;
 };
 
 const STYLE_PREVIEWS: Record<Style, { bg: string; color: string; label: string }> = {
@@ -101,7 +104,7 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1.25rem', marginBottom: '1.25rem', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
           <div>
             <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Enable Banner</div>
-            <div style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.2rem' }}>Toggle banner visibility across all public pages</div>
+            <div style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.2rem' }}>Toggle banner visibility across public pages</div>
           </div>
           <button
             onClick={() => update({ enabled: !data.enabled })}
@@ -143,6 +146,28 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
             onChange={e => update({ link: e.target.value })}
             placeholder="/contact or https://..."
           />
+        </div>
+
+        {/* Show On (Targeting) */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <label className="admin-modal__label">Show On</label>
+          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Restrict banner to specific sections of the site</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+            {([['all', 'All Pages'], ['catering', 'Catering Only'], ['guidos', "Guido's Only"]] as [ShowOn, string][]).map(([val, label]) => (
+              <button
+                key={val}
+                onClick={() => update({ showOn: val })}
+                style={{
+                  padding: '0.6rem', fontSize: '0.75rem', cursor: 'pointer',
+                  border: data.showOn === val ? '2px solid #111' : '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '6px', background: data.showOn === val ? 'rgba(0,0,0,0.03)' : 'white',
+                  fontWeight: data.showOn === val ? 600 : 400,
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Style */}

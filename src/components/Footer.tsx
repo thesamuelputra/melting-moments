@@ -18,6 +18,18 @@ export default function Footer() {
                     {ctaText}
                 </h2>
             </Link>
+            {/* Cross-sell banner */}
+            <div style={{ width: '100%', textAlign: 'center', padding: '1rem 0', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', margin: '1rem 0' }}>
+              {isGuidosPage ? (
+                <Link href="/contact" style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', textDecoration: 'none' }}>
+                  Planning an event? <span style={{ textDecoration: 'underline' }}>Explore Melting Moments Catering →</span>
+                </Link>
+              ) : (
+                <Link href="/guidos" style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', textDecoration: 'none' }}>
+                  Craving Italian at home? <span style={{ textDecoration: 'underline' }}>Order from Guido&apos;s Gourmet →</span>
+                </Link>
+              )}
+            </div>
             <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'right' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 2rem', marginBottom: '2rem' }}>
                     {/* Catering links */}
