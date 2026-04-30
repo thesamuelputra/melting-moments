@@ -16,6 +16,7 @@ const BREADCRUMBS: Array<{ match: (p: string) => boolean; crumbs: Array<{ label:
   { match: p => p.startsWith('/admin/menus'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Menu Editor' }] },
   { match: p => p.startsWith('/admin/faq'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'FAQ' }] },
   { match: p => p.startsWith('/admin/testimonials'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Testimonials' }] },
+  { match: p => p.startsWith('/admin/media'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Media Library' }] },
   { match: p => p.startsWith('/admin/guidos-products'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Products' }] },
   { match: p => p.startsWith('/admin/guidos-orders'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Orders' }] },
   { match: p => p.startsWith('/admin/settings'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'System', href: undefined }, { label: 'Settings' }] },
@@ -67,6 +68,13 @@ function buildNavItems(bannerEnabled: boolean): NavItem[] {
     { href: '/admin/testimonials', label: 'Testimonials', icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    )},
+    { href: '/admin/media', label: 'Media Library', icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
       </svg>
     )},
     { divider: "Guido's Gourmet" },

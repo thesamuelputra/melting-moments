@@ -74,6 +74,17 @@ export default defineSchema({
     orderIndex: v.float64(),
   }).index("by_category", ["category"]),
 
+  // Site Images — CMS-managed media library
+  siteImages: defineTable({
+    storageId: v.id("_storage"),
+    title: v.string(),
+    alt: v.string(),
+    section: v.optional(v.string()), // "gallery" | "hero" | "about" | etc.
+    orderIndex: v.float64(),
+    uploadedAt: v.float64(),
+  }).index("by_section", ["section"])
+    .index("by_uploadedAt", ["uploadedAt"]),
+
   // Guido's Gourmet — Orders
   guidosOrders: defineTable({
     customerName: v.string(),
