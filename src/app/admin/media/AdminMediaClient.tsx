@@ -18,6 +18,8 @@ type SiteImage = {
 };
 
 const SECTIONS = ['gallery', 'hero', 'about', 'weddings', 'events', 'corporate', 'guidos'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 
 export default function AdminMediaClient({ initialImages }: { initialImages: SiteImage[] }) {
   const [images, setImages] = useState<SiteImage[]>(initialImages);
@@ -34,15 +36,29 @@ export default function AdminMediaClient({ initialImages }: { initialImages: Sit
   const [uploadSection, setUploadSection] = useState('gallery');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
+  const [uploadError, setUploadError] = useState('');
   const filtered = filterSection === 'All' ? images : images.filter(img => img.section === filterSection);
 
   const handleFiles = useCallback((files: FileList | File[]) => {
-    const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-    if (imageFiles.length === 0) return;
-    setSelectedFiles(imageFiles);
+    setUploadError('');
+    const allFiles = Array.from(files);
+    // Strict MIME type validation
+    const invalidType = allFiles.filter(f => !ALLOWED_TYPES.includes(f.type));
+    if (invalidType.length > 0) {
+      setUploadError(`Unsupported file type: ${invalidType.map(f => f.name).join(', ')}. Use JPG, PNG, WebP, or AVIF.`);
+      return;
+    }
+    // File size validation
+    const oversized = allFiles.filter(f => f.size > MAX_FILE_SIZE);
+    if (oversized.length > 0) {
+      const names = oversized.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(1)}MB)`);
+      setUploadError(`Files too large (max 5MB): ${names.join(', ')}`);
+      return;
+    }
+    setSelectedFiles(allFiles);
     // Auto-fill title from first filename
     if (!uploadTitle) {
-      const name = imageFiles[0].name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+      const name = allFiles[0].name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
       setUploadTitle(name.charAt(0).toUpperCase() + name.slice(1));
     }
   }, [uploadTitle]);
@@ -188,8 +204,13 @@ export default function AdminMediaClient({ initialImages }: { initialImages: Sit
               Drag and drop images here, or click to browse
             </p>
             <p style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: '0.25rem' }}>
-              Supports JPG, PNG, WebP — no file size limit
+              Supports JPG, PNG, WebP, AVIF — max 5MB per file
             </p>
+            {uploadError && (
+              <p style={{ fontSize: '0.75rem', color: '#DC2626', marginTop: '0.5rem', fontWeight: 500 }}>
+                {uploadError}
+              </p>
+            )}
           </>
         ) : (
           <div>

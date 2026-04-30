@@ -5,18 +5,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
-/**
- * Escapes HTML special characters to prevent XSS when embedding
- * user-submitted values into email HTML templates.
- */
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { escapeHtml, isValidEmail } from '@/lib/sanitize';
 
 export async function POST(request: Request) {
   try {
@@ -30,6 +19,10 @@ export async function POST(request: Request) {
 
     if (!body.name || !body.email || !body.phone || !body.items || !body.deliveryMethod) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (!isValidEmail(String(body.email))) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
     // Basic input length caps
@@ -112,7 +105,7 @@ export async function POST(request: Request) {
       });
     }
 
-    console.log(`[Guidos Order API] Received order from ${name} (${email}) - ${deliveryMethod}`);
+    console.log(`[Guidos Order API] Order received (${deliveryMethod}) from ${name.charAt(0)}***.`);
     
     return NextResponse.json({ success: true, message: 'Order received.' });
   } catch (error) {
