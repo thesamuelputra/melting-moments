@@ -35,6 +35,7 @@ export async function addMenuItem(data: MenuItemInput) {
     isFeatured: data.isFeatured ?? false,
   });
 
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: `Added menu item: ${data.name}`, section: 'Menu', details: data.category });
   revalidatePath('/admin/menus');
   revalidatePath('/menus');
 
@@ -68,6 +69,7 @@ export async function updateMenuItem(id: string, data: MenuItemInput) {
     isFeatured: data.isFeatured ?? false,
   });
 
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: `Updated menu item: ${data.name}`, section: 'Menu', details: data.category });
   revalidatePath('/admin/menus');
   revalidatePath('/menus');
 }
@@ -81,6 +83,7 @@ export async function deleteMenuItem(id: string) {
     id: id as Id<"menuItems">,
   });
 
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Deleted menu item', section: 'Menu' });
   revalidatePath('/admin/menus');
   revalidatePath('/menus');
   return { success: true };

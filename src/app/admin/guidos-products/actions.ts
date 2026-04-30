@@ -38,6 +38,7 @@ export async function addGuidosProduct(data: ProductInput) {
   revalidatePath('/admin/guidos-products');
   revalidatePath('/guidos/menu');
   revalidatePath('/guidos');
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: `Added Guido's product: ${data.name}`, section: "Guido's Products", details: data.category });
 
   return {
     id: id as string,
@@ -72,6 +73,7 @@ export async function updateGuidosProduct(id: string, data: ProductInput) {
   revalidatePath('/admin/guidos-products');
   revalidatePath('/guidos/menu');
   revalidatePath('/guidos');
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: `Updated Guido's product: ${data.name}`, section: "Guido's Products", details: data.category });
 }
 
 export async function deleteGuidosProduct(id: string) {
@@ -86,5 +88,6 @@ export async function deleteGuidosProduct(id: string) {
   revalidatePath('/admin/guidos-products');
   revalidatePath('/guidos/menu');
   revalidatePath('/guidos');
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: "Deleted Guido's product", section: "Guido's Products" });
   return { success: true };
 }

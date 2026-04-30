@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: 'Melting Moments <onboarding@resend.dev>',
         to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
-        subject: `New Catering Inquiry: ${eventType} - ${name}`,
+        subject: `New Catering Inquiry: ${eventType.slice(0, 60)} - ${name.slice(0, 60)}`,
         html: `
           <h2>New Booking Inquiry</h2>
           <p><strong>Name:</strong> ${eName}</p>

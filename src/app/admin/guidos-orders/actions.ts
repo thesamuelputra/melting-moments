@@ -17,6 +17,7 @@ export async function updateGuidosOrderStatus(id: string, status: string) {
   });
 
   revalidatePath('/admin/guidos-orders');
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: `Updated Guido's order status to ${status}`, section: "Guido's Orders" });
 }
 
 export async function deleteGuidosOrder(id: string) {
@@ -29,5 +30,6 @@ export async function deleteGuidosOrder(id: string) {
   });
 
   revalidatePath('/admin/guidos-orders');
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: "Deleted Guido's order", section: "Guido's Orders" });
   return { success: true };
 }
