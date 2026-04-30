@@ -9,8 +9,8 @@ export async function saveBusinessSettings(settings: Record<string, string>) {
   await requireAdmin();
   try {
     const entries = Object.entries(settings).map(([key, value]) => ({ key, value }));
-    await fetchMutation(api.businessSettings.save, { entries });
-    await fetchMutation(api.activityLog.log, { action: 'Updated business settings', section: 'Settings' });
+    await fetchMutation(api.businessSettings.save, { adminSecret: process.env.ADMIN_PASSWORD!, entries });
+    await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Updated business settings', section: 'Settings' });
     // Revalidate all pages that pull from settings
     revalidatePath('/contact');
     revalidatePath('/corporate');

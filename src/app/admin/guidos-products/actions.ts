@@ -24,6 +24,7 @@ export async function addGuidosProduct(data: ProductInput) {
   }
 
   const id = await fetchMutation(api.guidosProducts.add, {
+    adminSecret: process.env.ADMIN_PASSWORD!,
     name: data.name,
     category: data.category,
     priceFrom: data.priceFrom,
@@ -56,6 +57,7 @@ export async function updateGuidosProduct(id: string, data: ProductInput) {
   if (!id) throw new Error('Product ID is required');
 
   await fetchMutation(api.guidosProducts.update, {
+    adminSecret: process.env.ADMIN_PASSWORD!,
     id: id as Id<"guidosProducts">,
     name: data.name,
     category: data.category,
@@ -77,6 +79,7 @@ export async function deleteGuidosProduct(id: string) {
   if (!id) throw new Error('Product ID is required');
 
   await fetchMutation(api.guidosProducts.remove, {
+    adminSecret: process.env.ADMIN_PASSWORD!,
     id: id as Id<"guidosProducts">,
   });
 

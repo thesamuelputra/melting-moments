@@ -51,6 +51,7 @@ export const categoryCount = query({
 // Add a menu item
 export const add = mutation({
   args: {
+    adminSecret: v.string(),
     category: v.string(),
     name: v.string(),
     description: v.optional(v.string()),
@@ -61,6 +62,7 @@ export const add = mutation({
     isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     return await ctx.db.insert("menuItems", {
       category: args.category,
       name: args.name,
@@ -77,6 +79,7 @@ export const add = mutation({
 // Update a menu item
 export const update = mutation({
   args: {
+    adminSecret: v.string(),
     id: v.id("menuItems"),
     category: v.string(),
     name: v.string(),
@@ -88,7 +91,8 @@ export const update = mutation({
     isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const { id, ...data } = args;
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
+    const { id, adminSecret, ...data } = args;
     await ctx.db.patch(id, {
       category: data.category,
       name: data.name,
@@ -104,8 +108,9 @@ export const update = mutation({
 
 // Delete a menu item
 export const remove = mutation({
-  args: { id: v.id("menuItems") },
+  args: { id: v.id("menuItems"), adminSecret: v.string() },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     await ctx.db.delete(args.id);
   },
 });

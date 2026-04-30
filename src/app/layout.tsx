@@ -4,6 +4,7 @@ import './globals.css'
 import PublicShell from '@/components/PublicShell'
 import ConvexClientProvider from './ConvexClientProvider'
 import BannerWrapper from '@/components/BannerWrapper'
+import { Analytics } from '@vercel/analytics/react'
 
 const instrumentSerif = Instrument_Serif({ 
   subsets: ['latin'], 
@@ -66,12 +67,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
-        <BannerWrapper />
         <ConvexClientProvider>
+          <BannerWrapper />
           <PublicShell>
             {children}
           </PublicShell>
         </ConvexClientProvider>
+        <Analytics />
         <script 
           type="application/ld+json" 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrgJSONLD) }} 

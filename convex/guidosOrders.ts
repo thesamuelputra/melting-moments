@@ -60,18 +60,21 @@ export const create = mutation({
 // Update order status
 export const updateStatus = mutation({
   args: {
+    adminSecret: v.string(),
     id: v.id("guidosOrders"),
     status: v.string(),
   },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     await ctx.db.patch(args.id, { status: args.status });
   },
 });
 
 // Delete an order
 export const remove = mutation({
-  args: { id: v.id("guidosOrders") },
+  args: { adminSecret: v.string(), id: v.id("guidosOrders") },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     await ctx.db.delete(args.id);
   },
 });

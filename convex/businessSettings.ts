@@ -17,9 +17,11 @@ export const getAll = query({
 // Save settings (upsert by key)
 export const save = mutation({
   args: {
+    adminSecret: v.string(),
     entries: v.array(v.object({ key: v.string(), value: v.string() })),
   },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     for (const { key, value } of args.entries) {
       const existing = await ctx.db
         .query("businessSettings")
