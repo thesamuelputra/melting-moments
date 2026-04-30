@@ -118,3 +118,55 @@ export const seedMenuItems = internalMutation({
     return { seeded: allItems.length };
   },
 });
+
+const guidosProducts = [
+  // Lasagnes
+  { name: 'Beef Bolognese Lasagne', category: 'Lasagnes', priceFrom: 27, sizes: [{ label: 'Family (4-6)', price: 27 }, { label: 'Party (8-10)', price: 45 }], image: '/guidos/beef-bolognese-lasagne.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 1 },
+  { name: 'Meat Lasagne', category: 'Lasagnes', priceFrom: 16.95, sizes: [{ label: 'Single', price: 16.95 }, { label: 'Family (4-6)', price: 27 }], image: '/guidos/meat-lasagne.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 2 },
+  { name: 'Veggie Lasagne', category: 'Lasagnes', priceFrom: 14, sizes: [{ label: 'Single', price: 14 }, { label: 'Family (4-6)', price: 24 }], image: '/guidos/veggie-lasagne.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 3 },
+  { name: 'Vegan Lasagne w/ Roasted Veg', category: 'Lasagnes', priceFrom: 14, image: '/guidos/vegan-lasagne.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 4 },
+  { name: 'Eggplant Parmesan', category: 'Lasagnes', priceFrom: 14, image: '/guidos/eggplant-parmesan.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 5 },
+  // Pot Pies
+  { name: 'Turkey Pot Pie', category: 'Pot Pies', priceFrom: 9, image: '/guidos/turkey-pot-pie.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 6 },
+  // Soups
+  { name: 'Beef Stew', category: 'Soups', priceFrom: 12, image: '/guidos/beef-stew.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 7 },
+  { name: 'Beef Barley Soup', category: 'Soups', priceFrom: 10, image: '/guidos/beef-barley-soup.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 8 },
+  { name: 'Broccoli Cheddar Soup', category: 'Soups', priceFrom: 10, image: '/guidos/broccoli-cheddar-soup.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 9 },
+  // Pasta
+  { name: 'Spaghetti and Meatballs', category: 'Pasta', priceFrom: 14, image: '/guidos/spaghetti-meatballs.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 10 },
+  { name: 'Pulled Pork Mac & Cheese', category: 'Pasta', priceFrom: 14, image: '/guidos/pulled-pork-mac.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 11 },
+  { name: 'Mac & Cheese', category: 'Pasta', priceFrom: 12, image: '/guidos/mac-cheese.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 12 },
+  { name: 'Peanut Chicken', category: 'Pasta', priceFrom: 14, image: '/guidos/peanut-chicken.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 13 },
+  // Desserts
+  { name: 'Tiramisu', category: 'Desserts', priceFrom: 12, image: '/guidos/tiramisu.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 14 },
+  { name: 'Tiramisu Cans (5 Flavours)', category: 'Desserts', priceFrom: 9.95, image: '/guidos/tiramisu-cans.webp', isAvailable: true, isLimitedEdition: false, orderIndex: 15 },
+  // Holiday
+  { name: 'Turkey Dinner', category: 'Holiday', priceFrom: 25, image: '/guidos/turkey-dinner.webp', isAvailable: true, isLimitedEdition: true, orderIndex: 16 },
+];
+
+export const seedGuidosProducts = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    // Clear existing
+    const existing = await ctx.db.query("guidosProducts").collect();
+    for (const item of existing) {
+      await ctx.db.delete(item._id);
+    }
+
+    // Insert all
+    for (const item of guidosProducts) {
+      await ctx.db.insert("guidosProducts", {
+        name: item.name,
+        category: item.category,
+        priceFrom: item.priceFrom,
+        sizes: item.sizes,
+        image: item.image,
+        isAvailable: item.isAvailable,
+        isLimitedEdition: item.isLimitedEdition,
+        orderIndex: item.orderIndex,
+      });
+    }
+
+    return { seeded: guidosProducts.length };
+  },
+});

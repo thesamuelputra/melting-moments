@@ -11,6 +11,7 @@ export async function updateGuidosOrderStatus(id: string, status: string) {
   if (!id) throw new Error('Order ID is required');
 
   await fetchMutation(api.guidosOrders.updateStatus, {
+    adminSecret: process.env.ADMIN_PASSWORD!,
     id: id as Id<"guidosOrders">,
     status,
   });
@@ -23,6 +24,7 @@ export async function deleteGuidosOrder(id: string) {
   if (!id) throw new Error('Order ID is required');
 
   await fetchMutation(api.guidosOrders.remove, {
+    adminSecret: process.env.ADMIN_PASSWORD!,
     id: id as Id<"guidosOrders">,
   });
 

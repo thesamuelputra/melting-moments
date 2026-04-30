@@ -15,21 +15,26 @@ export const recent = query({
 
 export const log = mutation({
   args: {
+    adminSecret: v.string(),
     action: v.string(),
     section: v.string(),
     details: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     await ctx.db.insert("activityLog", {
-      ...args,
+      action: args.action,
+      section: args.section,
+      details: args.details,
       performedAt: Date.now(),
     });
   },
 });
 
 export const clear = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { adminSecret: v.string() },
+  handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     const all = await ctx.db.query("activityLog").collect();
     await Promise.all(all.map((e) => ctx.db.delete(e._id)));
   },

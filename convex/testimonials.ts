@@ -18,6 +18,7 @@ export const listActive = query({
 
 export const create = mutation({
   args: {
+    adminSecret: v.string(),
     author: v.string(),
     role: v.optional(v.string()),
     text: v.string(),
@@ -26,8 +27,10 @@ export const create = mutation({
     orderIndex: v.float64(),
   },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
+    const { adminSecret, ...data } = args;
     return await ctx.db.insert("testimonials", {
-      ...args,
+      ...data,
       isActive: true,
     });
   },
@@ -35,6 +38,7 @@ export const create = mutation({
 
 export const update = mutation({
   args: {
+    adminSecret: v.string(),
     id: v.id("testimonials"),
     author: v.optional(v.string()),
     role: v.optional(v.string()),
@@ -44,14 +48,16 @@ export const update = mutation({
     orderIndex: v.optional(v.float64()),
     isActive: v.optional(v.boolean()),
   },
-  handler: async (ctx, { id, ...fields }) => {
+  handler: async (ctx, { adminSecret, id, ...fields }) => {
+    if (adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     await ctx.db.patch(id, fields);
   },
 });
 
 export const remove = mutation({
-  args: { id: v.id("testimonials") },
-  handler: async (ctx, { id }) => {
+  args: { adminSecret: v.string(), id: v.id("testimonials") },
+  handler: async (ctx, { adminSecret, id }) => {
+    if (adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     await ctx.db.delete(id);
   },
 });

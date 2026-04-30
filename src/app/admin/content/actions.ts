@@ -9,8 +9,8 @@ export async function saveSiteContent(entries: Record<string, string>) {
   await requireAdmin();
   try {
     const payload = Object.entries(entries).map(([key, value]) => ({ key, value }));
-    await fetchMutation(api.businessSettings.save, { entries: payload });
-    await fetchMutation(api.activityLog.log, { action: 'Updated site content', section: 'Site Content' });
+    await fetchMutation(api.businessSettings.save, { adminSecret: process.env.ADMIN_PASSWORD!, entries: payload });
+    await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Updated site content', section: 'Site Content' });
 
     revalidatePath('/', 'layout');
     revalidatePath('/about');
@@ -30,6 +30,7 @@ export async function saveBanner(data: { enabled: boolean; text: string; link: s
   await requireAdmin();
   try {
     await fetchMutation(api.businessSettings.save, {
+      adminSecret: process.env.ADMIN_PASSWORD!,
       entries: [
         { key: 'banner_enabled', value: data.enabled ? 'true' : 'false' },
         { key: 'banner_text', value: data.text },
@@ -39,6 +40,7 @@ export async function saveBanner(data: { enabled: boolean; text: string; link: s
       ],
     });
     await fetchMutation(api.activityLog.log, {
+      adminSecret: process.env.ADMIN_PASSWORD!,
       action: data.enabled ? 'Enabled announcement banner' : 'Disabled announcement banner',
       section: 'Banner',
       details: data.text || undefined,

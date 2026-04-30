@@ -64,7 +64,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // --- guidosgourmet.ca domain redirect ---
   const host = request.headers.get('host') || '';
   if (host.includes('guidosgourmet')) {

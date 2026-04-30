@@ -18,13 +18,16 @@ export const listActive = query({
 
 export const create = mutation({
   args: {
+    adminSecret: v.string(),
     question: v.string(),
     answer: v.string(),
     orderIndex: v.float64(),
   },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
+    const { adminSecret, ...data } = args;
     return await ctx.db.insert("faqs", {
-      ...args,
+      ...data,
       isActive: true,
     });
   },
@@ -32,20 +35,23 @@ export const create = mutation({
 
 export const update = mutation({
   args: {
+    adminSecret: v.string(),
     id: v.id("faqs"),
     question: v.optional(v.string()),
     answer: v.optional(v.string()),
     orderIndex: v.optional(v.float64()),
     isActive: v.optional(v.boolean()),
   },
-  handler: async (ctx, { id, ...fields }) => {
+  handler: async (ctx, { adminSecret, id, ...fields }) => {
+    if (adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     await ctx.db.patch(id, fields);
   },
 });
 
 export const remove = mutation({
-  args: { id: v.id("faqs") },
-  handler: async (ctx, { id }) => {
+  args: { adminSecret: v.string(), id: v.id("faqs") },
+  handler: async (ctx, { adminSecret, id }) => {
+    if (adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     await ctx.db.delete(id);
   },
 });
