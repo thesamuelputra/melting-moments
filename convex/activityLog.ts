@@ -4,12 +4,11 @@ import { v } from "convex/values";
 export const recent = query({
   args: { limit: v.optional(v.float64()) },
   handler: async (ctx, { limit }) => {
-    const all = await ctx.db
+    return ctx.db
       .query("activityLog")
       .withIndex("by_performedAt")
       .order("desc")
-      .collect();
-    return limit ? all.slice(0, limit) : all;
+      .take(limit ?? 50);
   },
 });
 
@@ -28,6 +27,17 @@ export const log = mutation({
       details: args.details,
       performedAt: Date.now(),
     });
+
+    // Auto-cleanup: prune entries older than 90 days (piggy-backed on writes)
+    const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
+    const cutoff = Date.now() - NINETY_DAYS_MS;
+    const old = await ctx.db
+      .query("activityLog")
+      .withIndex("by_performedAt", (q) => q.lt("performedAt", cutoff))
+      .collect();
+    for (const entry of old) {
+      await ctx.db.delete(entry._id);
+    }
   },
 });
 
