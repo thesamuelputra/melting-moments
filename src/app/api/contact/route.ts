@@ -3,7 +3,7 @@ import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 import { escapeHtml, isValidEmail } from '@/lib/sanitize';
 
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       const eDetails = escapeHtml(details);
 
       // Email to Chef Paul / business owner
-      await resend.emails.send({
+      await resend!.emails.send({
         from: 'Melting Moments <onboarding@resend.dev>',
         to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
         subject: `New Catering Inquiry: ${eventType.slice(0, 60)} - ${name.slice(0, 60)}`,
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       });
 
       // Confirmation email to the customer
-      await resend.emails.send({
+      await resend!.emails.send({
         from: 'Melting Moments <onboarding@resend.dev>',
         to: email,
         subject: 'Thank you for your inquiry. Melting Moments Catering',

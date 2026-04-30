@@ -3,7 +3,7 @@ import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 import { escapeHtml, isValidEmail } from '@/lib/sanitize';
 
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     // Dispatch Email Notification to Owner
     if (process.env.RESEND_API_KEY) {
       // Email to Chef Paul
-      await resend.emails.send({
+      await resend!.emails.send({
         from: 'Guido\'s Gourmet <onboarding@resend.dev>',
         to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
         subject: `New Guido's Gourmet Order from ${name}`,
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       });
 
       // Confirmation email to the customer
-      await resend.emails.send({
+      await resend!.emails.send({
         from: 'Guido\'s Gourmet <onboarding@resend.dev>',
         to: email,
         subject: 'Order Received - Guido\'s Gourmet',

@@ -3,6 +3,11 @@ import { api } from '@/../convex/_generated/api';
 import AdminLayoutClient from './AdminLayoutClient';
 import './admin.css';
 import { unstable_noStore } from 'next/cache';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // Don't cache — banner status must be live

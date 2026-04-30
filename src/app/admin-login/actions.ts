@@ -18,12 +18,12 @@ const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_ATTEMPTS = 5;
 const BASE_LOCKOUT_MS = 30_000; // 30 seconds
 
-function getClientKey(formData: FormData): string {
-  // Use a hash of the password attempt as the key since we don't have
-  // access to the raw IP in server actions. This prevents the same wrong
-  // password from being retried rapidly.
-  const pw = String(formData.get('password') || '');
-  return crypto.createHash('sha256').update(pw).digest('hex').slice(0, 16);
+function getClientKey(): string {
+  // For a single-admin site, a global key is the correct defense.
+  // Server actions don't expose request headers (no IP available),
+  // and keying by password hash allows unlimited attempts with
+  // different passwords. A single bucket rate-limits ALL attempts.
+  return 'global_login';
 }
 
 function checkRateLimit(key: string): { blocked: boolean; retryAfterSeconds?: number } {
@@ -56,7 +56,7 @@ function clearAttempts(key: string) {
 }
 
 export async function login(formData: FormData) {
-  const key = getClientKey(formData);
+  const key = getClientKey();
   
   // Check rate limit
   const rateCheck = checkRateLimit(key);

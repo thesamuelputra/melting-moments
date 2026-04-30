@@ -24,6 +24,13 @@ export const metadata: Metadata = {
   title: 'Melting Moments | Award Winning Catering Victoria BC',
   description: 'Melting Moments provides completely custom catering, corporate setups, and specialized buffet installations across Victoria, BC. A symphony of taste for weddings, private events, and formal dining.',
   metadataBase: new URL('https://meltingmoments.ca'),
+  icons: {
+    icon: [
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_CA',
