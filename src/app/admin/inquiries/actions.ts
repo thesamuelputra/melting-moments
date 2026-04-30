@@ -20,6 +20,7 @@ export async function updateInquiryStatus(id: string, status: string) {
     });
     revalidatePath('/admin/inquiries');
     revalidatePath('/admin');
+    await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: `Updated inquiry status to ${status}`, section: 'Inquiries' });
     return { success: true };
   } catch (error) {
     console.error('Failed to update inquiry status:', error);
@@ -38,6 +39,7 @@ export async function deleteInquiry(id: string) {
     });
     revalidatePath('/admin/inquiries');
     revalidatePath('/admin');
+    await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Deleted inquiry', section: 'Inquiries' });
     return { success: true };
   } catch (error) {
     console.error('Failed to delete inquiry:', error);

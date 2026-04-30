@@ -53,7 +53,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
-    "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.resend.com",
+    "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.resend.com https://va.vercel-scripts.com https://vitals.vercel-insights.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
