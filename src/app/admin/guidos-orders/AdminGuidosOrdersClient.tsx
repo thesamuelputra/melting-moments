@@ -140,7 +140,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
                           <option key={s} value={s}>{s.replace('_', ' ')}</option>
                         ))}
                       </select>
-                      <button className="admin-btn admin-btn--sm admin-btn--danger" onClick={() => handleDelete(order.id)}>×</button>
+                      <button className="admin-btn admin-btn--sm admin-btn--danger" onClick={() => handleDelete(order.id)} aria-label="Delete order">×</button>
                     </div>
                   </td>
                 </tr>

@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { addGuidosProduct, updateGuidosProduct, deleteGuidosProduct } from './actions';
+import { getUploadUrl, saveUploadedImage } from '../media/actions';
+import Image from 'next/image';
 
 type Size = { label: string; price: number };
 type Product = {
@@ -36,6 +38,8 @@ export default function AdminGuidosProductsClient({ initialProducts }: { initial
   const [form, setForm] = useState<Omit<Product, 'id'>>(emptyProduct());
   const [saving, setSaving] = useState(false);
   const [filterCategory, setFilterCategory] = useState('All');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const productImageRef = useRef<HTMLInputElement>(null);
 
   const filtered = filterCategory === 'All' ? products : products.filter(p => p.category === filterCategory);
 
@@ -96,6 +100,45 @@ export default function AdminGuidosProductsClient({ initialProducts }: { initial
     setEditingId(null);
     setShowAddForm(false);
     setForm(emptyProduct());
+  };
+
+  const handleImageUpload = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be under 5MB');
+      return;
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type)) {
+      alert('Use JPG, PNG, WebP, or AVIF');
+      return;
+    }
+    setUploadingImage(true);
+    try {
+      const uploadUrl = await getUploadUrl();
+      const result = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      const { storageId } = await result.json();
+      const name = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+      await saveUploadedImage({
+        storageId,
+        title: name,
+        alt: name,
+        section: 'guidos',
+      });
+      // Get the URL from storage — construct from Convex URL pattern
+      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || '';
+      const siteUrl = convexUrl.replace('.cloud', '.site');
+      // For simplicity, just store the storageId reference and reload
+      setForm({ ...form, image: `convex:${storageId}` });
+      window.location.reload();
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      alert('Image upload failed. Please try again.');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // Size management helpers
@@ -163,10 +206,44 @@ export default function AdminGuidosProductsClient({ initialProducts }: { initial
               <span style={{ fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6B7280' }}>Price From ($) *</span>
               <input type="number" step="0.01" min="0" style={inputStyle} value={form.priceFrom} onChange={e => setForm({ ...form, priceFrom: parseFloat(e.target.value) || 0 })} />
             </label>
-            <label style={{ display: 'block' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6B7280' }}>Image Path</span>
-              <input style={inputStyle} placeholder="/guidos/product-name.webp" value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} />
-            </label>
+            <div style={{ display: 'block' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6B7280', display: 'block', marginBottom: '0.35rem' }}>Product Image</span>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                {form.image && (
+                  <div style={{ width: '64px', height: '64px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #E5E7EB', position: 'relative', flexShrink: 0 }}>
+                    {form.image.startsWith('/') ? (
+                      <Image src={form.image} alt="" fill sizes="64px" style={{ objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F3F4F6', fontSize: '0.6rem', color: '#9CA3AF' }}>Uploaded</div>
+                    )}
+                  </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <input style={inputStyle} placeholder="/guidos/product.webp or upload →" value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} />
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem' }}>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn--sm"
+                      onClick={() => productImageRef.current?.click()}
+                      disabled={uploadingImage}
+                      style={{ fontSize: '0.7rem' }}
+                    >
+                      {uploadingImage ? 'Uploading…' : '📷 Upload'}
+                    </button>
+                    {form.image && (
+                      <button type="button" className="admin-btn admin-btn--sm" onClick={() => setForm({ ...form, image: '' })} style={{ fontSize: '0.7rem', color: '#DC2626' }}>Remove</button>
+                    )}
+                  </div>
+                  <input
+                    ref={productImageRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/avif"
+                    style={{ display: 'none' }}
+                    onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
+                  />
+                </div>
+              </div>
+            </div>
             <label style={{ display: 'block' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6B7280' }}>Sort Order</span>
               <input type="number" style={inputStyle} value={form.orderIndex} onChange={e => setForm({ ...form, orderIndex: parseInt(e.target.value) || 0 })} />
@@ -193,7 +270,7 @@ export default function AdminGuidosProductsClient({ initialProducts }: { initial
               <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
                 <input style={{ ...inputStyle, flex: 2 }} placeholder="e.g. Family (4-6)" value={size.label} onChange={e => updateSize(i, 'label', e.target.value)} />
                 <input type="number" step="0.01" style={{ ...inputStyle, flex: 1 }} placeholder="Price" value={size.price} onChange={e => updateSize(i, 'price', parseFloat(e.target.value) || 0)} />
-                <button className="admin-btn admin-btn--sm admin-btn--danger" onClick={() => removeSize(i)}>×</button>
+                <button className="admin-btn admin-btn--sm admin-btn--danger" onClick={() => removeSize(i)} aria-label="Remove size variant">×</button>
               </div>
             ))}
           </div>
