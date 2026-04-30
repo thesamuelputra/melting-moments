@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     images: [{ url: '/hero-main.webp', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
   },
   twitter: { card: 'summary_large_image' },
+  other: {
+    'theme-color': '#070707',
+  },
 }
 
 export default function RootLayout({

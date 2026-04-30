@@ -3,7 +3,15 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
-const photos = [
+type GalleryImage = {
+  id: string;
+  title: string;
+  alt: string;
+  url: string;
+};
+
+// Hardcoded fallback for when no CMS images are tagged "gallery" yet
+const FALLBACK_PHOTOS = [
   { src: '/macro_lunch.webp', title: 'Corporate Luncheon Setup', alt: 'Elegant corporate lunch spread with mixed greens and grilled proteins' },
   { src: '/macro_charcuterie.webp', title: 'Artisan Charcuterie', alt: 'Rustic charcuterie board with cured meats, cheeses, and seasonal fruits' },
   { src: '/macro_fountain.webp', title: 'Chocolate Cascade', alt: 'Belgian chocolate fountain with cascading tiers at a formal event' },
@@ -14,8 +22,14 @@ const photos = [
   { src: '/macro_family.webp', title: 'Harvest Table', alt: 'Family-style dining table with communal dishes and fresh bread' }
 ];
 
-export default function GalleryClient() {
+export default function GalleryClient({ cmsImages }: { cmsImages?: GalleryImage[] }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
+
+  // Use CMS images if available, otherwise fallback to static photos
+  const useCms = cmsImages && cmsImages.length > 0;
+  const photos = useCms
+    ? cmsImages.map(img => ({ src: img.url, title: img.title, alt: img.alt }))
+    : FALLBACK_PHOTOS;
 
   return (
     <>
@@ -40,66 +54,47 @@ export default function GalleryClient() {
         </div>
       </section>
 
-      {/* Lightbox Modal (#23) */}
+      {/* Lightbox */}
       {lightbox !== null && (
-        <div 
+        <div
           onClick={() => setLightbox(null)}
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') setLightbox(null);
-            if (e.key === 'ArrowRight') setLightbox((lightbox + 1) % photos.length);
-            if (e.key === 'ArrowLeft') setLightbox((lightbox - 1 + photos.length) % photos.length);
-          }}
-          tabIndex={0}
-          role="dialog"
-          aria-label="Image lightbox"
           style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.9)',
-            zIndex: 50000,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            animation: 'fadeIn 0.3s ease',
+            position: 'fixed', inset: 0, zIndex: 999,
+            background: 'rgba(0,0,0,0.92)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            cursor: 'zoom-out', padding: '2rem',
           }}
         >
-          {/* Previous */}
-          <button 
-            onClick={(e) => { e.stopPropagation(); setLightbox((lightbox - 1 + photos.length) % photos.length); }}
-            style={{ position: 'absolute', left: '2rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'white', fontSize: '2rem', cursor: 'pointer', padding: '1rem', zIndex: 50001 }}
-            aria-label="Previous image"
-          >
-            ←
-          </button>
-
-          {/* Image */}
-          <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', width: '80vw', height: '80vh', maxWidth: '1200px' }}>
-            <Image src={photos[lightbox].src} alt={photos[lightbox].alt} fill sizes="80vw" style={{ objectFit: 'contain' }} priority />
+          <div style={{ position: 'relative', width: '90vw', height: '80vh', maxWidth: '1200px' }}>
+            <Image
+              src={photos[lightbox].src}
+              alt={photos[lightbox].alt}
+              fill
+              sizes="90vw"
+              style={{ objectFit: 'contain' }}
+              quality={90}
+            />
           </div>
-
-          {/* Next */}
-          <button 
-            onClick={(e) => { e.stopPropagation(); setLightbox((lightbox + 1) % photos.length); }}
-            style={{ position: 'absolute', right: '2rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'white', fontSize: '2rem', cursor: 'pointer', padding: '1rem', zIndex: 50001 }}
-            aria-label="Next image"
-          >
-            →
-          </button>
-
-          {/* Close */}
-          <button 
-            onClick={() => setLightbox(null)}
-            style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', padding: '1rem', zIndex: 50001 }}
-            aria-label="Close lightbox"
-          >
-            ✕
-          </button>
-
-          {/* Caption */}
-          <div style={{ position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            {photos[lightbox].title} · {lightbox + 1} / {photos.length}
+          <div style={{
+            position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)',
+            color: 'white', textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '0.25rem' }}>{photos[lightbox].title}</div>
+            <div style={{ fontSize: '0.75rem', opacity: 0.5 }}>{lightbox + 1} / {photos.length}</div>
           </div>
+          {/* Navigation */}
+          {lightbox > 0 && (
+            <button onClick={(e) => { e.stopPropagation(); setLightbox(lightbox - 1); }}
+              style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'white', fontSize: '2rem', cursor: 'pointer', padding: '1rem' }}
+              aria-label="Previous image"
+            >←</button>
+          )}
+          {lightbox < photos.length - 1 && (
+            <button onClick={(e) => { e.stopPropagation(); setLightbox(lightbox + 1); }}
+              style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'white', fontSize: '2rem', cursor: 'pointer', padding: '1rem' }}
+              aria-label="Next image"
+            >→</button>
+          )}
         </div>
       )}
     </>

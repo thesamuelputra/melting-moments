@@ -22,10 +22,11 @@ const SECTION_DOT: Record<string, string> = {
   "Guido's Products": '#B45309',
   "Guido's Orders": '#DC2626',
   'Settings': '#6B7280',
+  'Media': '#0EA5E9',
 };
 
 export default async function AdminDashboard() {
-  const [allInquiries, totalMenuItems, categoryCount, faqCount, testimonialCount, recentActivity, settings, guidosProductCount, allGuidosOrders] = await Promise.all([
+  const [allInquiries, totalMenuItems, categoryCount, faqCount, testimonialCount, recentActivity, settings, guidosProductCount, allGuidosOrders, allSiteImages] = await Promise.all([
     fetchQuery(api.inquiries.list),
     fetchQuery(api.menuItems.count),
     fetchQuery(api.menuItems.categoryCount),
@@ -35,6 +36,7 @@ export default async function AdminDashboard() {
     fetchQuery(api.businessSettings.getAll),
     fetchQuery(api.guidosProducts.count),
     fetchQuery(api.guidosOrders.list),
+    fetchQuery(api.files.list, {}),
   ]);
 
   const nonArchived = allInquiries.filter((i) => i.status !== 'archived');
@@ -119,6 +121,7 @@ export default async function AdminDashboard() {
           { href: '/admin/inquiries', label: 'Inquiries', sub: `${newInquiriesCount} new` },
           { href: '/admin/guidos-products', label: 'Guido\'s Products', sub: `${guidosProductCount} items` },
           { href: '/admin/guidos-orders', label: 'Guido\'s Orders', sub: `${newGuidosOrders} new` },
+          { href: '/admin/media', label: 'Media Library', sub: `${allSiteImages.length} images` },
           { href: '/admin/settings', label: 'Settings', sub: 'Business info' },
         ].map(({ href, label, sub, dotColor }) => (
           <Link
