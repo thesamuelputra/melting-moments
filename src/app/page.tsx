@@ -29,7 +29,7 @@ export default async function Home() {
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%', padding: '0 2rem' }}>
           {/* Desktop: side by side. Mobile: stacked */}
           <div className="hero-brand-lockup">
-            <h1 className="haus-display hero-brand-name" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
+            <h1 className="haus-display hero-brand-name" aria-label="Melting Moments" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
               Melting<br />Moments
             </h1>
             <div className="hero-separator" aria-hidden="true"></div>

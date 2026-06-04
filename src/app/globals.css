@@ -748,3 +748,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .page-shutter--active .page-shutter__panel { animation: none; }
 }
 
+/* A11y: enlarge footer link tap targets to meet WCAG 2.2 AA target size (>=24px) */
+.footer-nav a {
+  display: inline-block;
+  padding: 5px 0;
+}
+
