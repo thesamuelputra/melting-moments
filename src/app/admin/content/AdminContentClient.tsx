@@ -257,7 +257,7 @@ export default function AdminContentClient({ initialContent }: { initialContent:
   return (
     <div>
       {saveError && (
-        <div style={{ marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px' }}>
+        <div role="alert" style={{ marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px' }}>
           {saveError}
         </div>
       )}
@@ -317,7 +317,7 @@ export default function AdminContentClient({ initialContent }: { initialContent:
                 return (
                   <div key={field.key}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem' }}>
-                      <label className="admin-modal__label" style={{ margin: 0 }}>
+                      <label className="admin-modal__label" htmlFor={field.key} style={{ margin: 0 }}>
                         {field.label}
                         {isModified && (
                           <span style={{ marginLeft: '0.5rem', fontSize: '0.6rem', color: '#D97706', fontWeight: 500, letterSpacing: '0.04em' }}>MODIFIED</span>
@@ -334,11 +334,13 @@ export default function AdminContentClient({ initialContent }: { initialContent:
                         </button>
                       )}
                     </div>
-                    <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem', lineHeight: 1.3 }}>
+                    <p id={`${field.key}-hint`} style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem', lineHeight: 1.3 }}>
                       {field.hint}
                     </p>
                     {field.type === 'textarea' ? (
                       <textarea
+                        id={field.key}
+                        aria-describedby={`${field.key}-hint`}
                         className="admin-inline-input"
                         value={currentValue}
                         onChange={e => updateField(field.key, e.target.value)}
@@ -348,6 +350,8 @@ export default function AdminContentClient({ initialContent }: { initialContent:
                       />
                     ) : (
                       <input
+                        id={field.key}
+                        aria-describedby={`${field.key}-hint`}
                         className="admin-inline-input"
                         value={currentValue}
                         onChange={e => updateField(field.key, e.target.value)}
@@ -424,7 +428,7 @@ export default function AdminContentClient({ initialContent }: { initialContent:
       )}
 
       {saved && (
-        <div style={{
+        <div role="status" aria-live="polite" style={{
           position: 'fixed',
           bottom: '2rem',
           right: '2rem',

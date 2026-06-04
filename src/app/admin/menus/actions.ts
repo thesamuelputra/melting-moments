@@ -24,6 +24,7 @@ export async function addMenuItem(data: MenuItemInput) {
   }
 
   const id = await fetchMutation(api.menuItems.add, {
+    adminSecret: process.env.ADMIN_PASSWORD!,
     category: data.category,
     name: data.name,
     description: data.description || '',
@@ -34,6 +35,7 @@ export async function addMenuItem(data: MenuItemInput) {
     isFeatured: data.isFeatured ?? false,
   });
 
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: `Added menu item: ${data.name}`, section: 'Menu', details: data.category });
   revalidatePath('/admin/menus');
   revalidatePath('/menus');
 
@@ -55,6 +57,7 @@ export async function updateMenuItem(id: string, data: MenuItemInput) {
   if (!id) throw new Error('Item ID is required');
 
   await fetchMutation(api.menuItems.update, {
+    adminSecret: process.env.ADMIN_PASSWORD!,
     id: id as Id<"menuItems">,
     category: data.category,
     name: data.name,
@@ -66,6 +69,7 @@ export async function updateMenuItem(id: string, data: MenuItemInput) {
     isFeatured: data.isFeatured ?? false,
   });
 
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: `Updated menu item: ${data.name}`, section: 'Menu', details: data.category });
   revalidatePath('/admin/menus');
   revalidatePath('/menus');
 }
@@ -75,9 +79,11 @@ export async function deleteMenuItem(id: string) {
   if (!id) throw new Error('Item ID is required');
   
   await fetchMutation(api.menuItems.remove, {
+    adminSecret: process.env.ADMIN_PASSWORD!,
     id: id as Id<"menuItems">,
   });
 
+  await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Deleted menu item', section: 'Menu' });
   revalidatePath('/admin/menus');
   revalidatePath('/menus');
   return { success: true };

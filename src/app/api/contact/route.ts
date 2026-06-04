@@ -3,20 +3,9 @@ import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-/**
- * Escapes HTML special characters to prevent XSS when embedding
- * user-submitted values into email HTML templates.
- */
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { escapeHtml, isValidEmail } from '@/lib/sanitize';
 
 export async function POST(request: Request) {
   try {
@@ -30,6 +19,10 @@ export async function POST(request: Request) {
 
     if (!body.eventType || !body.name || !body.email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (!isValidEmail(String(body.email))) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
     // Basic input length caps to prevent abuse
@@ -66,10 +59,10 @@ export async function POST(request: Request) {
       const eDetails = escapeHtml(details);
 
       // Email to Chef Paul / business owner
-      await resend.emails.send({
+      await resend!.emails.send({
         from: 'Melting Moments <onboarding@resend.dev>',
         to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
-        subject: `New Catering Inquiry: ${eventType} - ${name}`,
+        subject: `New Catering Inquiry: ${eventType.slice(0, 60)} - ${name.slice(0, 60)}`,
         html: `
           <h2>New Booking Inquiry</h2>
           <p><strong>Name:</strong> ${eName}</p>
@@ -86,7 +79,7 @@ export async function POST(request: Request) {
       });
 
       // Confirmation email to the customer
-      await resend.emails.send({
+      await resend!.emails.send({
         from: 'Melting Moments <onboarding@resend.dev>',
         to: email,
         subject: 'Thank you for your inquiry. Melting Moments Catering',
@@ -117,7 +110,7 @@ export async function POST(request: Request) {
       });
     }
 
-    console.log(`[Contact API] Received and saved inquiry from ${name} (${email}) for ${eventType}`);
+    console.log(`[Contact API] Inquiry received for ${eventType} (${name.charAt(0)}***).`);
     
     return NextResponse.json({ success: true, message: 'Inquiry received successfully.' });
   } catch (error) {

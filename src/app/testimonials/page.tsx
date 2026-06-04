@@ -13,7 +13,7 @@ export default async function Testimonials() {
   // Fall back to static defaults if no CMS testimonials exist yet
   const reviews = rawReviews.length > 0 ? rawReviews : [
     { author: "Sarah & James", role: "Wedding Clients", text: "Melting Moments transformed our wedding. The food was not just catering; it was an experience. Guests are still talking about the duck confit.", rating: 5 },
-    { author: "Victoria Tech Group", role: "Corporate Client", text: "Chef Paul handled our 300-person corporate gala flawlessly. The execution was punctual, the staff invisible yet attentive, and the flavor profiles were exceptional.", rating: 5 },
+    { author: "Victoria Tech Group", role: "Corporate Client", text: "Chef Paul handled our 300-person corporate gala flawlessly. The execution was punctual, the staff invisible yet attentive, and the flavour profiles were exceptional.", rating: 5 },
     { author: "Elena M.", role: "Private Event Client", text: "The chocolate fountain was the centerpiece of our anniversary. Professional setup, premium ingredients, unparalleled service.", rating: 5 },
   ];
 
@@ -31,7 +31,7 @@ export default async function Testimonials() {
                   {'★'.repeat(rev.rating)}
                 </div>
               )}
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '2rem', fontStyle: 'italic' }}>"{rev.text}"</p>
+              <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '2rem', fontStyle: 'italic' }}>&ldquo;{rev.text}&rdquo;</p>
               <div>
                 <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>— {rev.author}</div>
                 {rev.role && <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', marginTop: '0.25rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{rev.role}</div>}

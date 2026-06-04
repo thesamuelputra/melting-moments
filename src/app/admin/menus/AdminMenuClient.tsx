@@ -240,6 +240,7 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
           <input
             className="admin-inline-input"
             placeholder="Search items..."
+            aria-label="Search items"
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{ paddingLeft: '2.25rem', fontSize: '0.82rem' }}
@@ -282,7 +283,7 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
               <tr>
                 <th style={{ width: '36px' }}>
                   <input type="checkbox" checked={allSelected} onChange={toggleSelectAll}
-                    style={{ cursor: 'pointer', accentColor: '#111' }} title="Select all" />
+                    style={{ cursor: 'pointer', accentColor: '#111' }} title="Select all" aria-label="Select all items" />
                 </th>
                 <th style={{ width: '36px' }}>#</th>
                 <th style={{ width: '50px' }}>Vis</th>
@@ -321,7 +322,7 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
                 <tr key={item.id} style={{ opacity: item.isActive || editId === item.id ? 1 : 0.4, background: selected.has(item.id) ? 'rgba(17,17,17,0.03)' : undefined }}>
                   <td>
                     <input type="checkbox" checked={selected.has(item.id)} onChange={() => toggleSelect(item.id)}
-                      style={{ cursor: 'pointer', accentColor: '#111' }} />
+                      style={{ cursor: 'pointer', accentColor: '#111' }} aria-label={`Select ${item.name}`} />
                   </td>
                   <td style={{ color: 'rgba(0,0,0,0.25)', fontSize: '0.75rem' }}>{String(idx + 1).padStart(2, '0')}</td>
                   <td>
@@ -353,21 +354,21 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
                   </td>
                   <td>
                     {editId === item.id ? (
-                      <input className="admin-inline-input" value={editData.name || ''} onChange={e => setEditData({ ...editData, name: e.target.value })} autoFocus />
+                      <input className="admin-inline-input" aria-label="Item name" value={editData.name || ''} onChange={e => setEditData({ ...editData, name: e.target.value })} autoFocus />
                     ) : (
                       <span className="admin-table__name">{item.name}</span>
                     )}
                   </td>
                   <td>
                     {editId === item.id ? (
-                      <input className="admin-inline-input" value={editData.description || ''} onChange={e => setEditData({ ...editData, description: e.target.value })} />
+                      <input className="admin-inline-input" aria-label="Item description" value={editData.description || ''} onChange={e => setEditData({ ...editData, description: e.target.value })} />
                     ) : (
                       <span style={{ fontSize: '0.8rem', color: 'rgba(0,0,0,0.5)' }}>{item.description}</span>
                     )}
                   </td>
                   <td>
                     {editId === item.id ? (
-                      <input className="admin-inline-input" placeholder="e.g. $9.95/pp" value={editData.priceLabel ?? ''} onChange={e => setEditData({ ...editData, priceLabel: e.target.value })} style={{ width: '110px' }} />
+                      <input className="admin-inline-input" aria-label="Price label" placeholder="e.g. $9.95/pp" value={editData.priceLabel ?? ''} onChange={e => setEditData({ ...editData, priceLabel: e.target.value })} style={{ width: '110px' }} />
                     ) : (
                       <span style={{ fontWeight: 500 }}>{item.priceLabel || 'Included'}</span>
                     )}

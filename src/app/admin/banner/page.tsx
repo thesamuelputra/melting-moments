@@ -9,6 +9,7 @@ export default async function AdminBannerPage() {
     text: settings['banner_text'] || '',
     link: settings['banner_link'] || '',
     style: (settings['banner_style'] || 'dark') as 'dark' | 'accent' | 'light',
+    showOn: (settings['banner_show_on'] || 'all') as 'all' | 'catering' | 'guidos',
   };
   return <AdminBannerClient initial={initial} />;
 }

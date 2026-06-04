@@ -153,8 +153,8 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Event Details</h2>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Event Type *</span>
-                  <CustomSelect value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="Select event type..."
-                    options={[{ value: "corporate", label: "Corporate Function" }, { value: "wedding", label: "Wedding" }, { value: "private", label: "Private Gathering" }, { value: "fountain", label: "Chocolate Fountain Rental" }]} />
+                  <CustomSelect value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="What is this about?..."
+                    options={[{ value: "corporate", label: "Corporate Function" }, { value: "wedding", label: "Wedding" }, { value: "private", label: "Private Gathering" }, { value: "fountain", label: "Chocolate Fountain Rental" }, { value: "ready-made", label: "Ready-Made Meals (Guido's)" }, { value: "other", label: "General Inquiry" }]} />
                   {step1Error && <div style={{ color: '#B91C1C', fontSize: '0.8rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>{step1Error}</div>}
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
@@ -227,7 +227,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <p style={{ opacity: 0.7, maxWidth: '30ch', margin: '0 auto', marginBottom: '0.5rem' }}>
                   Thank you, {formData.name || 'Guest'}. Chef Paul or our concierge team will contact you shortly.
                 </p>
-                <p style={{ opacity: 0.5, fontSize: '0.8rem' }}>A confirmation has been sent to {formData.email}.</p>
+                <p style={{ opacity: 0.5, fontSize: '0.8rem' }}>We&apos;ll follow up at {formData.email} shortly.</p>
               </div>
             )}
           </div>

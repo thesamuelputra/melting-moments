@@ -5,11 +5,14 @@ import { saveBanner } from '../content/actions';
 
 type Style = 'dark' | 'accent' | 'light';
 
+type ShowOn = 'all' | 'catering' | 'guidos';
+
 type BannerData = {
   enabled: boolean;
   text: string;
   link: string;
   style: Style;
+  showOn: ShowOn;
 };
 
 const STYLE_PREVIEWS: Record<Style, { bg: string; color: string; label: string }> = {
@@ -54,6 +57,11 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           {dirty && <span style={{ fontSize: '0.7rem', color: '#D97706', fontWeight: 500 }}>Unsaved changes</span>}
+          {/* Visually-hidden live region announces save success to screen readers */}
+          <span role="status" aria-live="polite" style={{
+            position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px',
+            overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0,
+          }}>{saved ? 'Banner changes saved' : ''}</span>
           <button
             className="admin-btn admin-btn--primary"
             onClick={handleSave}
@@ -101,14 +109,19 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1.25rem', marginBottom: '1.25rem', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
           <div>
             <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Enable Banner</div>
-            <div style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.2rem' }}>Toggle banner visibility across all public pages</div>
+            <div style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.2rem' }}>Toggle banner visibility across public pages</div>
           </div>
           <button
+            type="button"
+            role="switch"
+            aria-checked={data.enabled}
+            aria-label="Enable Banner"
             onClick={() => update({ enabled: !data.enabled })}
             style={{
               width: '48px', height: '26px', borderRadius: '13px', border: 'none', cursor: 'pointer',
               backgroundColor: data.enabled ? '#111111' : 'rgba(0,0,0,0.12)',
               position: 'relative', transition: 'background-color 0.2s ease',
+              padding: 0,
             }}
           >
             <span style={{
@@ -121,9 +134,11 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
 
         {/* Text */}
         <div style={{ marginBottom: '1.25rem' }}>
-          <label className="admin-modal__label">Banner Text *</label>
-          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Keep it short. Under 80 characters works best</p>
+          <label className="admin-modal__label" htmlFor="banner-text">Banner Text *</label>
+          <p id="banner-text-hint" style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Keep it short. Under 80 characters works best</p>
           <input
+            id="banner-text"
+            aria-describedby="banner-text-hint"
             className="admin-inline-input"
             value={data.text}
             onChange={e => update({ text: e.target.value })}
@@ -135,14 +150,38 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
 
         {/* Link */}
         <div style={{ marginBottom: '1.25rem' }}>
-          <label className="admin-modal__label">Link (Optional)</label>
-          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Where clicking the banner takes visitors. Leave blank for no link</p>
+          <label className="admin-modal__label" htmlFor="banner-link">Link (Optional)</label>
+          <p id="banner-link-hint" style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Where clicking the banner takes visitors. Leave blank for no link</p>
           <input
+            id="banner-link"
+            aria-describedby="banner-link-hint"
             className="admin-inline-input"
             value={data.link}
             onChange={e => update({ link: e.target.value })}
             placeholder="/contact or https://..."
           />
+        </div>
+
+        {/* Show On (Targeting) */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <label className="admin-modal__label">Show On</label>
+          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Restrict banner to specific sections of the site</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+            {([['all', 'All Pages'], ['catering', 'Catering Only'], ['guidos', "Guido's Only"]] as [ShowOn, string][]).map(([val, label]) => (
+              <button
+                key={val}
+                onClick={() => update({ showOn: val })}
+                style={{
+                  padding: '0.6rem', fontSize: '0.75rem', cursor: 'pointer',
+                  border: data.showOn === val ? '2px solid #111' : '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '6px', background: data.showOn === val ? 'rgba(0,0,0,0.03)' : 'white',
+                  fontWeight: data.showOn === val ? 600 : 400,
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Style */}

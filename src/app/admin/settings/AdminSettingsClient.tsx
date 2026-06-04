@@ -62,7 +62,7 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
   return (
     <div style={{ maxWidth: '700px' }}>
       {saveError && (
-        <div style={{ marginBottom: '1.5rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px' }}>
+        <div role="alert" style={{ marginBottom: '1.5rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px' }}>
           {saveError}
         </div>
       )}
@@ -77,8 +77,9 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
         <div className="admin-section__body">
           <div style={{ display: 'grid', gap: '1.25rem', opacity: isPending ? 0.7 : 1, transition: 'opacity 0.2s ease' }}>
             <div>
-              <label className="admin-modal__label" style={{ marginBottom: '0.5rem' }}>Business Name</label>
+              <label className="admin-modal__label" htmlFor="settings-name" style={{ marginBottom: '0.5rem' }}>Business Name</label>
               <input
+                id="settings-name"
                 className="admin-inline-input"
                 value={business.name}
                 onChange={e => setBusiness({ ...business, name: e.target.value })}
@@ -86,8 +87,9 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
               />
             </div>
             <div>
-              <label className="admin-modal__label" style={{ marginBottom: '0.5rem' }}>Owner / Chef</label>
+              <label className="admin-modal__label" htmlFor="settings-owner" style={{ marginBottom: '0.5rem' }}>Owner / Chef</label>
               <input
+                id="settings-owner"
                 className="admin-inline-input"
                 value={business.owner}
                 onChange={e => setBusiness({ ...business, owner: e.target.value })}
@@ -95,8 +97,9 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
               />
             </div>
             <div>
-              <label className="admin-modal__label" style={{ marginBottom: '0.5rem' }}>Address</label>
+              <label className="admin-modal__label" htmlFor="settings-address" style={{ marginBottom: '0.5rem' }}>Address</label>
               <input
+                id="settings-address"
                 className="admin-inline-input"
                 value={business.address}
                 onChange={e => setBusiness({ ...business, address: e.target.value })}
@@ -105,8 +108,9 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
-                <label className="admin-modal__label" style={{ marginBottom: '0.5rem' }}>Phone</label>
+                <label className="admin-modal__label" htmlFor="settings-phone" style={{ marginBottom: '0.5rem' }}>Phone</label>
                 <input
+                  id="settings-phone"
                   className="admin-inline-input"
                   value={business.phone}
                   onChange={e => setBusiness({ ...business, phone: e.target.value })}
@@ -114,8 +118,9 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
                 />
               </div>
               <div>
-                <label className="admin-modal__label" style={{ marginBottom: '0.5rem' }}>Email</label>
+                <label className="admin-modal__label" htmlFor="settings-email" style={{ marginBottom: '0.5rem' }}>Email</label>
                 <input
+                  id="settings-email"
                   className="admin-inline-input"
                   value={business.email}
                   onChange={e => setBusiness({ ...business, email: e.target.value })}
@@ -124,8 +129,9 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
               </div>
             </div>
             <div>
-              <label className="admin-modal__label" style={{ marginBottom: '0.5rem' }}>Website</label>
+              <label className="admin-modal__label" htmlFor="settings-website" style={{ marginBottom: '0.5rem' }}>Website</label>
               <input
+                id="settings-website"
                 className="admin-inline-input"
                 value={business.website}
                 onChange={e => setBusiness({ ...business, website: e.target.value })}
@@ -148,17 +154,24 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
               { key: 'emailOnBooking' as const, label: 'Email on booking confirmation', desc: 'Get notified when an inquiry is marked as booked.' },
               { key: 'weeklyDigest' as const, label: 'Weekly digest', desc: 'Receive a summary of inquiries and events every Monday.' },
             ].map(pref => (
-              <label key={pref.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid rgba(0,0,0,0.04)', cursor: isPending ? 'default' : 'pointer' }}>
+              <div key={pref.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
                 <div>
                   <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>{pref.label}</div>
                   <div style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.15rem' }}>{pref.desc}</div>
                 </div>
-                <div
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={notifications[pref.key]}
+                  aria-label={pref.label}
+                  disabled={isPending}
                   onClick={() => !isPending && setNotifications(prev => ({ ...prev, [pref.key]: !prev[pref.key] }))}
                   style={{
                     width: '40px',
                     height: '22px',
                     borderRadius: '11px',
+                    border: 'none',
+                    padding: 0,
                     backgroundColor: notifications[pref.key] ? 'var(--clr-ink)' : 'rgba(0,0,0,0.15)',
                     position: 'relative',
                     transition: 'background-color 0.2s',
@@ -166,7 +179,7 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
                     flexShrink: 0,
                   }}
                 >
-                  <div style={{
+                  <span style={{
                     width: '16px',
                     height: '16px',
                     borderRadius: '50%',
@@ -177,8 +190,8 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
                     transition: 'left 0.2s',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                   }} />
-                </div>
-              </label>
+                </button>
+              </div>
             ))}
           </div>
           <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', backgroundColor: 'rgba(217, 119, 6, 0.05)', borderLeft: '3px solid #D97706', fontSize: '0.75rem', color: 'rgba(0,0,0,0.6)', lineHeight: 1.5 }}>
@@ -192,7 +205,7 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
         <button className="admin-btn admin-btn--primary" onClick={handleSave} style={{ padding: '0.7rem 2rem' }} disabled={isPending}>
           {isPending ? 'Saving...' : saved ? '✓ Saved' : 'Save Changes'}
         </button>
-        {saved && <span style={{ fontSize: '0.8rem', color: '#059669' }}>Changes saved successfully.</span>}
+        <span role="status" aria-live="polite" style={{ fontSize: '0.8rem', color: '#059669' }}>{saved ? 'Changes saved successfully.' : ''}</span>
       </div>
     </div>
   );

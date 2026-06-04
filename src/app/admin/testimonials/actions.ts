@@ -9,8 +9,8 @@ import { requireAdmin } from '@/lib/auth';
 export async function createTestimonial(data: { author: string; role?: string; text: string; rating?: number; orderIndex: number }) {
   await requireAdmin();
   try {
-    await fetchMutation(api.testimonials.create, data);
-    await fetchMutation(api.activityLog.log, { action: 'Added testimonial', section: 'Testimonials', details: `From ${data.author}` });
+    await fetchMutation(api.testimonials.create, { adminSecret: process.env.ADMIN_PASSWORD!, ...data });
+    await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Added testimonial', section: 'Testimonials', details: `From ${data.author}` });
     revalidatePath('/testimonials');
     return { success: true };
   } catch { return { success: false }; }
@@ -19,8 +19,8 @@ export async function createTestimonial(data: { author: string; role?: string; t
 export async function updateTestimonial(id: string, fields: { author?: string; role?: string; text?: string; rating?: number; orderIndex?: number; isActive?: boolean }) {
   await requireAdmin();
   try {
-    await fetchMutation(api.testimonials.update, { id: id as Id<'testimonials'>, ...fields });
-    await fetchMutation(api.activityLog.log, { action: 'Updated testimonial', section: 'Testimonials', details: fields.author });
+    await fetchMutation(api.testimonials.update, { adminSecret: process.env.ADMIN_PASSWORD!, id: id as Id<'testimonials'>, ...fields });
+    await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Updated testimonial', section: 'Testimonials', details: fields.author });
     revalidatePath('/testimonials');
     return { success: true };
   } catch { return { success: false }; }
@@ -29,8 +29,8 @@ export async function updateTestimonial(id: string, fields: { author?: string; r
 export async function deleteTestimonial(id: string) {
   await requireAdmin();
   try {
-    await fetchMutation(api.testimonials.remove, { id: id as Id<'testimonials'> });
-    await fetchMutation(api.activityLog.log, { action: 'Deleted testimonial', section: 'Testimonials' });
+    await fetchMutation(api.testimonials.remove, { adminSecret: process.env.ADMIN_PASSWORD!, id: id as Id<'testimonials'> });
+    await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Deleted testimonial', section: 'Testimonials' });
     revalidatePath('/testimonials');
     return { success: true };
   } catch { return { success: false }; }

@@ -115,12 +115,12 @@ export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs:
           <h3 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>New FAQ</h3>
           <div style={{ display: 'grid', gap: '1rem' }}>
             <div>
-              <label className="admin-modal__label">Question</label>
-              <input className="admin-inline-input" value={newQ} onChange={e => setNewQ(e.target.value)} placeholder="e.g. How far in advance should I book?" />
+              <label className="admin-modal__label" htmlFor="faq-new-question">Question</label>
+              <input id="faq-new-question" className="admin-inline-input" value={newQ} onChange={e => setNewQ(e.target.value)} placeholder="e.g. How far in advance should I book?" />
             </div>
             <div>
-              <label className="admin-modal__label">Answer</label>
-              <textarea className="admin-inline-input" value={newA} onChange={e => setNewA(e.target.value)} rows={3} placeholder="Write a clear, helpful answer..." style={{ resize: 'vertical' }} />
+              <label className="admin-modal__label" htmlFor="faq-new-answer">Answer</label>
+              <textarea id="faq-new-answer" className="admin-inline-input" value={newA} onChange={e => setNewA(e.target.value)} rows={3} placeholder="Write a clear, helpful answer..." style={{ resize: 'vertical' }} />
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
@@ -151,12 +151,12 @@ export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs:
             ) : editing?.id === faq.id ? (
               <div style={{ display: 'grid', gap: '1rem' }}>
                 <div>
-                  <label className="admin-modal__label">Question</label>
-                  <input className="admin-inline-input" value={editing.question} onChange={e => setEditing({ ...editing, question: e.target.value })} />
+                  <label className="admin-modal__label" htmlFor={`faq-edit-question-${faq.id}`}>Question</label>
+                  <input id={`faq-edit-question-${faq.id}`} className="admin-inline-input" value={editing.question} onChange={e => setEditing({ ...editing, question: e.target.value })} />
                 </div>
                 <div>
-                  <label className="admin-modal__label">Answer</label>
-                  <textarea className="admin-inline-input" value={editing.answer} onChange={e => setEditing({ ...editing, answer: e.target.value })} rows={3} style={{ resize: 'vertical' }} />
+                  <label className="admin-modal__label" htmlFor={`faq-edit-answer-${faq.id}`}>Answer</label>
+                  <textarea id={`faq-edit-answer-${faq.id}`} className="admin-inline-input" value={editing.answer} onChange={e => setEditing({ ...editing, answer: e.target.value })} rows={3} style={{ resize: 'vertical' }} />
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button className="admin-btn admin-btn--primary" onClick={handleSaveEdit}>Save</button>
@@ -196,7 +196,7 @@ export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs:
       </div>
 
       {toast && (
-        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: '#059669', color: 'white', padding: '0.75rem 1.25rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 60 }}>
+        <div role="status" aria-live="polite" style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: '#059669', color: 'white', padding: '0.75rem 1.25rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 60 }}>
           ✓ {toast}
         </div>
       )}

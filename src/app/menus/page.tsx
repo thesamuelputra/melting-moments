@@ -7,10 +7,11 @@ import MenuClient from './MenuClient';
 
 export const metadata: Metadata = {
   title: 'Catering Menus | Melting Moments Victoria BC',
-  description: 'Browse our catering menus, from Italian family-style dinners to corporate luncheons and BBQ packages. Award-winning cuisine in Victoria, BC.',
+  description: 'Browse our catering menus, from Italian family-style dinners to corporate luncheons and BBQ packages. Acclaimed cuisine in Victoria, BC.',
   openGraph: {
     title: 'Catering Menus | Melting Moments Victoria BC',
     description: 'Browse our catering menus. Italian family-style, corporate, BBQ, and more.',
+    images: ['/catering_menu_hero.webp'],
   },
 };
 

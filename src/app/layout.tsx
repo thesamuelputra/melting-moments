@@ -4,6 +4,8 @@ import './globals.css'
 import PublicShell from '@/components/PublicShell'
 import ConvexClientProvider from './ConvexClientProvider'
 import BannerWrapper from '@/components/BannerWrapper'
+import { Analytics } from '@vercel/analytics/react'
+import { jsonLdSafe } from '@/lib/sanitize'
 
 const instrumentSerif = Instrument_Serif({ 
   subsets: ['latin'], 
@@ -20,9 +22,17 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Melting Moments | Award Winning Catering Victoria BC',
+  title: "Melting Moments | Catering & Ready-Made Meals, Victoria BC",
   description: 'Melting Moments provides completely custom catering, corporate setups, and specialized buffet installations across Victoria, BC. A symphony of taste for weddings, private events, and formal dining.',
   metadataBase: new URL('https://meltingmoments.ca'),
+  alternates: { canonical: './' },
+  icons: {
+    icon: [
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_CA',
@@ -31,6 +41,9 @@ export const metadata: Metadata = {
     images: [{ url: '/hero-main.webp', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
   },
   twitter: { card: 'summary_large_image' },
+  other: {
+    'theme-color': '#070707',
+  },
 }
 
 export default function RootLayout({
@@ -42,6 +55,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "CateringService",
     "name": "Melting Moments Catering",
+    "alternateName": "Guido's Gourmet",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "614 Grenville Ave",
@@ -52,22 +66,36 @@ export default function RootLayout({
     },
     "telephone": "+1-250-385-2462",
     "url": "https://meltingmoments.ca",
+    "image": "https://meltingmoments.ca/hero-main.webp",
     "priceRange": "$$",
-    "servesCuisine": ["International", "Buffet", "West Coast"]
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 48.4304,
+      "longitude": -123.4183
+    },
+    "sameAs": ["https://www.facebook.com/MeltingMomentsCatering"],
+    "servesCuisine": ["Italian", "International", "Buffet", "West Coast"],
+    "makesOffer": {
+      "@type": "Offer",
+      "name": "Guido's Gourmet Ready-Made Meals",
+      "description": "Homemade Italian meals ready to heat and serve. Delivery available in Victoria, BC.",
+      "url": "https://meltingmoments.ca/guidos"
+    }
   };
 
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
-        <BannerWrapper />
         <ConvexClientProvider>
+          <BannerWrapper />
           <PublicShell>
             {children}
           </PublicShell>
         </ConvexClientProvider>
+        <Analytics />
         <script 
           type="application/ld+json" 
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrgJSONLD) }} 
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(schemaOrgJSONLD) }}
         />
       </body>
     </html>

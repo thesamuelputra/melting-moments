@@ -1,17 +1,41 @@
 'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+  const isGuidosPage = pathname.startsWith('/guidos');
+  const [year, setYear] = useState(2026);
+  useEffect(() => { setYear(new Date().getFullYear()); }, []);
+
+  // Context-aware CTA
+  const ctaText = isGuidosPage ? 'ORDER\nNOW' : 'GET A\nQUOTE';
+  const ctaHref = isGuidosPage ? '/guidos/order' : '/contact';
+
   return (
     <footer className="haus-block-container" style={{ backgroundColor: 'var(--clr-charcoal)' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '2rem' }}>
-            <Link href="/contact" style={{ textDecoration: 'none' }}>
-                <h2 className="haus-display" style={{ color: 'var(--clr-oat)', margin: 0, fontSize: 'clamp(3rem, 10vw, 8rem)', transition: 'opacity 0.3s ease' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
-                    GET A <br /> QUOTE
+            <Link href={ctaHref} style={{ textDecoration: 'none' }}>
+                <h2 className="haus-display" style={{ color: 'var(--clr-oat)', margin: 0, fontSize: 'clamp(3rem, 10vw, 8rem)', transition: 'opacity 0.3s ease', whiteSpace: 'pre-line' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
+                    {ctaText}
                 </h2>
             </Link>
-            <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'right' }}>
+            {/* Cross-sell banner */}
+            <div style={{ width: '100%', textAlign: 'center', padding: '1rem 0', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', margin: '1rem 0' }}>
+              {isGuidosPage ? (
+                <Link href="/contact" style={{ color: 'rgba(255,255,255,0.72)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', textDecoration: 'none' }}>
+                  Planning an event? <span style={{ textDecoration: 'underline' }}>Explore Melting Moments Catering →</span>
+                </Link>
+              ) : (
+                <Link href="/guidos" style={{ color: 'rgba(255,255,255,0.72)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', textDecoration: 'none' }}>
+                  Craving Italian at home? <span style={{ textDecoration: 'underline' }}>Order from Guido&apos;s Gourmet →</span>
+                </Link>
+              )}
+            </div>
+            <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.72)', textAlign: 'right' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 2rem', marginBottom: '2rem' }}>
+                    {/* Catering links */}
                     <Link href="/about">About Us</Link>
                     <Link href="/menus">Menus</Link>
                     <Link href="/chef-paul">Chef Paul</Link>
@@ -24,12 +48,16 @@ export default function Footer() {
                     <Link href="/testimonials">Testimonials</Link>
                     <Link href="/faq">FAQ</Link>
                     <Link href="/service-area">Service Area</Link>
+                    {/* Guido's links */}
+                    <Link href="/guidos">Guido&apos;s Gourmet</Link>
+                    <Link href="/guidos/menu">Ready-Made Menu</Link>
+                    <Link href="/guidos/order">Order Online</Link>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginBottom: '1rem', fontSize: '0.65rem', opacity: 0.5 }}>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginBottom: '1rem', fontSize: '0.75rem' }}>
                     <Link href="/privacy">Privacy</Link>
                     <Link href="/terms">Terms</Link>
                 </div>
-                <div>© {new Date().getFullYear()} Melting Moments Catering Victoria BC</div>
+                <div>© {year} Chef Paul Silletta. All rights reserved.</div>
             </div>
         </div>
     </footer>

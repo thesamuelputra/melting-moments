@@ -46,6 +46,7 @@ export default defineSchema({
     role: v.optional(v.string()),    // e.g. "Wedding Client" or "CEO, Victoria Tech Group"
     text: v.string(),
     rating: v.optional(v.float64()), // 1-5
+    brand: v.optional(v.string()),   // "catering" | "guidos" | undefined (shows on both)
     orderIndex: v.float64(),
     isActive: v.boolean(),
   }),
@@ -57,4 +58,44 @@ export default defineSchema({
     details: v.optional(v.string()),
     performedAt: v.float64(),  // timestamp ms
   }).index("by_performedAt", ["performedAt"]),
+
+  // Guido's Gourmet — Products (CMS-managed)
+  guidosProducts: defineTable({
+    name: v.string(),
+    category: v.string(),
+    priceFrom: v.float64(),
+    sizes: v.optional(v.array(v.object({
+      label: v.string(),
+      price: v.float64(),
+    }))),
+    image: v.optional(v.string()),
+    isAvailable: v.boolean(),
+    isLimitedEdition: v.boolean(),
+    orderIndex: v.float64(),
+  }).index("by_category", ["category"]),
+
+  // Site Images — CMS-managed media library
+  siteImages: defineTable({
+    storageId: v.id("_storage"),
+    title: v.string(),
+    alt: v.string(),
+    section: v.optional(v.string()), // "gallery" | "hero" | "about" | etc.
+    orderIndex: v.float64(),
+    uploadedAt: v.float64(),
+  }).index("by_section", ["section"])
+    .index("by_uploadedAt", ["uploadedAt"]),
+
+  // Guido's Gourmet — Orders
+  guidosOrders: defineTable({
+    customerName: v.string(),
+    customerEmail: v.string(),
+    customerPhone: v.string(),
+    items: v.string(),
+    deliveryMethod: v.string(),
+    deliveryAddress: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    status: v.string(),       // "received" | "preparing" | "ready" | "delivered" | "picked_up"
+    submittedAt: v.float64(), // timestamp ms
+  }).index("by_status", ["status"])
+    .index("by_submittedAt", ["submittedAt"]),
 });
