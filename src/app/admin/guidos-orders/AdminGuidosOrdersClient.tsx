@@ -74,7 +74,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
     <div>
       {/* Header */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.25rem' }}>Guido&apos;s Orders</h1>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.25rem' }}>Guido&apos;s Orders</h2>
         <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>{orders.length} total orders · {activeCount} active</p>
       </div>
 
@@ -133,6 +133,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
                       <select
                         className="admin-btn admin-btn--sm"
                         value={order.status}
+                        aria-label={`Order status for ${order.customerName}`}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
                         style={{ fontSize: '0.7rem', padding: '0.3rem 0.4rem', textTransform: 'capitalize' }}
                       >

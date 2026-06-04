@@ -164,7 +164,7 @@ export default function AdminGuidosProductsClient({ initialProducts }: { initial
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.25rem' }}>Guido&apos;s Products</h1>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.25rem' }}>Guido&apos;s Products</h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>{products.length} products across {new Set(products.map(p => p.category)).size} categories</p>
         </div>
         <button className="admin-btn admin-btn--primary" onClick={() => { setShowAddForm(true); setEditingId(null); setForm(emptyProduct()); }}>
@@ -219,7 +219,7 @@ export default function AdminGuidosProductsClient({ initialProducts }: { initial
                   </div>
                 )}
                 <div style={{ flex: 1 }}>
-                  <input style={inputStyle} placeholder="/guidos/product.webp or upload →" value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} />
+                  <input aria-label="Product image URL" style={inputStyle} placeholder="/guidos/product.webp or upload →" value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} />
                   <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem' }}>
                     <button
                       type="button"
@@ -238,6 +238,7 @@ export default function AdminGuidosProductsClient({ initialProducts }: { initial
                     ref={productImageRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/avif"
+                    aria-label="Upload product image"
                     style={{ display: 'none' }}
                     onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
                   />
@@ -268,8 +269,8 @@ export default function AdminGuidosProductsClient({ initialProducts }: { initial
             </div>
             {form.sizes.map((size, i) => (
               <div key={i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
-                <input style={{ ...inputStyle, flex: 2 }} placeholder="e.g. Family (4-6)" value={size.label} onChange={e => updateSize(i, 'label', e.target.value)} />
-                <input type="number" step="0.01" style={{ ...inputStyle, flex: 1 }} placeholder="Price" value={size.price} onChange={e => updateSize(i, 'price', parseFloat(e.target.value) || 0)} />
+                <input aria-label={`Size ${i + 1} label`} style={{ ...inputStyle, flex: 2 }} placeholder="e.g. Family (4-6)" value={size.label} onChange={e => updateSize(i, 'label', e.target.value)} />
+                <input aria-label={`Size ${i + 1} price`} type="number" step="0.01" style={{ ...inputStyle, flex: 1 }} placeholder="Price" value={size.price} onChange={e => updateSize(i, 'price', parseFloat(e.target.value) || 0)} />
                 <button className="admin-btn admin-btn--sm admin-btn--danger" onClick={() => removeSize(i)} aria-label="Remove size variant">×</button>
               </div>
             ))}

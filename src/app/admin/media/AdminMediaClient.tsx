@@ -150,10 +150,15 @@ export default function AdminMediaClient({ initialImages }: { initialImages: Sit
 
   return (
     <div>
+      {/* Visually-hidden live region announces upload progress / failure to screen readers */}
+      <div role="status" aria-live="polite" style={{
+        position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px',
+        overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0,
+      }}>{uploadProgress}</div>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.25rem' }}>Media Library</h1>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.25rem' }}>Media Library</h2>
           <p style={{ fontSize: '0.8rem', color: '#6B7280' }}>
             {images.length} image{images.length !== 1 ? 's' : ''} uploaded
           </p>
@@ -169,6 +174,7 @@ export default function AdminMediaClient({ initialImages }: { initialImages: Sit
           type="file"
           accept="image/*"
           multiple
+          aria-label="Upload images"
           style={{ display: 'none' }}
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
         />
@@ -207,7 +213,7 @@ export default function AdminMediaClient({ initialImages }: { initialImages: Sit
               Supports JPG, PNG, WebP, AVIF — max 5MB per file
             </p>
             {uploadError && (
-              <p style={{ fontSize: '0.75rem', color: '#DC2626', marginTop: '0.5rem', fontWeight: 500 }}>
+              <p role="alert" style={{ fontSize: '0.75rem', color: '#DC2626', marginTop: '0.5rem', fontWeight: 500 }}>
                 {uploadError}
               </p>
             )}
@@ -314,9 +320,9 @@ export default function AdminMediaClient({ initialImages }: { initialImages: Sit
             <div style={{ padding: '0.75rem' }}>
               {editingId === img.id ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <input style={{ ...inputStyle, padding: '0.4rem 0.6rem', fontSize: '0.8rem' }} value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} placeholder="Title" />
-                  <input style={{ ...inputStyle, padding: '0.4rem 0.6rem', fontSize: '0.8rem' }} value={editForm.alt} onChange={(e) => setEditForm({ ...editForm, alt: e.target.value })} placeholder="Alt text" />
-                  <select style={{ ...inputStyle, padding: '0.4rem 0.6rem', fontSize: '0.8rem' }} value={editForm.section} onChange={(e) => setEditForm({ ...editForm, section: e.target.value })}>
+                  <input aria-label="Image title" style={{ ...inputStyle, padding: '0.4rem 0.6rem', fontSize: '0.8rem' }} value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} placeholder="Title" />
+                  <input aria-label="Alt text" style={{ ...inputStyle, padding: '0.4rem 0.6rem', fontSize: '0.8rem' }} value={editForm.alt} onChange={(e) => setEditForm({ ...editForm, alt: e.target.value })} placeholder="Alt text" />
+                  <select aria-label="Image section" style={{ ...inputStyle, padding: '0.4rem 0.6rem', fontSize: '0.8rem' }} value={editForm.section} onChange={(e) => setEditForm({ ...editForm, section: e.target.value })}>
                     <option value="">No section</option>
                     {SECTIONS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                   </select>

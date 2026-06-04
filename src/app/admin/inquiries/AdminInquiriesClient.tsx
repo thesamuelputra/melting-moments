@@ -113,7 +113,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
     <div>
       {/* Error banner */}
       {actionError && (
-        <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(185,28,28,0.06)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.82rem', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div role="alert" style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(185,28,28,0.06)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.82rem', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>{actionError}</span>
           <button onClick={() => setActionError('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B91C1C', fontWeight: 600, fontSize: '0.9rem' }}>×</button>
         </div>
