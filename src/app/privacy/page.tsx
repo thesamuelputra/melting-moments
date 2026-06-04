@@ -22,13 +22,16 @@ export default function PrivacyPolicy() {
                    When you place an order through Guido&apos;s Gourmet, we collect delivery addresses solely for the purpose of fulfilling your order. This information is stored securely and is not shared with third parties except as required for delivery.
                </p>
                <p style={{ opacity: 0.8, marginBottom: '2rem' }}>
-                   We do not sell, trade, or otherwise transfer your personal information to outside parties. Order history may be retained for quality assurance and to improve your experience with future orders.
+                   We do not sell or rent your personal information. To run this website and respond to you, we rely on a few trusted service providers who process data on our behalf: Convex (secure database hosting), Resend (transactional email delivery), and Vercel (website hosting and privacy-friendly analytics). These providers may store data on servers located outside Canada. We keep inquiry and order records only as long as necessary to serve you and to meet our legal and accounting obligations.
                </p>
                <p style={{ opacity: 0.8, marginBottom: '2rem' }}>
-                   This site may use cookies to enhance your browsing experience. You can choose to disable cookies through your browser settings.
+                   This site uses a single first-party cookie to keep the site administrator signed in, along with privacy-friendly analytics that do not use advertising cookies. You can control or disable cookies through your browser settings.
+               </p>
+               <p style={{ opacity: 0.8, marginBottom: '2rem' }}>
+                   To access, correct, or delete the personal information we hold about you, contact us at <a href="mailto:info@meltingmoments.ca" style={{ textDecoration: 'underline' }}>info@meltingmoments.ca</a> or 250-385-2462.
                </p>
                <p style={{ opacity: 0.4, fontSize: 'var(--text-micro)', marginTop: '4rem' }}>
-                   Last updated: April 2026
+                   Last updated: June 2026
                </p>
             </div>
         </header>
