@@ -3,8 +3,9 @@ import { v } from "convex/values";
 
 // List all orders (sorted newest first)
 export const list = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { adminSecret: v.string() },
+  handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     const orders = await ctx.db.query("guidosOrders").collect();
     return orders.sort((a, b) => b.submittedAt - a.submittedAt);
   },
@@ -12,8 +13,9 @@ export const list = query({
 
 // Count orders by status
 export const countByStatus = query({
-  args: { status: v.string() },
+  args: { adminSecret: v.string(), status: v.string() },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     const items = await ctx.db
       .query("guidosOrders")
       .withIndex("by_status", (q) => q.eq("status", args.status))
@@ -24,8 +26,9 @@ export const countByStatus = query({
 
 // Count all active orders (excludes delivered/picked_up)
 export const countActive = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { adminSecret: v.string() },
+  handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     const items = await ctx.db.query("guidosOrders").collect();
     return items.filter((i) => !["delivered", "picked_up"].includes(i.status)).length;
   },
