@@ -22,7 +22,7 @@ const CATERING_FAQS = [
   { question: "How far in advance should I book?", answer: "For weddings, we recommend booking 9-12 months in advance. For corporate and private events, 2-3 months is preferred, though we can sometimes accommodate shorter notices." },
   { question: "Do you provide tastings?", answer: "Yes. Once an initial proposal is approved, we schedule a private tasting with Chef Paul to finalize the menu." },
   { question: "Are staff and rentals included?", answer: "Our proposals are comprehensive and customized. We can include professional waitstaff, bartenders, and coordinate all necessary rentals (linens, glassware, plates) based on your needs." },
-  { question: "Do you accommodate dietary restrictions?", answer: "Absolutely. We are highly experienced in creating exceptional vegan, gluten-free, and allergy-safe menus that meet our award-winning standards." },
+  { question: "Do you accommodate dietary restrictions?", answer: "Absolutely. We are highly experienced in creating exceptional vegan, gluten-free, and allergy-safe menus that meet our exacting standards." },
 ];
 
 export default async function FAQ() {

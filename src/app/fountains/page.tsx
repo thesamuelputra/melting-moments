@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Chocolate Fountains | Victoria BC Catering',
-  description: 'Architectural chocolate and champagne fountains crafted for immersive luxury events.',
+  description: "Vancouver Island's largest chocolate fountain supplier — premium Lindt chocolate fountains for events from 20 to 1,000 guests in Victoria, BC.",
 }
 
 export default function Fountains() {
@@ -16,7 +16,7 @@ export default function Fountains() {
             CHOCOLATE <br /> CASCADES
           </h1>
           <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, maxWidth: '40ch', marginTop: '1.5rem', lineHeight: 1.6 }}>
-            The largest supplier of chocolate fountains on Vancouver Island. Fountains can be used for any event, from 20 to 1,000 guests. Pure Belgian chocolate cascading over tiers of perfection.
+            The largest supplier of chocolate fountains on Vancouver Island. Fountains can be used for any event, from 20 to 1,000 guests. Premium Lindt chocolate cascading over tiers of perfection.
           </p>
         </div>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '4/5' }}>

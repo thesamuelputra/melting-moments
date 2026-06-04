@@ -19,7 +19,7 @@ export default async function Weddings() {
   const subtitle = cms('weddings_header_subtitle', 'Information');
   const title = cms('weddings_header_title', 'Weddings');
   const heading = cms('weddings_heading', 'A Symphony of Taste');
-  const body1 = cms('weddings_body_1', 'Your wedding day requires absolute perfection. Chef Paul brings 16 years of elite catering experience to curate a bespoke menu that tells your unique story.');
+  const body1 = cms('weddings_body_1', 'Your wedding day requires absolute perfection. Chef Paul brings 17 years of elite catering experience to curate a bespoke menu that tells your unique story.');
   const body2 = cms('weddings_body_2', 'From intimate ceremonies on Vancouver Island to grand receptions for 300+ guests, every detail is orchestrated with obsessive precision, from the first canapé through to the final dessert course.');
   const ctaButton = cms('weddings_cta_button', 'Start Planning');
   const processHeading = cms('weddings_process_heading', 'From Vision to Celebration');

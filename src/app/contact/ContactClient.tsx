@@ -227,7 +227,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <p style={{ opacity: 0.7, maxWidth: '30ch', margin: '0 auto', marginBottom: '0.5rem' }}>
                   Thank you, {formData.name || 'Guest'}. Chef Paul or our concierge team will contact you shortly.
                 </p>
-                <p style={{ opacity: 0.5, fontSize: '0.8rem' }}>A confirmation has been sent to {formData.email}.</p>
+                <p style={{ opacity: 0.5, fontSize: '0.8rem' }}>We&apos;ll follow up at {formData.email} shortly.</p>
               </div>
             )}
           </div>

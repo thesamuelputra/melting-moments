@@ -4,15 +4,15 @@ import { getCmsContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Chef Paul | Victoria BC Catering',
-  description: 'Get to know Chef Paul from Melting Moments Catering.',
+  description: "Meet Chef Paul Silletta — 17 years of culinary craft behind Melting Moments Catering and Guido's Gourmet in Victoria, BC.",
 }
 
 export default async function ChefPaul() {
   const cms = await getCmsContent();
 
   const heading = cms('chef_paul_heading', 'GET TO KNOW \nCHEF PAUL');
-  const intro = cms('chef_paul_intro', 'International cuisine influences many of our flavorful dishes, from Southwest to Italian and everything in between.');
-  const bio = cms('chef_paul_bio', 'From the very first contact with Melting Moments Catering, you will enjoy the professionalism that has been achieved through 16 years of culinary experience.');
+  const intro = cms('chef_paul_intro', 'International cuisine influences many of our flavourful dishes, from Southwest to Italian and everything in between.');
+  const bio = cms('chef_paul_bio', 'From the very first contact with Melting Moments Catering, you will enjoy the professionalism that has been achieved through 17 years of culinary experience.');
 
   return (
     <div>

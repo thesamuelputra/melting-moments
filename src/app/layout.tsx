@@ -22,9 +22,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Melting Moments | Award Winning Catering Victoria BC',
+  title: "Melting Moments | Catering & Ready-Made Meals, Victoria BC",
   description: 'Melting Moments provides completely custom catering, corporate setups, and specialized buffet installations across Victoria, BC. A symphony of taste for weddings, private events, and formal dining.',
   metadataBase: new URL('https://meltingmoments.ca'),
+  alternates: { canonical: './' },
   icons: {
     icon: [
       { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
@@ -65,7 +66,14 @@ export default function RootLayout({
     },
     "telephone": "+1-250-385-2462",
     "url": "https://meltingmoments.ca",
+    "image": "https://meltingmoments.ca/hero-main.webp",
     "priceRange": "$$",
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 48.4304,
+      "longitude": -123.4183
+    },
+    "sameAs": ["https://www.facebook.com/MeltingMomentsCatering"],
     "servesCuisine": ["Italian", "International", "Buffet", "West Coast"],
     "makesOffer": {
       "@type": "Offer",
