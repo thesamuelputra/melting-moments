@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import { fetchQuery } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
+import { jsonLdSafe } from '@/lib/sanitize';
 
 export const metadata: Metadata = {
   title: 'FAQ | Melting Moments & Guido\'s Gourmet | Victoria BC',
@@ -42,7 +43,7 @@ export default async function FAQ() {
 
   return (
     <div>
-      <Script id="faq-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <Script id="faq-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdSafe(faqJsonLd) }} />
       <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
         <div className="menu-index" style={{ marginBottom: "2rem" }}>Information</div>
         <h1 className="haus-display" style={{ textTransform: "uppercase" }}>FAQ</h1>
