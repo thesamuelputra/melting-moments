@@ -35,7 +35,7 @@ export default function FamilyStyle() {
           <div className="menu-index" style={{ marginTop: '6px' }}>01</div>
           <div>
             <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Antipasto Platter</h3>
-            <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Sliced Prosciutto, Calabrese Salami, Cheese, Black and Green Olives, Pearl Onions, Baby Dills, Cantaloupe and Artichokes Quarters</p>
+            <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Sliced Prosciutto, Calabrese Salami, Cheese, Black and Green Olives, Pearl Onions, Baby Dills, Cantaloupe and Artichoke Quarters</p>
           </div>
         </div>
 

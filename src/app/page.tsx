@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { getCmsContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
-  title: 'Melting Moments & Guido\'s Gourmet | Italian Catering & Ready-Made Meals Victoria BC',
+  title: "Melting Moments & Guido's Gourmet | Catering, Victoria BC",
   description: 'Bespoke catering and homemade Italian ready-made meals by Chef Paul Silletta in Victoria, BC. Weddings, corporate events, private dining, and meal delivery.',
 };
 

@@ -13,7 +13,7 @@ export default async function Testimonials() {
   // Fall back to static defaults if no CMS testimonials exist yet
   const reviews = rawReviews.length > 0 ? rawReviews : [
     { author: "Sarah & James", role: "Wedding Clients", text: "Melting Moments transformed our wedding. The food was not just catering; it was an experience. Guests are still talking about the duck confit.", rating: 5 },
-    { author: "Victoria Tech Group", role: "Corporate Client", text: "Chef Paul handled our 300-person corporate gala flawlessly. The execution was punctual, the staff invisible yet attentive, and the flavor profiles were exceptional.", rating: 5 },
+    { author: "Victoria Tech Group", role: "Corporate Client", text: "Chef Paul handled our 300-person corporate gala flawlessly. The execution was punctual, the staff invisible yet attentive, and the flavour profiles were exceptional.", rating: 5 },
     { author: "Elena M.", role: "Private Event Client", text: "The chocolate fountain was the centerpiece of our anniversary. Professional setup, premium ingredients, unparalleled service.", rating: 5 },
   ];
 

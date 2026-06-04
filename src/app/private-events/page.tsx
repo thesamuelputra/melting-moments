@@ -5,10 +5,10 @@ import { getCmsContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Private Events | Melting Moments Catering Victoria BC',
-  description: 'Intimate, Michelin-level private event catering for formal dinners to yacht catering in Victoria, BC.',
+  description: 'Intimate, fine-dining private event catering, from formal dinners to yacht catering in Victoria, BC.',
   openGraph: {
     title: 'Private Events | Melting Moments Catering Victoria BC',
-    description: 'Intimate, Michelin-level private event catering in Victoria, BC.',
+    description: 'Intimate, fine-dining private event catering in Victoria, BC.',
     images: ['/private_dinner.webp'],
   },
 };
@@ -19,7 +19,7 @@ export default async function PrivateEvents() {
   const subtitle = cms('events_header_subtitle', 'Information');
   const title = cms('events_header_title', 'Private Events');
   const heading = cms('events_heading', 'Intimate Excellence');
-  const body1 = cms('events_body_1', 'From formal dinner parties to private yacht catering, we deliver discreet, Michelin-level service and unforgettable culinary experiences in the comfort of your own venue.');
+  const body1 = cms('events_body_1', 'From formal dinner parties to private yacht catering, we deliver discreet, fine-dining service and unforgettable culinary experiences in the comfort of your own venue.');
   const body2 = cms('events_body_2', "Whether it's an anniversary celebration for 12 or a milestone birthday for 80, Chef Paul designs every course to reflect the personality and preferences of the host.");
   const ctaButton = cms('events_cta_button', 'Plan Your Event');
 

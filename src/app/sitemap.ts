@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Utility pages
     { path: '/faq', priority: 0.6, changeFrequency: 'monthly' },
     { path: '/service-area', priority: 0.6, changeFrequency: 'yearly' },
-    { path: '/quote', priority: 0.5, changeFrequency: 'yearly' },
+    // (/quote intentionally omitted — it 308-redirects to /contact)
     // Legal pages
     { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
     { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },

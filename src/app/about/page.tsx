@@ -18,7 +18,7 @@ export default async function About() {
   const headerIndex = cms('about_header_index', '01 · The Studio');
   const headerTitle = cms('about_header_title', 'OBSESSIVE\nARTISTRY');
   const tagline = cms('about_header_tagline', 'We believe that dining is the ultimate sensory performance.');
-  const headerBody = cms('about_header_body', 'Founded on the principle of unyielding quality in Victoria BC, Melting Moments rejects mass-production in favor of tailored, site-specific culinary installations.');
+  const headerBody = cms('about_header_body', 'Founded on the principle of unyielding quality in Victoria BC, Melting Moments rejects mass-production in favour of tailored, site-specific culinary installations.');
   const philIndex = cms('about_philosophy_index', '02 · Our Philosophy');
   const philTitle = cms('about_philosophy_title', 'SOURCED FROM\nTHE EARTH');
   const philTagline = cms('about_philosophy_tagline', 'We partner exclusively with local Vancouver Island farms and independent purveyors.');
