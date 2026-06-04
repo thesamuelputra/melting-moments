@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import GuidosImage from '@/components/GuidosImage';
 
 type Product = {
   id: string;
@@ -56,7 +56,7 @@ export default function GuidosMenuClient({ products }: { products: Product[] }) 
               onClick={() => setExpandedProduct(expandedProduct === product.id ? null : product.id)}
             >
               <div className="product-card__image">
-                <Image
+                <GuidosImage
                   src={product.image}
                   alt={product.name}
                   fill

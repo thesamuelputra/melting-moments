@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import GuidosImage from '@/components/GuidosImage';
 
 type Product = {
   name: string;
@@ -79,7 +79,7 @@ export default function GuidosMenuFallback() {
               onClick={() => setExpandedProduct(expandedProduct === product.name ? null : product.name)}
             >
               <div className="product-card__image">
-                <Image
+                <GuidosImage
                   src={product.image}
                   alt={product.name}
                   fill

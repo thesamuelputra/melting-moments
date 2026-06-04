@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import GuidosImage from '@/components/GuidosImage';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -23,12 +23,12 @@ export default function GuidosPage() {
           Guido&apos;s<br />Gourmet
         </h1>
         <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%', maxWidth: '900px' }}>
-          <Image
+          <GuidosImage
             src="/guidos/guidos-hero.webp"
             alt="Italian ready-made meals"
             fill
             sizes="(max-width: 768px) 100vw, 900px"
-            style={{ objectFit: 'cover', backgroundColor: 'var(--clr-charcoal)' }}
+            style={{ objectFit: 'cover' }}
             priority
           />
         </div>
@@ -38,7 +38,7 @@ export default function GuidosPage() {
       <section className="container spacer-massive" style={{ textAlign: 'center', maxWidth: '700px' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>01 · Our Roots</div>
         <p className="noire-serif" style={{ fontSize: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '2rem' }}>
-          We started in a family kitchen. Sixteen years later, the recipes are the same. The portions are bigger.
+          We started in a family kitchen. Seventeen years later, the recipes are the same. The portions are bigger.
         </p>
         <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, maxWidth: '50ch', margin: '0 auto' }}>
           Good food at a fair price. Shop online or visit by appointment. Everything is made fresh by Chef Paul Silletta using traditional Italian recipes passed down through generations.
@@ -57,7 +57,7 @@ export default function GuidosPage() {
           {featuredProducts.map((product) => (
             <Link href="/guidos/menu" key={product.name} className="product-card">
               <div className="product-card__image">
-                <Image
+                <GuidosImage
                   src={product.image}
                   alt={product.name}
                   fill
