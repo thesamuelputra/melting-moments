@@ -6,9 +6,11 @@ import { createTestimonial, updateTestimonial, deleteTestimonial } from './actio
 type Testimonial = { id: string; author: string; role?: string; text: string; rating?: number; orderIndex: number; isActive: boolean };
 
 const StarRating = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
-  <div style={{ display: 'flex', gap: '0.25rem' }}>
+  <div role="group" aria-label="Rating" style={{ display: 'flex', gap: '0.25rem' }}>
     {[1,2,3,4,5].map(n => (
       <button key={n} type="button" onClick={() => onChange(n)}
+        aria-label={`${n} star${n !== 1 ? 's' : ''}`}
+        aria-pressed={n <= value}
         style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: n <= value ? '#F59E0B' : 'rgba(0,0,0,0.15)', padding: '0.1rem' }}>
         ★
       </button>
@@ -16,10 +18,11 @@ const StarRating = ({ value, onChange }: { value: number; onChange: (v: number) 
   </div>
 );
 
-function TestimonialForm({ initial, onSave, onCancel }: {
+function TestimonialForm({ initial, onSave, onCancel, idPrefix }: {
   initial?: Partial<Testimonial>;
   onSave: (data: Omit<Testimonial, 'id' | 'isActive'>) => void;
   onCancel: () => void;
+  idPrefix: string;
 }) {
   const [author, setAuthor] = useState(initial?.author ?? '');
   const [role, setRole] = useState(initial?.role ?? '');
@@ -30,20 +33,20 @@ function TestimonialForm({ initial, onSave, onCancel }: {
     <div style={{ display: 'grid', gap: '1rem' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
         <div>
-          <label className="admin-modal__label">Author Name *</label>
-          <input className="admin-inline-input" value={author} onChange={e => setAuthor(e.target.value)} placeholder="e.g. Sarah &amp; James" />
+          <label className="admin-modal__label" htmlFor={`${idPrefix}-author`}>Author Name *</label>
+          <input id={`${idPrefix}-author`} className="admin-inline-input" value={author} onChange={e => setAuthor(e.target.value)} placeholder="e.g. Sarah &amp; James" />
         </div>
         <div>
-          <label className="admin-modal__label">Role / Context</label>
-          <input className="admin-inline-input" value={role} onChange={e => setRole(e.target.value)} placeholder="e.g. Wedding Client, 2024" />
+          <label className="admin-modal__label" htmlFor={`${idPrefix}-role`}>Role / Context</label>
+          <input id={`${idPrefix}-role`} className="admin-inline-input" value={role} onChange={e => setRole(e.target.value)} placeholder="e.g. Wedding Client, 2024" />
         </div>
       </div>
       <div>
-        <label className="admin-modal__label">Testimonial Text *</label>
-        <textarea className="admin-inline-input" value={text} onChange={e => setText(e.target.value)} rows={3} placeholder="What did they say?" style={{ resize: 'vertical' }} />
+        <label className="admin-modal__label" htmlFor={`${idPrefix}-text`}>Testimonial Text *</label>
+        <textarea id={`${idPrefix}-text`} className="admin-inline-input" value={text} onChange={e => setText(e.target.value)} rows={3} placeholder="What did they say?" style={{ resize: 'vertical' }} />
       </div>
       <div>
-        <label className="admin-modal__label" style={{ marginBottom: '0.5rem' }}>Rating</label>
+        <span className="admin-modal__label" style={{ marginBottom: '0.5rem' }}>Rating</span>
         <StarRating value={rating} onChange={setRating} />
       </div>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -157,7 +160,7 @@ export default function AdminTestimonialsClient({ initialTestimonials, isSeeded 
       {creating && (
         <div className="admin-section" style={{ marginBottom: '1.5rem', padding: '1.25rem 1.5rem', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '8px' }}>
           <h3 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>New Testimonial</h3>
-          <TestimonialForm onSave={handleCreate} onCancel={() => setCreating(false)} />
+          <TestimonialForm idPrefix="testimonial-new" onSave={handleCreate} onCancel={() => setCreating(false)} />
         </div>
       )}
 
@@ -178,7 +181,7 @@ export default function AdminTestimonialsClient({ initialTestimonials, isSeeded 
                 </div>
               </div>
             ) : editing?.id === item.id ? (
-              <TestimonialForm initial={editing} onSave={handleSaveEdit} onCancel={() => setEditing(null)} />
+              <TestimonialForm idPrefix={`testimonial-edit-${item.id}`} initial={editing} onSave={handleSaveEdit} onCancel={() => setEditing(null)} />
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '1rem', alignItems: 'start' }}>
                 {/* Reorder */}
@@ -212,7 +215,7 @@ export default function AdminTestimonialsClient({ initialTestimonials, isSeeded 
       </div>
 
       {toast && (
-        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: '#059669', color: 'white', padding: '0.75rem 1.25rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 60 }}>
+        <div role="status" aria-live="polite" style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: '#059669', color: 'white', padding: '0.75rem 1.25rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 60 }}>
           ✓ {toast}
         </div>
       )}

@@ -124,8 +124,13 @@ export default function AdminLayoutClient({ children, bannerEnabled }: { childre
     }
   }, [pathname]);
 
+  // Page title for the document <h1> — the last breadcrumb names the current page.
+  const pageTitle = breadcrumbs[breadcrumbs.length - 1]?.label ?? 'Admin';
+
   return (
     <div className="admin-layout">
+      {/* Skip-to-content link — mirrors the public shell's .skip-nav */}
+      <a href="#admin-main" className="skip-nav">Skip to content</a>
       {/* Dirty-nav confirmation modal */}
       {navConfirm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -238,7 +243,16 @@ export default function AdminLayoutClient({ children, bannerEnabled }: { childre
             </form>
           </div>
         </header>
-        <div className="admin-content">{children}</div>
+        <main id="admin-main" className="admin-content">
+          {/* Document heading for the page — visually hidden because the page name
+              is already shown in the breadcrumb above; keeps a single, named <h1>
+              per admin page for screen readers and the heading outline. */}
+          <h1 style={{
+            position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px',
+            overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0,
+          }}>{pageTitle}</h1>
+          {children}
+        </main>
       </div>
     </div>
   );
