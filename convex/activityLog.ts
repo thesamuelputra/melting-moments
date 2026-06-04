@@ -2,8 +2,9 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 export const recent = query({
-  args: { limit: v.optional(v.float64()) },
-  handler: async (ctx, { limit }) => {
+  args: { adminSecret: v.string(), limit: v.optional(v.float64()) },
+  handler: async (ctx, { adminSecret, limit }) => {
+    if (adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     return ctx.db
       .query("activityLog")
       .withIndex("by_performedAt")

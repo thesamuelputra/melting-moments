@@ -3,7 +3,7 @@ import { api } from '@/../convex/_generated/api';
 import AdminInquiriesClient from './AdminInquiriesClient';
 
 export default async function InquiriesPage() {
-  const rawInquiries = await fetchQuery(api.inquiries.list);
+  const rawInquiries = await fetchQuery(api.inquiries.list, { adminSecret: process.env.ADMIN_PASSWORD! });
 
   // Serialize for client component
   const inquiries = rawInquiries.map((inq) => ({

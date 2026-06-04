@@ -27,15 +27,15 @@ const SECTION_DOT: Record<string, string> = {
 
 export default async function AdminDashboard() {
   const [allInquiries, totalMenuItems, categoryCount, faqCount, testimonialCount, recentActivity, settings, guidosProductCount, allGuidosOrders, allSiteImages] = await Promise.all([
-    fetchQuery(api.inquiries.list),
+    fetchQuery(api.inquiries.list, { adminSecret: process.env.ADMIN_PASSWORD! }),
     fetchQuery(api.menuItems.count),
     fetchQuery(api.menuItems.categoryCount),
     fetchQuery(api.faqs.list),
     fetchQuery(api.testimonials.list),
-    fetchQuery(api.activityLog.recent, { limit: 8 }),
+    fetchQuery(api.activityLog.recent, { adminSecret: process.env.ADMIN_PASSWORD!, limit: 8 }),
     fetchQuery(api.businessSettings.getAll),
     fetchQuery(api.guidosProducts.count),
-    fetchQuery(api.guidosOrders.list),
+    fetchQuery(api.guidosOrders.list, { adminSecret: process.env.ADMIN_PASSWORD! }),
     fetchQuery(api.files.list, {}),
   ]);
 

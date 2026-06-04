@@ -3,8 +3,9 @@ import { v } from "convex/values";
 
 // List all inquiries (sorted by newest first)
 export const list = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { adminSecret: v.string() },
+  handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     const inquiries = await ctx.db.query("inquiries").collect();
     return inquiries.sort((a, b) => b.submittedAt - a.submittedAt);
   },
@@ -12,8 +13,9 @@ export const list = query({
 
 // Count inquiries by status
 export const countByStatus = query({
-  args: { status: v.string() },
+  args: { adminSecret: v.string(), status: v.string() },
   handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     const items = await ctx.db
       .query("inquiries")
       .withIndex("by_status", (q) => q.eq("status", args.status))
@@ -24,8 +26,9 @@ export const countByStatus = query({
 
 // Count all non-archived
 export const countActive = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { adminSecret: v.string() },
+  handler: async (ctx, args) => {
+    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
     const items = await ctx.db.query("inquiries").collect();
     return items.filter((i) => i.status !== "archived").length;
   },
