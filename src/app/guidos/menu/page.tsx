@@ -11,7 +11,7 @@ export default async function GuidosMenuPage() {
     category: item.category,
     priceFrom: item.priceFrom,
     sizes: item.sizes ?? [],
-    image: item.image ?? '/guidos/placeholder.webp',
+    image: item.image ?? '/guidos/placeholder.svg',
     isAvailable: item.isAvailable,
     isLimitedEdition: item.isLimitedEdition,
   }));

@@ -70,7 +70,7 @@ body {
   font-weight: 600;
 }
 
-/* Chinese Menu Pricing */
+/* Menu Item Pricing */
 .menu-price {
   font-family: var(--font-sans);
   font-size: 14px;
@@ -126,8 +126,8 @@ body {
   color: white; /* Contrast shift */
 }
 
-/* Chinese Menu Extreme Spacing Grid */
-/* Focuses all structural pressure into a narrow column of reading, leaving massive left/right voids */
+/* Menu Constrained Reading Grid */
+/* Focuses structural pressure into a narrow column, leaving generous lateral whitespace */
 .menu-grid-constraint {
   display: grid;
   grid-template-columns: 40px minmax(200px, 500px) 60px;
@@ -174,6 +174,13 @@ body {
   color: var(--clr-bone);
 }
 
+/* Inverse variant for outline buttons on dark backgrounds */
+.btn-outline--inverse:hover, .btn-outline--inverse.active {
+  background-color: var(--clr-bone);
+  color: var(--clr-ink);
+  border-color: var(--clr-bone);
+}
+
 .btn-solid {
   display: inline-block;
   font-family: var(--font-sans);
@@ -193,6 +200,13 @@ body {
   background-color: transparent;
   color: var(--clr-ink);
   border-color: var(--clr-ink);
+}
+
+/* Inverse variant for buttons on dark backgrounds */
+.btn-solid--inverse:hover {
+  background-color: var(--clr-bone);
+  color: var(--clr-ink);
+  border-color: var(--clr-bone);
 }
 
 /* React Filter Categories */
@@ -333,6 +347,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   transform: scale(1.03);
 }
 
+.chooser-card:hover .btn-outline {
+  background-color: white;
+  color: var(--clr-ink);
+  border-color: white;
+}
+
 .chooser-card::after {
   content: '';
   position: absolute;
@@ -461,8 +481,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     grid-template-columns: 1fr;
   }
 
-  .nav-links-desktop { display: none; }
+  .nav-links-desktop { display: none !important; }
   .nav-hamburger { display: flex; }
+  #mobile-menu-btn { display: flex !important; }
 
   /* M-1: Stack contact page 2-col layout on mobile */
   .contact-grid {
@@ -527,15 +548,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     min-height: 70vh;
   }
 
-  /* M-9: Product grid single column on mobile */
+  /* M-9: Product grid 2 columns on mobile for better browsing */
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
+
+  /* Gallery masonry reset */
+  .gallery-masonry > div { margin-top: 0 !important; }
 }
 
 @media (min-width: 769px) {
   .nav-hamburger { display: none; }
   .nav-mobile-panel { display: none; }
+  #mobile-menu-btn { display: none !important; }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -704,36 +730,21 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ========================================
-   RESPONSIVE: NAV + GALLERY + CONTACT
-   (P4 #28) Moved from dangerouslySetInnerHTML
-   ======================================== */
+/* ========================================================
+   9. REDUCED MOTION
+======================================================== */
 
-@media (max-width: 768px) {
-  .nav-links-desktop { display: none !important; }
-  #mobile-menu-btn { display: flex !important; }
-  
-  .gallery-masonry > div { margin-top: 0 !important; }
-  
-  .page-header-grid {
-    grid-template-columns: 1fr !important;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
-  .contact-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .homepage-cta-grid {
-    grid-template-columns: 1fr !important;
-    text-align: center;
-  }
-
-  .homepage-cta-grid .shape-circle {
-    justify-self: center !important;
-  }
+  .page-content--enter { animation: none; opacity: 1; transform: none; }
+  .preloader { transition: none; }
+  .preloader--exit { transform: none; display: none; }
+  .page-shutter--active .page-shutter__panel { animation: none; }
 }
 
-@media (min-width: 769px) {
-  #mobile-menu-btn { display: none !important; }
-  .nav-mobile-panel { display: none !important; }
-}

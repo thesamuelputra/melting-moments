@@ -88,7 +88,7 @@ export default function GuidosPage() {
           </h2>
           <p style={{ opacity: 0.5, marginBottom: '0.5rem', color: 'white' }}>Pickup by appointment.</p>
           <p style={{ opacity: 0.5, marginBottom: '2.5rem', color: 'white' }}>614 Grenville Ave, Esquimalt.</p>
-          <Link href="/guidos/order" className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>
+          <Link href="/guidos/order" className="btn-outline btn-outline--inverse" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>
             Order Now
           </Link>
         </div>

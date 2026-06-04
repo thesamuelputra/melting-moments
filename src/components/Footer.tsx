@@ -1,10 +1,13 @@
 'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const pathname = usePathname();
   const isGuidosPage = pathname.startsWith('/guidos');
+  const [year, setYear] = useState(2026);
+  useEffect(() => { setYear(new Date().getFullYear()); }, []);
 
   // Context-aware CTA
   const ctaText = isGuidosPage ? 'ORDER\nNOW' : 'GET A\nQUOTE';
@@ -21,16 +24,16 @@ export default function Footer() {
             {/* Cross-sell banner */}
             <div style={{ width: '100%', textAlign: 'center', padding: '1rem 0', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', margin: '1rem 0' }}>
               {isGuidosPage ? (
-                <Link href="/contact" style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', textDecoration: 'none' }}>
+                <Link href="/contact" style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', textDecoration: 'none' }}>
                   Planning an event? <span style={{ textDecoration: 'underline' }}>Explore Melting Moments Catering →</span>
                 </Link>
               ) : (
-                <Link href="/guidos" style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', textDecoration: 'none' }}>
+                <Link href="/guidos" style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', textDecoration: 'none' }}>
                   Craving Italian at home? <span style={{ textDecoration: 'underline' }}>Order from Guido&apos;s Gourmet →</span>
                 </Link>
               )}
             </div>
-            <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'right' }}>
+            <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.55)', textAlign: 'right' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 2rem', marginBottom: '2rem' }}>
                     {/* Catering links */}
                     <Link href="/about">About Us</Link>
@@ -50,11 +53,11 @@ export default function Footer() {
                     <Link href="/guidos/menu">Ready-Made Menu</Link>
                     <Link href="/guidos/order">Order Online</Link>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginBottom: '1rem', fontSize: '0.65rem', opacity: 0.5 }}>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginBottom: '1rem', fontSize: '0.75rem', opacity: 0.6 }}>
                     <Link href="/privacy">Privacy</Link>
                     <Link href="/terms">Terms</Link>
                 </div>
-                <div>© {new Date().getFullYear()} Chef Paul Silletta. All rights reserved.</div>
+                <div>© {year} Chef Paul Silletta. All rights reserved.</div>
             </div>
         </div>
     </footer>
