@@ -42,14 +42,18 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   // Content Security Policy — restrict script/style sources
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
+  // HSTS: force HTTPS for 2 years incl. subdomains (browsers ignore it over http://localhost)
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  // X-XSS-Protection is deprecated and the legacy auditor can itself introduce
+  // vulnerabilities; explicitly disable it (CSP is the real XSS defense).
+  response.headers.set('X-XSS-Protection', '0');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   
   // CSP: allow self, inline styles (needed for Next.js), and common CDNs
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",  // Next.js requires these
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",  // Next.js inline/runtime + Vercel Analytics
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",

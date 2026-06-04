@@ -5,6 +5,7 @@ import PublicShell from '@/components/PublicShell'
 import ConvexClientProvider from './ConvexClientProvider'
 import BannerWrapper from '@/components/BannerWrapper'
 import { Analytics } from '@vercel/analytics/react'
+import { jsonLdSafe } from '@/lib/sanitize'
 
 const instrumentSerif = Instrument_Serif({ 
   subsets: ['latin'], 
@@ -86,7 +87,7 @@ export default function RootLayout({
         <Analytics />
         <script 
           type="application/ld+json" 
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrgJSONLD) }} 
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(schemaOrgJSONLD) }}
         />
       </body>
     </html>
