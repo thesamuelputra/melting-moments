@@ -108,9 +108,14 @@ export default function GlobalNav() {
   const isGuidosPage = pathname.startsWith('/guidos');
   const mobileNavRef = useRef<HTMLDivElement>(null);
 
-  // Focus trap + Escape handler for mobile nav (#6)
+  // Focus trap + Escape handler + body scroll lock for mobile nav (#6)
   useEffect(() => {
     if (!isOpen) return;
+
+    // Lock body scroll while menu is open
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { setIsOpen(false); return; }
       if (e.key === 'Tab' && mobileNavRef.current) {
@@ -123,7 +128,10 @@ export default function GlobalNav() {
       }
     };
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
   }, [isOpen]);
 
   useEffect(() => {

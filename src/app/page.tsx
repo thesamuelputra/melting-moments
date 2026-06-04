@@ -63,7 +63,7 @@ export default async function Home() {
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--text-body)', maxWidth: '35ch', marginBottom: '2rem' }}>
                 Weddings, corporate events, and private dining across Vancouver Island.
               </p>
-              <span className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>View Services</span>
+              <span className="btn-outline btn-outline--inverse" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>View Services</span>
             </div>
           </Link>
 
@@ -78,7 +78,7 @@ export default async function Home() {
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--text-body)', maxWidth: '35ch', marginBottom: '2rem' }}>
                 Homemade Italian meals, ready to heat and serve. Delivery available in Victoria.
               </p>
-              <span className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>See the Menu</span>
+              <span className="btn-outline btn-outline--inverse" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>See the Menu</span>
             </div>
           </Link>
         </div>
@@ -96,7 +96,7 @@ export default async function Home() {
           <p style={{ fontSize: 'var(--text-body)', maxWidth: '45ch', opacity: 0.6, color: 'white', margin: '0 auto 2.5rem auto' }}>
             {ctaBody}
           </p>
-          <Link href="/contact" className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>{ctaButton}</Link>
+          <Link href="/contact" className="btn-outline btn-outline--inverse" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>{ctaButton}</Link>
         </div>
       </section>
     </div>

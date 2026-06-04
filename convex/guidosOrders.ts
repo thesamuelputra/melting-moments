@@ -22,12 +22,12 @@ export const countByStatus = query({
   },
 });
 
-// Count all non-archived orders
+// Count all active orders (excludes delivered/picked_up)
 export const countActive = query({
   args: {},
   handler: async (ctx) => {
     const items = await ctx.db.query("guidosOrders").collect();
-    return items.length;
+    return items.filter((i) => !["delivered", "picked_up"].includes(i.status)).length;
   },
 });
 
