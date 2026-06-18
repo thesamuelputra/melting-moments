@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
                 <div className="noire-divider"></div>
             </div>
             
-            <div style={{ maxWidth: '800px', margin: '4rem auto 0 auto' }}>
+            <div style={{ maxWidth: '700px', margin: '4rem auto 0 auto' }}>
                <p style={{ opacity: 0.8, marginBottom: '2rem' }}>
                    At Melting Moments Catering and Guido&apos;s Gourmet, we respect your privacy. Any personal information provided through our contact and order forms (including name, email, phone number, and event or order details) is used strictly for the purpose of communicating with you regarding your inquiry or order.
                </p>

@@ -14,7 +14,7 @@ export default function Terms() {
                 <div className="noire-divider"></div>
             </div>
             
-            <div style={{ maxWidth: '800px', margin: '4rem auto 0 auto' }}>
+            <div style={{ maxWidth: '700px', margin: '4rem auto 0 auto' }}>
                <div className="menu-index" style={{ marginBottom: '1.5rem', fontSize: 'var(--text-micro)' }}>Catering Services</div>
                <p style={{ opacity: 0.8, marginBottom: '2rem' }}>
                    By requesting a quote or booking an event with Melting Moments, you agree to our standard catering terms. A deposit is required to secure your date, with full payment expected prior to the event unless formal corporate billing arrangements have been made.
