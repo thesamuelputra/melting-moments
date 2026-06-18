@@ -25,6 +25,11 @@ export default function PageTransition({ children }: { children: React.ReactNode
       // Skip if same page or mid-transition
       if (href === pathname || isNavigating.current) return;
 
+      // Respect reduced motion: skip the shutter entirely and let Next.js
+      // navigate instantly (no preventDefault, no artificial delay). Previously
+      // these users got the JS delay with no visual — the opposite of intent.
+      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
       // Prevent Next.js Link from navigating immediately
       // (Next.js checks e.defaultPrevented and bails out)
       e.preventDefault();
@@ -37,13 +42,13 @@ export default function PageTransition({ children }: { children: React.ReactNode
       // Content swaps behind the shutter while it's opaque
       setTimeout(() => {
         router.push(href);
-      }, 450);
+      }, 300);
 
-      // Step 3: Clean up after full shutter sequence completes
+      // Step 3: Clean up after the reveal completes
       setTimeout(() => {
         setShutterActive(false);
         isNavigating.current = false;
-      }, 1300);
+      }, 850);
     };
 
     // Capture phase fires BEFORE React's synthetic event handlers
