@@ -4,10 +4,10 @@ import { getCmsContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Our Philosophy | Melting Moments Catering Victoria',
-  description: 'Melting Moments eschews mass-production for tailored, site-specific culinary installations across Vancouver Island.',
+  description: 'Family recipes, Vancouver Island ingredients, and custom menus built around your event. Catering in Victoria, BC since 2009.',
   openGraph: {
     title: 'Our Philosophy | Melting Moments Catering Victoria',
-    description: 'Tailored, site-specific culinary installations across Vancouver Island.',
+    description: 'Family recipes and custom catering across Vancouver Island.',
     images: ['/chef_plating_sauce.webp'],
   },
 }
@@ -16,13 +16,13 @@ export default async function About() {
   const cms = await getCmsContent();
 
   const headerIndex = cms('about_header_index', '01 · The Studio');
-  const headerTitle = cms('about_header_title', 'OBSESSIVE\nARTISTRY');
-  const tagline = cms('about_header_tagline', 'We believe that dining is the ultimate sensory performance.');
-  const headerBody = cms('about_header_body', 'Founded on the principle of unyielding quality in Victoria BC, Melting Moments rejects mass-production in favour of tailored, site-specific culinary installations.');
+  const headerTitle = cms('about_header_title', 'COOKED\nWITH CARE');
+  const tagline = cms('about_header_tagline', 'We believe good food should make an occasion feel like one.');
+  const headerBody = cms('about_header_body', 'We started in a family kitchen in Victoria, BC, and we still cook that way: from scratch, by hand, with menus built around your event rather than a set list.');
   const philIndex = cms('about_philosophy_index', '02 · Our Philosophy');
   const philTitle = cms('about_philosophy_title', 'SOURCED FROM\nTHE EARTH');
-  const philTagline = cms('about_philosophy_tagline', 'We partner exclusively with local Vancouver Island farms and independent purveyors.');
-  const philBody = cms('about_philosophy_body', 'Our commitment extends beyond the kitchen. We believe the story of the food begins with the soil. By utilizing extreme seasonal restraints, our menus reflect the exact moment of your celebration.');
+  const philTagline = cms('about_philosophy_tagline', 'We buy from Vancouver Island farms and independent purveyors we know by name.');
+  const philBody = cms('about_philosophy_body', 'Good food starts with good ingredients, so we cook with what the Island is growing right now. That means your menu tastes like the season your celebration lands in.');
 
   return (
     <div>

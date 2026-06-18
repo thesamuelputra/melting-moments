@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-function NavDropdown({ label, items, closeMenu }: { label: string; items: { href: string; label: string }[]; closeMenu?: () => void }) {
+function NavDropdown({ label, items, active, currentPath }: { label: string; items: { href: string; label: string }[]; active?: boolean; currentPath?: string }) {
   const [open, setOpen] = useState(false);
   const timeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const ref = useRef<HTMLDivElement>(null);
@@ -16,12 +16,15 @@ function NavDropdown({ label, items, closeMenu }: { label: string; items: { href
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
+        aria-current={active ? 'true' : undefined}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           color: 'inherit', padding: 0,
           fontFamily: 'inherit', fontSize: '11px', fontWeight: 400,
           textTransform: 'uppercase', letterSpacing: '1.65px', lineHeight: '16.5px',
           display: 'flex', alignItems: 'center', gap: '0.3rem',
+          paddingBottom: '3px',
+          borderBottom: active ? '2px solid currentColor' : '2px solid transparent',
         }}
       >
         {label}
@@ -50,14 +53,16 @@ function NavDropdown({ label, items, closeMenu }: { label: string; items: { href
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => { setOpen(false); closeMenu?.(); }}
+              aria-current={currentPath === item.href ? 'page' : undefined}
+              onClick={() => { setOpen(false); }}
               style={{
                 color: 'var(--clr-oat)',
                 padding: '0.5rem 1.25rem',
                 fontSize: '0.75rem',
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                textDecoration: 'none',
+                textDecoration: currentPath === item.href ? 'underline' : 'none',
+                textUnderlineOffset: '3px',
                 transition: 'background-color 0.15s',
                 whiteSpace: 'nowrap',
               }}
@@ -74,12 +79,14 @@ function NavDropdown({ label, items, closeMenu }: { label: string; items: { href
 }
 
 const cateringItems = [
+  { href: '/catering', label: 'Overview' },
   { href: '/menus', label: 'Menus' },
   { href: '/corporate', label: 'Corporate' },
   { href: '/family-style', label: 'Family Style' },
   { href: '/weddings', label: 'Weddings' },
   { href: '/private-events', label: 'Private Events' },
   { href: '/fountains', label: 'Fountains' },
+  { href: '/gallery', label: 'Gallery' },
 ];
 
 const guidosItems = [
@@ -106,6 +113,9 @@ export default function GlobalNav() {
   const pathname = usePathname();
   const isHomepage = pathname === '/';
   const isGuidosPage = pathname.startsWith('/guidos');
+  const isCateringSection = pathname === '/catering' || cateringItems.some((i) => i.href === pathname);
+  const isAboutSection = aboutItems.some((i) => i.href === pathname);
+  const isContactPage = pathname === '/contact';
   const mobileNavRef = useRef<HTMLDivElement>(null);
 
   // Focus trap + Escape handler + body scroll lock for mobile nav (#6)
@@ -164,18 +174,23 @@ export default function GlobalNav() {
   const navOpacity = visible ? 1 : 0;
   const navPointerEvents = visible ? 'auto' as const : 'none' as const;
 
-  // Context-aware CTA
-  const ctaLabel = isGuidosPage ? 'Order Now' : 'Get in Touch';
+  // Context-aware CTA — consistent verbs: "Get a Quote" for catering, "Order Now" for Guido's
+  const ctaLabel = isGuidosPage ? 'Order Now' : 'Get a Quote';
   const ctaHref = isGuidosPage ? '/guidos/order' : '/contact';
+
+  const topLinkStyle = (isActive: boolean) => ({
+    paddingBottom: '3px',
+    borderBottom: isActive ? '2px solid currentColor' : '2px solid transparent',
+  });
 
   return (
     <>
-      <nav 
-        className="global-nav" 
+      <nav
+        className="global-nav"
         aria-label="Main navigation"
-        style={{ 
-          color: 'var(--clr-ink)', 
-          backgroundColor: scrolled ? 'var(--clr-bone)' : 'transparent', 
+        style={{
+          color: 'var(--clr-ink)',
+          backgroundColor: scrolled ? 'var(--clr-bone)' : 'transparent',
           borderBottom: scrolled ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
           position: 'fixed',
           top: 'var(--banner-height, 0px)',
@@ -190,29 +205,29 @@ export default function GlobalNav() {
           opacity: navOpacity,
           pointerEvents: navPointerEvents,
       }}>
-          <Link href="/" style={{ fontWeight: 600, letterSpacing: '-0.02em', zIndex: 10001, fontSize: '0.85rem' }}>Melting Moments</Link>
-          
+          <Link href="/" aria-label="Melting Moments home" style={{ fontWeight: 600, letterSpacing: '-0.02em', zIndex: 10001, fontSize: '0.85rem' }}>Melting Moments</Link>
+
           {/* Desktop Navigation */}
           <div className="nav-links-desktop" style={{ display: 'flex', gap: '2rem', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', alignItems: 'center' }}>
-              <NavDropdown label="Catering" items={cateringItems} />
-              <NavDropdown label="Guido's" items={guidosItems} />
-              <NavDropdown label="About" items={aboutItems} />
-              <Link href="/contact">Contact</Link>
+              <NavDropdown label="Catering" items={cateringItems} active={isCateringSection} currentPath={pathname} />
+              <NavDropdown label="Guido's" items={guidosItems} active={isGuidosPage} currentPath={pathname} />
+              <NavDropdown label="About" items={aboutItems} active={isAboutSection} currentPath={pathname} />
+              <Link href="/contact" aria-current={isContactPage ? 'page' : undefined} style={topLinkStyle(isContactPage)}>Contact</Link>
               <Link href={ctaHref} className="btn-solid" style={{ minHeight: 'auto', padding: '0.6rem 1.2rem', fontSize: '0.75rem' }}>{ctaLabel}</Link>
           </div>
 
           {/* Mobile Hamburger Button */}
-          <button 
+          <button
             className="nav-hamburger"
             onClick={() => setIsOpen(!isOpen)}
             aria-expanded={isOpen}
             aria-label="Toggle navigation menu"
-            style={{ 
-                display: 'none', 
-                flexDirection: 'column', 
-                gap: '6px', 
-                background: 'transparent', 
-                border: 'none', 
+            style={{
+                display: 'none',
+                flexDirection: 'column',
+                gap: '6px',
+                background: 'transparent',
+                border: 'none',
                 cursor: 'pointer',
                 zIndex: 10001
             }}
@@ -226,7 +241,7 @@ export default function GlobalNav() {
 
       {/* Mobile Navigation Panel */}
       {isOpen && (
-        <div 
+        <div
           ref={mobileNavRef}
           className="nav-mobile-panel"
           style={{
@@ -245,7 +260,7 @@ export default function GlobalNav() {
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', alignItems: 'center', textAlign: 'center' }}>
-            
+
             {/* Mobile Catering Accordion */}
             <button
               onClick={() => setMobileCateringOpen(!mobileCateringOpen)}
@@ -263,7 +278,7 @@ export default function GlobalNav() {
             {mobileCateringOpen && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {cateringItems.map((item) => (
-                  <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}
+                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
                     style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.5)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>
@@ -280,7 +295,7 @@ export default function GlobalNav() {
                 display: 'flex', alignItems: 'center', gap: '0.5rem',
               }}
             >
-              Guido&apos;s Gourmet
+              Guido&apos;s
               <svg width="10" height="6" viewBox="0 0 8 5" fill="none" style={{ transition: 'transform 0.2s', transform: mobileGuidosOpen ? 'rotate(180deg)' : 'none' }}>
                 <path d="M1 1L4 4L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -288,7 +303,7 @@ export default function GlobalNav() {
             {mobileGuidosOpen && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {guidosItems.map((item) => (
-                  <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}
+                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
                     style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.5)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>
@@ -313,7 +328,7 @@ export default function GlobalNav() {
             {mobileAboutOpen && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {aboutItems.map((item) => (
-                  <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}
+                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
                     style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.5)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>

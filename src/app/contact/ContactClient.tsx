@@ -114,7 +114,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
 
           {/* LEFT COLUMN — dynamic from Settings */}
           <div>
-            <div className="menu-index" style={{ marginBottom: '2rem' }}>Concierge Desk</div>
+            <div className="menu-index" style={{ marginBottom: '2rem' }}>{"Let's Talk"}</div>
             <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 6vw, 6rem)', marginBottom: '3rem' }}>CONTACT</h1>
             <div style={{ display: 'grid', gap: '3rem' }}>
               <div>
@@ -153,7 +153,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Event Details</h2>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Event Type *</span>
-                  <CustomSelect value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="What is this about?..."
+                  <CustomSelect value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="Select event type"
                     options={[{ value: "corporate", label: "Corporate Function" }, { value: "wedding", label: "Wedding" }, { value: "private", label: "Private Gathering" }, { value: "fountain", label: "Chocolate Fountain Rental" }, { value: "ready-made", label: "Ready-Made Meals (Guido's)" }, { value: "other", label: "General Inquiry" }]} />
                   {step1Error && <div style={{ color: '#B91C1C', fontSize: '0.8rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>{step1Error}</div>}
                 </label>
@@ -163,6 +163,10 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                     options={[{ value: "under50", label: "Under 50" }, { value: "50-100", label: "50 - 100" }, { value: "100-250", label: "100 - 250" }, { value: "250+", label: "250+" }]} />
                 </label>
                 <button type="submit" className="btn-solid" style={{ width: '100%', marginTop: '2rem' }}>Next Step</button>
+                <p style={{ textAlign: 'center', fontSize: '0.78rem', opacity: 0.55, marginTop: '1.25rem', lineHeight: 1.6 }}>
+                  Chef Paul personally replies within one business day.<br />
+                  Prefer to talk? Call <a href={`tel:${contactInfo.phoneRaw}`} style={{ textDecoration: 'underline' }}>{contactInfo.phone}</a>
+                </p>
               </form>
             )}
 
@@ -172,7 +176,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Date &amp; Venue</h2>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Event Date</span>
-                  <input type="date" required value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <input type="date" required min={new Date().toISOString().split('T')[0]} value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Venue / Location (Optional)</span>
@@ -224,10 +228,10 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
               <div style={{ animation: 'fadeIn 0.8s ease forwards', textAlign: 'center', padding: '4rem 0' }}>
                 <div className="shape-circle" style={{ width: '80px', height: '80px', backgroundColor: 'var(--clr-ink)', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2rem' }}>✓</div>
                 <h2 className="noire-serif" style={{ marginBottom: '1rem' }}>Request Received</h2>
-                <p style={{ opacity: 0.7, maxWidth: '30ch', margin: '0 auto', marginBottom: '0.5rem' }}>
-                  Thank you, {formData.name || 'Guest'}. Chef Paul or our concierge team will contact you shortly.
+                <p style={{ opacity: 0.7, maxWidth: '32ch', margin: '0 auto', marginBottom: '0.5rem' }}>
+                  Thank you, {(formData.name.trim().split(' ')[0]) || 'there'}. Chef Paul will personally reply within one business day.
                 </p>
-                <p style={{ opacity: 0.5, fontSize: '0.8rem' }}>We&apos;ll follow up at {formData.email} shortly.</p>
+                <p style={{ opacity: 0.5, fontSize: '0.8rem' }}>We&apos;ll be in touch at {formData.email}.</p>
               </div>
             )}
           </div>

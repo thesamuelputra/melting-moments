@@ -11,8 +11,8 @@ export default async function ChefPaul() {
   const cms = await getCmsContent();
 
   const heading = cms('chef_paul_heading', 'GET TO KNOW \nCHEF PAUL');
-  const intro = cms('chef_paul_intro', 'International cuisine influences many of our flavourful dishes, from Southwest to Italian and everything in between.');
-  const bio = cms('chef_paul_bio', 'From the very first contact with Melting Moments Catering, you will enjoy the professionalism that has been achieved through 17 years of culinary experience.');
+  const intro = cms('chef_paul_intro', 'Paul cooks the way he grew up eating, with family recipes at the heart of it and flavours picked up along the way, from Italian to Southwest and most points between.');
+  const bio = cms('chef_paul_bio', 'Seventeen years in, Paul still plans every menu himself. From your first call, you are talking to the person who will be cooking at your event.');
 
   return (
     <div>
