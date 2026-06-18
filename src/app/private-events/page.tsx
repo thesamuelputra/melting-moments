@@ -18,15 +18,15 @@ export default async function PrivateEvents() {
 
   const subtitle = cms('events_header_subtitle', 'Information');
   const title = cms('events_header_title', 'Private Events');
-  const heading = cms('events_heading', 'Intimate Excellence');
-  const body1 = cms('events_body_1', 'From formal dinner parties to private yacht catering, we deliver discreet, fine-dining service and unforgettable culinary experiences in the comfort of your own venue.');
-  const body2 = cms('events_body_2', "Whether it's an anniversary celebration for 12 or a milestone birthday for 80, Chef Paul designs every course to reflect the personality and preferences of the host.");
+  const heading = cms('events_heading', 'Dinner, In Good Hands');
+  const body1 = cms('events_body_1', 'From a formal dinner party to catering aboard a yacht, we bring the kitchen to you and serve a proper meal in your own space, without the fuss.');
+  const body2 = cms('events_body_2', "Whether it's an anniversary dinner for 12 or a milestone birthday for 80, Chef Paul builds every course around the host and the guests at the table.");
   const ctaButton = cms('events_cta_button', 'Plan Your Event');
 
   const cards = [
     { title: cms('events_card1_title', 'Your Venue, Our Craft'), desc: cms('events_card1_desc', 'We bring a full-service kitchen to any location: your home, a vineyard, a yacht, or a heritage venue.') },
     { title: cms('events_card2_title', 'Tailored Menus'), desc: cms('events_card2_desc', 'No templates. Every menu is designed from scratch after a personal consultation with Chef Paul.') },
-    { title: cms('events_card3_title', 'Invisible Service'), desc: cms('events_card3_desc', 'Our staff is trained to be attentive yet unobtrusive. Your guests experience the food, not the logistics.') },
+    { title: cms('events_card3_title', 'Service That Stays Out of the Way'), desc: cms('events_card3_desc', 'Our staff are attentive without hovering, so your guests remember the food and the night, not the logistics.') },
   ];
 
   return (

@@ -5,10 +5,10 @@ import { getCmsContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Wedding Catering | Melting Moments Victoria BC',
-  description: 'Bespoke wedding catering by Chef Paul. A symphony of taste crafted for your perfect day in Victoria, BC.',
+  description: 'Wedding catering by Chef Paul Silletta. A menu built around your day, cooked from scratch in Victoria, BC.',
   openGraph: {
     title: 'Wedding Catering | Melting Moments Victoria BC',
-    description: 'Bespoke wedding catering by Chef Paul Silletta.',
+    description: 'Wedding catering by Chef Paul Silletta, made for your day.',
     images: ['/wedding_entree.webp'],
   },
 };
@@ -18,9 +18,9 @@ export default async function Weddings() {
 
   const subtitle = cms('weddings_header_subtitle', 'Information');
   const title = cms('weddings_header_title', 'Weddings');
-  const heading = cms('weddings_heading', 'A Symphony of Taste');
-  const body1 = cms('weddings_body_1', 'Your wedding day requires absolute perfection. Chef Paul brings 17 years of elite catering experience to curate a bespoke menu that tells your unique story.');
-  const body2 = cms('weddings_body_2', 'From intimate ceremonies on Vancouver Island to grand receptions for 300+ guests, every detail is orchestrated with obsessive precision, from the first canapé through to the final dessert course.');
+  const heading = cms('weddings_heading', 'A Menu Made for Your Day');
+  const body1 = cms('weddings_body_1', 'Your wedding deserves more than a set menu. With 17 years behind him, Chef Paul sits down with you and builds the food around your day and the people at it.');
+  const body2 = cms('weddings_body_2', 'From an intimate ceremony on Vancouver Island to a reception for 300, we look after every detail, from the first canapé through to the last dessert course.');
   const ctaButton = cms('weddings_cta_button', 'Start Planning');
   const processHeading = cms('weddings_process_heading', 'From Vision to Celebration');
   const steps = [

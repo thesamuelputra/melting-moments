@@ -16,7 +16,7 @@ export default function Fountains() {
             CHOCOLATE <br /> CASCADES
           </h1>
           <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, maxWidth: '40ch', marginTop: '1.5rem', lineHeight: 1.6 }}>
-            The largest supplier of chocolate fountains on Vancouver Island. Fountains can be used for any event, from 20 to 1,000 guests. Premium Lindt chocolate cascading over tiers of perfection.
+            The largest supplier of chocolate fountains on Vancouver Island. Fountains suit any event, from 20 to 1,000 guests, with premium Lindt chocolate cascading warm over every tier.
           </p>
         </div>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '4/5' }}>
