@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 type MenuItem = {
@@ -22,7 +22,6 @@ const INCLUDED_LABEL = 'Included';
 const isIncluded = (label: string) => label.trim().toLowerCase() === INCLUDED_LABEL.toLowerCase();
 
 export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuItem[]; disclaimer: string }) {
-  const [filter, setFilter] = useState('ALL');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -35,7 +34,7 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
   }, []);
 
   // Track viewport so the sticky desktop index only mounts where there is room
-  // for it. On mobile the horizontal filter rail already serves navigation.
+  // for it. On mobile the menu reads top-to-bottom like a printed menu.
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 901px)');
     const update = () => setIsDesktop(mq.matches);
@@ -80,49 +79,23 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
 
   const sectionId = (cat: string) => `menu-${cat.toLowerCase()}`;
 
-  const filterRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to content when filter is clicked (#21)
-  // Offset so the filter bar + category title remain visible
-  const handleFilterClick = (cat: string) => {
-    setFilter(cat);
-    // Small delay to allow React to render the filtered content
-    setTimeout(() => {
-      if (filterRef.current) {
-        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const top = filterRef.current.getBoundingClientRect().top + window.scrollY - 90;
-        window.scrollTo({ top, behavior: prefersReduced ? 'auto' : 'smooth' });
-      }
-    }, 50);
-  };
-
   // Jump from the sticky index to a section. The anchor href is the no-JS
-  // fallback; this handler resets any active filter first so the target
-  // section actually exists in the DOM, then scrolls with a header offset.
+  // fallback; this handler scrolls with a header offset.
   const handleIndexClick = (e: React.MouseEvent<HTMLAnchorElement>, cat: string) => {
     e.preventDefault();
-    const scrollToSection = () => {
-      const el = document.getElementById(sectionId(cat));
-      if (el) {
-        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const top = el.getBoundingClientRect().top + window.scrollY - 100;
-        window.scrollTo({ top, behavior: prefersReduced ? 'auto' : 'smooth' });
-      }
-    };
-    if (filter !== 'ALL') {
-      setFilter('ALL');
-      setTimeout(scrollToSection, 60);
-    } else {
-      scrollToSection();
+    const el = document.getElementById(sectionId(cat));
+    if (el) {
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const top = el.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top, behavior: prefersReduced ? 'auto' : 'smooth' });
     }
   };
 
   // Lightweight scroll-spy: highlight the section currently in view within the
-  // sticky index. Only subscribes when the full list is shown on desktop;
-  // state is only updated from the observer callback (an external event), and
-  // the highlight is otherwise suppressed at render time below.
+  // sticky index. Only subscribes on desktop where the index renders; state is
+  // only updated from the observer callback (an external event).
   useEffect(() => {
-    if (!isDesktop || filter !== 'ALL') return;
+    if (!isDesktop) return;
     const sections = availableCategories
       .map(cat => document.getElementById(sectionId(cat)))
       .filter((el): el is HTMLElement => el !== null);
@@ -139,29 +112,18 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
     );
     sections.forEach(s => observer.observe(s));
     return () => observer.disconnect();
-  }, [isDesktop, filter, availableCategories]);
+  }, [isDesktop, availableCategories]);
 
-  // Only trust the scroll-spy highlight when the full list is shown on desktop;
-  // otherwise the active marker follows the explicit filter selection.
-  const spyActive = isDesktop && filter === 'ALL' ? activeSection : null;
+  // Only trust the scroll-spy highlight on desktop where the index renders.
+  const spyActive = isDesktop ? activeSection : null;
 
   return (
     <section className="container" style={{ paddingTop: 'clamp(2rem, 4vw, 4rem)', paddingBottom: '8rem' }}>
 
-      {/* INTERACTIVE FILTER */}
-      <div ref={filterRef} className="filter-container" style={{ flexWrap: 'wrap' }}>
-          <button className={`btn-outline ${filter === 'ALL' ? 'active' : ''}`} onClick={() => handleFilterClick('ALL')}>All</button>
-          {availableCategories.map(cat => (
-            <button key={cat} className={`btn-outline ${filter === cat ? 'active' : ''}`} onClick={() => handleFilterClick(cat)}>
-              {formatCategoryName(cat)}
-            </button>
-          ))}
-      </div>
-
       {/* Two-column shell: a sticky category index occupies the otherwise-empty
           left margin on desktop; the menu column holds the existing content.
-          On mobile only the menu column renders (the filter rail above serves
-          navigation), so the layout collapses to its original single column. */}
+          On mobile only the menu column renders, so the layout collapses to a
+          single column that reads top-to-bottom like a printed menu. */}
       <div
         style={
           isDesktop
@@ -175,7 +137,7 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
             <div className="menu-index" style={{ marginBottom: '1.5rem' }}>Sections</div>
             <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               {availableCategories.map((cat, i) => {
-                const current = filter === 'ALL' ? spyActive === sectionId(cat) : filter === cat;
+                const current = spyActive === sectionId(cat);
                 return (
                   <li key={cat} style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem' }}>
                     <span className="menu-index" style={{ opacity: current ? 1 : 0.75 }}>{String(i + 1).padStart(2, '0')}</span>
@@ -208,15 +170,13 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
         {/* MENU COLUMN */}
         <div>
           {availableCategories.map((cat, groupIdx) => {
-            if (filter !== 'ALL' && filter !== cat) return null;
-
             const items = menuItems.filter(m => m.category === cat && m.isActive !== false).sort((a,b) => a.orderIndex - b.orderIndex);
             if (items.length === 0) return null;
 
             // If the section carries no distinct figures (everything bundled in
             // the package rate), note that once instead of on every row.
             const allIncluded = items.every(i => !i.priceLabel || isIncluded(i.priceLabel));
-            const showTopBorder = filter === 'ALL' && groupIdx > 0;
+            const showTopBorder = groupIdx > 0;
 
             return (
               <div key={cat} style={{ animation: 'fadeIn 0.5s ease forwards' }}>
@@ -277,16 +237,14 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
       </div>
 
       {/* ── SERVICES NOTICE ── */}
-      {filter === 'ALL' && (
-        <div style={{ marginTop: '4rem', borderTop: '1px solid var(--clr-charcoal)', paddingTop: '3rem' }}>
-          <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.8, maxWidth: '65ch' }}>
-            {disclaimer}
-          </p>
-          <div style={{ marginTop: '2rem' }}>
-            <Link href="/contact" className="btn-solid">Book Your Event</Link>
-          </div>
+      <div style={{ marginTop: '4rem', borderTop: '1px solid var(--clr-charcoal)', paddingTop: '3rem' }}>
+        <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.8, maxWidth: '65ch' }}>
+          {disclaimer}
+        </p>
+        <div style={{ marginTop: '2rem' }}>
+          <Link href="/contact" className="btn-solid">Book Your Event</Link>
         </div>
-      )}
+      </div>
 
       {/* STICKY "GET A QUOTE" CTA — converts intent mid-scroll, not only at the
           page bottom. Sits above the scroll-to-top control so they never
