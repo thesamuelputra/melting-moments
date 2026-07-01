@@ -43,10 +43,11 @@ export default function AdminLogin() {
         
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Master Password</label>
-            <input 
+            <label htmlFor="admin-password" style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Master Password</label>
+            <input
+              id="admin-password"
               name="password"
-              type="password" 
+              type="password"
               required
               autoFocus
               style={{
@@ -55,13 +56,12 @@ export default function AdminLogin() {
                 backgroundColor: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
                 color: 'white',
-                outline: 'none',
                 fontFamily: 'inherit'
               }}
             />
           </div>
           
-          {error && <div style={{ color: '#EF4444', fontSize: '0.85rem' }}>{error}</div>}
+          {error && <div role="alert" style={{ color: '#EF4444', fontSize: '0.85rem' }}>{error}</div>}
           
           <button 
             type="submit" 

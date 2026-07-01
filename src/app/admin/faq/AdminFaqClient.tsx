@@ -1,64 +1,104 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { createFaq, updateFaq, deleteFaq } from './actions';
 
 type Faq = { id: string; question: string; answer: string; orderIndex: number; isActive: boolean };
 
 export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs: Faq[]; isSeeded: boolean }) {
   const [faqs, setFaqs] = useState<Faq[]>([...initialFaqs].sort((a, b) => a.orderIndex - b.orderIndex));
+  const tempIdCounter = useRef(0);
   const [editing, setEditing] = useState<Faq | null>(null);
   const [creating, setCreating] = useState(false);
   const [newQ, setNewQ] = useState('');
   const [newA, setNewA] = useState('');
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState('');
+  const [toast, setToast] = useState<{ msg: string; kind: 'success' | 'error' } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [seeded, setSeeded] = useState(isSeeded);
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+  const showToast = (msg: string, kind: 'success' | 'error' = 'success') => { setToast({ msg, kind }); setTimeout(() => setToast(null), 2500); };
+
+  // Fallback result when a server action throws (network failure, expired session)
+  const REQUEST_FAILED = { success: false as const };
 
   const handleSeedAll = () => {
     startTransition(async () => {
       // Create each static FAQ in Convex
+      let failures = 0;
       for (const faq of faqs) {
-        await createFaq(faq.question, faq.answer, faq.orderIndex);
+        const res = await createFaq(faq.question, faq.answer, faq.orderIndex).catch(() => REQUEST_FAILED);
+        if (!res.success) failures++;
       }
-      setSeeded(true);
-      showToast('All FAQs saved to CMS');
+      if (failures === 0) {
+        setSeeded(true);
+        showToast('All FAQs saved to CMS');
+      } else {
+        showToast(`Failed to save ${failures} FAQ${failures !== 1 ? 's' : ''} to CMS — please try again`, 'error');
+      }
     });
   };
 
   const handleCreate = () => {
     if (!newQ.trim() || !newA.trim()) return;
-    const optimistic: Faq = { id: `temp-${Date.now()}`, question: newQ, answer: newA, orderIndex: faqs.length, isActive: true };
+    const tempId = `temp-${++tempIdCounter.current}`;
+    const optimistic: Faq = { id: tempId, question: newQ, answer: newA, orderIndex: faqs.length, isActive: true };
     setFaqs(prev => [...prev, optimistic]);
     setCreating(false); setNewQ(''); setNewA('');
     startTransition(async () => {
-      const res = await createFaq(newQ, newA, faqs.length);
-      if (res.success) showToast('FAQ added');
+      const res = await createFaq(newQ, newA, faqs.length).catch(() => REQUEST_FAILED);
+      if (res.success) {
+        // Swap the optimistic temp id for the real CMS id so edit/delete work
+        setFaqs(prev => prev.map(f => f.id === tempId ? { ...f, id: res.id } : f));
+        showToast('FAQ added');
+      } else {
+        setFaqs(prev => prev.filter(f => f.id !== tempId));
+        showToast('Failed to add FAQ — please try again', 'error');
+      }
     });
   };
 
   const handleSaveEdit = () => {
     if (!editing) return;
-    setFaqs(prev => prev.map(f => f.id === editing.id ? editing : f));
+    const edited = editing;
+    const original = faqs.find(f => f.id === edited.id);
+    setFaqs(prev => prev.map(f => f.id === edited.id ? edited : f));
     startTransition(async () => {
-      const res = await updateFaq(editing.id, { question: editing.question, answer: editing.answer });
-      if (res.success) showToast('FAQ updated');
+      const res = await updateFaq(edited.id, { question: edited.question, answer: edited.answer }).catch(() => REQUEST_FAILED);
+      if (res.success) {
+        showToast('FAQ updated');
+      } else {
+        if (original) setFaqs(prev => prev.map(f => f.id === edited.id ? original : f));
+        showToast('Failed to update FAQ — changes reverted', 'error');
+      }
     });
     setEditing(null);
   };
 
   const handleToggle = (faq: Faq) => {
     setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, isActive: !f.isActive } : f));
-    startTransition(async () => { await updateFaq(faq.id, { isActive: !faq.isActive }); });
+    startTransition(async () => {
+      const res = await updateFaq(faq.id, { isActive: !faq.isActive }).catch(() => REQUEST_FAILED);
+      if (!res.success) {
+        setFaqs(prev => prev.map(f => f.id === faq.id ? { ...f, isActive: faq.isActive } : f));
+        showToast('Failed to update visibility — reverted', 'error');
+      }
+    });
   };
 
   const handleDelete = (id: string) => {
+    const removed = faqs.find(f => f.id === id);
     setFaqs(prev => prev.filter(f => f.id !== id));
     setDeleteConfirm(null);
-    startTransition(async () => { await deleteFaq(id); showToast('FAQ deleted'); });
+    startTransition(async () => {
+      const res = await deleteFaq(id).catch(() => REQUEST_FAILED);
+      if (res.success) {
+        showToast('FAQ deleted');
+      } else {
+        if (removed) setFaqs(prev => [...prev, removed]);
+        showToast('Failed to delete FAQ — restored', 'error');
+      }
+    });
   };
 
   const handleMove = (id: string, direction: 'up' | 'down') => {
@@ -196,8 +236,8 @@ export default function AdminFaqClient({ initialFaqs, isSeeded }: { initialFaqs:
       </div>
 
       {toast && (
-        <div role="status" aria-live="polite" style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: '#059669', color: 'white', padding: '0.75rem 1.25rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 60 }}>
-          ✓ {toast}
+        <div role={toast.kind === 'error' ? 'alert' : 'status'} aria-live={toast.kind === 'error' ? 'assertive' : 'polite'} style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: toast.kind === 'error' ? '#B91C1C' : '#059669', color: 'white', padding: '0.75rem 1.25rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', zIndex: 60 }}>
+          {toast.kind === 'error' ? '✕' : '✓'} {toast.msg}
         </div>
       )}
     </div>

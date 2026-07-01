@@ -2,7 +2,7 @@
 
 An award-winning, high-fashion editorial digital experience and catering platform for **Melting Moments** in Victoria, BC.
 
-![Melting Moments Catering](public/hero-main.jpg)
+![Melting Moments Catering](public/hero-main.webp)
 
 ## 📖 Overview
 
@@ -19,7 +19,17 @@ Melting Moments is a premier catering service offering exquisite Italian family-
 
 ## 🚀 Getting Started
 
-First, ensure you have the required `.env` or `.env.local` variables configured for your Convex project instance.
+Copy `.env.example` to `.env.local` and fill in the values. The full inventory:
+
+| Variable | Where to set | Purpose | If missing |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_CONVEX_URL` | Vercel + `.env.local` | Convex deployment URL | Content pages serve hardcoded fallbacks; admin media library breaks |
+| `ADMIN_PASSWORD` | **Both** Vercel **and** the Convex deployment env (identical values) | Gates `/admin` and all Convex admin functions | Missing: admin fails closed. Mismatch: login works but every admin action returns "Unauthorized" |
+| `RESEND_API_KEY` | Vercel | Transactional email (lead notifications + confirmations) | Submissions still save to Convex, but no emails send |
+| `RESEND_FROM` | Vercel | Sender address — must be on a Resend-verified domain | Falls back to Resend's test sender, which cannot deliver to customers |
+| `OWNER_EMAIL` | Vercel | Recipient for new-lead notifications | Defaults to info@meltingmoments.ca |
+
+Note: the Convex backend deploys separately — `npx convex deploy` — pushing to git/Vercel does **not** update Convex functions.
 
 Run the development server:
 

@@ -1,6 +1,7 @@
 import { fetchQuery } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import AdminLayoutClient from './AdminLayoutClient';
+import ConvexClientProvider from '../ConvexClientProvider';
 import './admin.css';
 import { unstable_noStore } from 'next/cache';
 import type { Metadata } from 'next';
@@ -16,8 +17,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const bannerEnabled = settings['banner_enabled'] === 'true' && !!settings['banner_text'];
 
   return (
-    <AdminLayoutClient bannerEnabled={bannerEnabled}>
-      {children}
-    </AdminLayoutClient>
+    <ConvexClientProvider>
+      <AdminLayoutClient bannerEnabled={bannerEnabled}>
+        {children}
+      </AdminLayoutClient>
+    </ConvexClientProvider>
   );
 }

@@ -424,7 +424,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   font-size: var(--text-micro);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: rgba(17, 17, 17, 0.4);
+  color: rgba(17, 17, 17, 0.66); /* 0.4 failed WCAG contrast (2.6:1) */
   background: none;
   border: none;
   border-bottom: 1px solid transparent;
@@ -592,7 +592,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .preloader {
   will-change: transform;
-  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 .preloader--exit {
@@ -718,17 +718,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
    8. PAGE CONTENT TRANSITIONS
 ======================================================== */
 
-.page-content {
-  will-change: opacity, transform;
-}
-
+/* NOTE: .page-content must never carry will-change or a retained transform —
+   either one makes it the containing block for position:fixed descendants
+   (sticky CTAs, the gallery lightbox), anchoring them to the page instead of
+   the viewport. Entrance is opacity-only for the same reason. */
 .page-content--enter {
   animation: pageEnter 0.5s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
 }
 
 @keyframes pageEnter {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ========================================================
@@ -743,7 +743,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     scroll-behavior: auto !important;
   }
 
-  .page-content--enter { animation: none; opacity: 1; transform: none; }
+  .page-content--enter { animation: none; opacity: 1; }
   .preloader { transition: none; }
   .preloader--exit { transform: none; display: none; }
   .page-shutter--active .page-shutter__panel { animation: none; }

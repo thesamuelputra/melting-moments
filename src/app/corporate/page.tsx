@@ -1,13 +1,13 @@
 import Image from 'next/image';
-import { fetchQuery } from 'convex/nextjs';
-import { api } from '@/../convex/_generated/api';
 import CorporateMenuClient from './CorporateMenuClient';
-import { getCmsValue } from '@/lib/cms';
+import { getCmsValue, getMenuItems, getSettings } from '@/lib/cms';
+
+export const revalidate = 300;
 
 export default async function Corporate() {
   const [allItems, settings] = await Promise.all([
-    fetchQuery(api.menuItems.listActive),
-    fetchQuery(api.businessSettings.getAll),
+    getMenuItems().catch(() => []),
+    getSettings(),
   ]);
 
   const menuItems = allItems

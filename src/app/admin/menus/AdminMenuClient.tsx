@@ -44,6 +44,10 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
   const [editData, setEditData] = useState<Partial<MenuItem>>({});
   const [isPending, startTransition] = useTransition();
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [error, setError] = useState('');
+
+  // Fallback result when a server action throws (network failure, expired session)
+  const REQUEST_FAILED = { success: false as const, error: 'Request failed. Check your connection and try again.' };
 
   // Search & filter
   const [search, setSearch] = useState('');
@@ -101,7 +105,9 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
         ? `$${Number(editData.price).toFixed(2)}/pp`
         : (editData.priceLabel || 'Included'),
     };
+    const original = items.find(i => i.id === editId);
     startTransition(async () => {
+      setError('');
       setItems(prev => prev.map(i => i.id === editId ? { ...i, ...finalData } as MenuItem : i));
       setEditId(null);
       setEditData({});
@@ -114,10 +120,16 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
           priceLabel: finalData.priceLabel,
           isActive: editData.isActive ?? true,
           isFeatured: editData.isFeatured ?? false,
-        });
-        setItems(prev => prev.map(i => i.id === editId ? { ...result, isActive: result.isActive ?? true } : i));
+        }).catch(() => REQUEST_FAILED);
+        if (result.success) {
+          setItems(prev => prev.map(i => i.id === editId ? result.item : i));
+        } else {
+          // Never persisted — remove the optimistic row
+          setItems(prev => prev.filter(i => i.id !== editId));
+          setError(result.error);
+        }
       } else {
-        await updateMenuItem(editId, {
+        const result = await updateMenuItem(editId, {
           category: editData.category || activeCategory,
           name: editData.name || '',
           description: editData.description || '',
@@ -125,7 +137,11 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
           priceLabel: finalData.priceLabel,
           isActive: editData.isActive ?? true,
           isFeatured: editData.isFeatured ?? false,
-        });
+        }).catch(() => REQUEST_FAILED);
+        if (!result.success) {
+          if (original) setItems(prev => prev.map(i => i.id === editId ? original : i));
+          setError(result.error);
+        }
       }
     });
   };
@@ -137,36 +153,61 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
   };
 
   const deleteItem = (id: string) => {
+    const removed = items.find(i => i.id === id);
     startTransition(async () => {
+      setError('');
       setItems(prev => prev.filter(i => i.id !== id));
       setSelected(prev => { const s = new Set(prev); s.delete(id); return s; });
       setDeleteConfirm(null);
-      if (!id.startsWith('new-')) await deleteMenuItem(id);
+      if (!id.startsWith('new-')) {
+        const result = await deleteMenuItem(id).catch(() => REQUEST_FAILED);
+        if (!result.success) {
+          if (removed) setItems(prev => [...prev, removed]);
+          setError(result.error);
+        }
+      }
     });
   };
 
   const bulkDelete = () => {
     const ids = Array.from(selected);
+    const removedById = new Map(items.filter(i => ids.includes(i.id)).map(i => [i.id, i]));
     startTransition(async () => {
+      setError('');
       setItems(prev => prev.filter(i => !ids.includes(i.id)));
       setSelected(new Set());
       setBulkDeleteConfirm(false);
+      const failed: MenuItem[] = [];
       for (const id of ids) {
-        if (!id.startsWith('new-')) await deleteMenuItem(id);
+        if (id.startsWith('new-')) continue;
+        const result = await deleteMenuItem(id).catch(() => REQUEST_FAILED);
+        if (!result.success) {
+          const item = removedById.get(id);
+          if (item) failed.push(item);
+        }
+      }
+      if (failed.length > 0) {
+        setItems(prev => [...prev, ...failed]);
+        setError(`Failed to delete ${failed.length} item${failed.length !== 1 ? 's' : ''} — restored in the list.`);
       }
     });
   };
 
   const toggleActive = (item: MenuItem) => {
     startTransition(async () => {
+      setError('');
       setItems(prev => prev.map(i => i.id === item.id ? { ...i, isActive: !i.isActive } : i));
       if (!item.id.startsWith('new-')) {
-        await updateMenuItem(item.id, {
+        const result = await updateMenuItem(item.id, {
           category: item.category, name: item.name,
           description: item.description || '', price: item.price ?? null,
           priceLabel: item.priceLabel, orderIndex: item.orderIndex,
-          isActive: !item.isActive,
-        });
+          isActive: !item.isActive, isFeatured: item.isFeatured,
+        }).catch(() => REQUEST_FAILED);
+        if (!result.success) {
+          setItems(prev => prev.map(i => i.id === item.id ? { ...i, isActive: item.isActive } : i));
+          setError(result.error);
+        }
       }
     });
   };
@@ -199,6 +240,14 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Action failure banner */}
+      {error && (
+        <div role="alert" style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(185,28,28,0.06)', border: '1px solid rgba(185,28,28,0.3)', borderRadius: '6px', color: '#B91C1C', fontSize: '0.82rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+          <span>{error}</span>
+          <button onClick={() => setError('')} aria-label="Dismiss error" style={{ background: 'none', border: 'none', color: '#B91C1C', cursor: 'pointer', fontSize: '1rem', lineHeight: 1, padding: 0 }}>×</button>
         </div>
       )}
 
@@ -336,13 +385,18 @@ export default function AdminMenuClient({ initialItems }: { initialItems: MenuIt
                     <button
                       onClick={() => {
                         startTransition(async () => {
+                          setError('');
                           setItems(prev => prev.map(i => i.id === item.id ? { ...i, isFeatured: !i.isFeatured } : i));
                           if (!item.id.startsWith('new-')) {
-                            await updateMenuItem(item.id, {
+                            const result = await updateMenuItem(item.id, {
                               category: item.category, name: item.name, description: item.description || '',
                               price: item.price ?? null, priceLabel: item.priceLabel, orderIndex: item.orderIndex,
                               isActive: item.isActive, isFeatured: !item.isFeatured,
-                            });
+                            }).catch(() => REQUEST_FAILED);
+                            if (!result.success) {
+                              setItems(prev => prev.map(i => i.id === item.id ? { ...i, isFeatured: item.isFeatured } : i));
+                              setError(result.error);
+                            }
                           }
                         });
                       }}

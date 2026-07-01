@@ -5,11 +5,17 @@ export const metadata: Metadata = {
   title: 'Family Style Service | Victoria BC Catering',
   description: 'Big shared platters passed around the table, the way an Italian family eats at home. Family-style catering in Victoria, BC.',
   openGraph: {
+    url: '/family-style',
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
     title: 'Family Style Service | Victoria BC Catering',
     description: 'Big shared platters passed around the table, the way an Italian family eats at home. Family-style catering in Victoria, BC.',
     images: ['/family-spread.webp'],
   },
 }
+
+export const revalidate = 300;
 
 export default function FamilyStyle() {
   return (

@@ -53,8 +53,24 @@ export default function GuidosMenuClient({ products }: { products: Product[] }) 
             <div
               key={product.id}
               className={`product-card ${!product.isAvailable ? 'product-card--sold-out' : ''}`}
-              onClick={() => setExpandedProduct(expandedProduct === product.id ? null : product.id)}
             >
+              <button
+                type="button"
+                aria-expanded={expandedProduct === product.id}
+                disabled={!product.isAvailable}
+                aria-disabled={!product.isAvailable}
+                onClick={() => setExpandedProduct(expandedProduct === product.id ? null : product.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  width: '100%',
+                  textAlign: 'inherit',
+                  cursor: 'pointer',
+                  font: 'inherit',
+                  color: 'inherit',
+                }}
+              >
               <div className="product-card__image">
                 <GuidosImage
                   src={product.image}
@@ -86,9 +102,10 @@ export default function GuidosMenuClient({ products }: { products: Product[] }) 
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--text-body)', fontWeight: 400, marginBottom: '0.25rem' }}>
                 {product.name}
               </h3>
-              <span style={{ fontSize: 'var(--text-micro)', letterSpacing: '0.1em', opacity: 0.5 }}>
+              <span style={{ fontSize: 'var(--text-micro)', letterSpacing: '0.1em', opacity: 0.65 }}>
                 From ${product.priceFrom.toFixed(2)}
               </span>
+              </button>
 
               {/* Expanded detail */}
               {expandedProduct === product.id && product.isAvailable && (

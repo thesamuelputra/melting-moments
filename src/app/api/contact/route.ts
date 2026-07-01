@@ -5,6 +5,12 @@ import { Resend } from 'resend';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+// RESEND_FROM must be an address on a domain verified in the Resend dashboard.
+const FROM_ADDRESS = process.env.RESEND_FROM || 'onboarding@resend.dev';
+
+// Strip control characters from user input before interpolating into email subject headers
+const clean = (s: string) => s.replace(/[\r\n\t]+/g, ' ').slice(0, 120);
+
 import { escapeHtml, isValidEmail } from '@/lib/sanitize';
 
 export async function POST(request: Request) {
@@ -59,10 +65,11 @@ export async function POST(request: Request) {
       const eDetails = escapeHtml(details);
 
       // Email to Chef Paul / business owner
-      await resend!.emails.send({
-        from: 'Melting Moments <onboarding@resend.dev>',
+      const { error: ownerEmailError } = await resend!.emails.send({
+        from: `Melting Moments Catering <${FROM_ADDRESS}>`,
         to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
-        subject: `New Catering Inquiry: ${eventType.slice(0, 60)} - ${name.slice(0, 60)}`,
+        replyTo: email,
+        subject: `New Catering Inquiry: ${clean(eventType)} - ${clean(name)}`,
         html: `
           <h2>New Booking Inquiry</h2>
           <p><strong>Name:</strong> ${eName}</p>
@@ -78,9 +85,14 @@ export async function POST(request: Request) {
         `
       });
 
+      // Don't fail the request: the lead is already saved in Convex. Log loudly instead.
+      if (ownerEmailError) {
+        console.error('[Contact API] Owner notification email failed:', ownerEmailError);
+      }
+
       // Confirmation email to the customer
-      await resend!.emails.send({
-        from: 'Melting Moments <onboarding@resend.dev>',
+      const { error: confirmationEmailError } = await resend!.emails.send({
+        from: `Melting Moments Catering <${FROM_ADDRESS}>`,
         to: email,
         subject: 'Thank you for your inquiry. Melting Moments Catering',
         html: `
@@ -108,6 +120,11 @@ export async function POST(request: Request) {
           </div>
         `
       });
+
+      // Don't fail the request: the lead is already saved in Convex. Log loudly instead.
+      if (confirmationEmailError) {
+        console.error('[Contact API] Customer confirmation email failed:', confirmationEmailError);
+      }
     }
 
     console.log(`[Contact API] Inquiry received for ${eventType} (${name.charAt(0)}***).`);

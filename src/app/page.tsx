@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { getCmsContent } from '@/lib/cms';
-import { fetchQuery } from 'convex/nextjs';
-import { api } from '@/../convex/_generated/api';
+import { getCmsContent, getTestimonials } from '@/lib/cms';
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Melting Moments & Guido's Gourmet | Catering, Victoria BC",
@@ -21,12 +21,11 @@ const SERVICES = [
 const GALLERY_PEEK = ['/macro_charcuterie.webp', '/wedding_entree.webp', '/macro_pasta.webp', '/macro_roulade.webp'];
 
 export default async function Home() {
-  const cms = await getCmsContent();
-  const rawReviews = await fetchQuery(api.testimonials.listActive);
-  const reviews = (rawReviews.length > 0 ? rawReviews : [
-    { author: 'Sarah & James', role: 'Wedding Clients', text: 'Melting Moments transformed our wedding. Guests are still talking about the duck confit.', rating: 5 },
-    { author: 'Victoria Tech Group', role: 'Corporate Client', text: 'Chef Paul handled our 300-person gala flawlessly — punctual, attentive, and the flavours were exceptional.', rating: 5 },
-  ]).slice(0, 2);
+  const [cms, rawReviews] = await Promise.all([
+    getCmsContent(),
+    getTestimonials().catch(() => []),
+  ]);
+  const reviews = rawReviews.slice(0, 2);
 
   const ctaHeading = cms('home_cta_heading', 'Whatever the occasion, we make it count.');
   const ctaBody = cms('home_cta_body', 'From a 200-guest wedding to Tuesday night dinner.');
@@ -140,26 +139,28 @@ export default async function Home() {
       {/* ================================================
           SOCIAL PROOF
           ================================================ */}
-      <section className="haus-block-container">
-        <div className="container">
-          <div className="menu-index" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2.5rem' }}>Kind Words</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem' }}>
-            {reviews.map((rev, i) => (
-              <div key={i}>
-                {rev.rating ? (
-                  <div style={{ color: '#E2C992', marginBottom: '1rem', letterSpacing: '0.1em' }}>{'★'.repeat(rev.rating)}</div>
-                ) : null}
-                <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontStyle: 'italic', color: 'var(--clr-oat)', lineHeight: 1.4, marginBottom: '1.5rem' }}>&ldquo;{rev.text}&rdquo;</p>
-                <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>— {rev.author}</div>
-                {rev.role ? <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', marginTop: '0.25rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{rev.role}</div> : null}
-              </div>
-            ))}
+      {reviews.length > 0 && (
+        <section className="haus-block-container">
+          <div className="container">
+            <div className="menu-index" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2.5rem' }}>Kind Words</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem' }}>
+              {reviews.map((rev, i) => (
+                <div key={i}>
+                  {rev.rating ? (
+                    <div role="img" aria-label={`${rev.rating} out of 5 stars`} style={{ color: '#E2C992', marginBottom: '1rem', letterSpacing: '0.1em' }}>{'★'.repeat(rev.rating)}</div>
+                  ) : null}
+                  <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontStyle: 'italic', color: 'var(--clr-oat)', lineHeight: 1.4, marginBottom: '1.5rem' }}>&ldquo;{rev.text}&rdquo;</p>
+                  <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>— {rev.author}</div>
+                  {rev.role ? <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)', marginTop: '0.25rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{rev.role}</div> : null}
+                </div>
+              ))}
+            </div>
+            <p style={{ marginTop: '3rem', fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)' }}>
+              Chef Paul Silletta · 17 years · Vancouver Island
+            </p>
           </div>
-          <p style={{ marginTop: '3rem', fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)' }}>
-            Chef Paul Silletta · 17 years · Vancouver Island
-          </p>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ================================================
           SHARED CTA

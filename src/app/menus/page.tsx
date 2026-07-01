@@ -1,14 +1,18 @@
 import Image from 'next/image';
 import { Metadata } from 'next';
-import { fetchQuery } from 'convex/nextjs';
-import { api } from '@/../convex/_generated/api';
-import { getCmsContent } from '@/lib/cms';
+import { getCmsContent, getMenuItems } from '@/lib/cms';
 import MenuClient from './MenuClient';
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Catering Menus | Melting Moments Victoria BC',
   description: 'Browse our catering menus, from Italian family-style dinners to corporate luncheons and BBQ packages. Acclaimed cuisine in Victoria, BC.',
   openGraph: {
+    url: '/menus',
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
     title: 'Catering Menus | Melting Moments Victoria BC',
     description: 'Browse our catering menus. Italian family-style, corporate, BBQ, and more.',
     images: ['/catering_menu_hero.webp'],
@@ -17,7 +21,7 @@ export const metadata: Metadata = {
 
 export default async function MenusPage() {
   const [items, cms] = await Promise.all([
-    fetchQuery(api.menuItems.listActive),
+    getMenuItems().catch(() => []),
     getCmsContent(),
   ]);
 
@@ -48,7 +52,7 @@ export default async function MenusPage() {
           ))}
         </h1>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '16/9', marginBottom: '4rem' }}>
-          <Image src="/catering_menu_hero.webp" alt="Assorted catering dishes including pasta, steak, and chicken roulade" fill sizes="100vw" style={{ objectFit: 'cover', objectPosition: 'center' }} priority quality={100} />
+          <Image src="/catering_menu_hero.webp" alt="Assorted catering dishes including pasta, steak, and chicken roulade" fill sizes="100vw" style={{ objectFit: 'cover', objectPosition: 'center' }} priority />
         </div>
       </header>
       <MenuClient menuItems={menuItems} disclaimer={disclaimer} />

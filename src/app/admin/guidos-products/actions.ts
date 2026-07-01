@@ -2,7 +2,7 @@
 
 import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { Id } from '@/../convex/_generated/dataModel';
 import { requireAdmin } from '@/lib/auth';
 
@@ -35,6 +35,8 @@ export async function addGuidosProduct(data: ProductInput) {
     orderIndex: data.orderIndex ?? 0,
   });
 
+  updateTag('cms');
+  revalidatePath('/', 'layout');
   revalidatePath('/admin/guidos-products');
   revalidatePath('/guidos/menu');
   revalidatePath('/guidos');
@@ -70,6 +72,8 @@ export async function updateGuidosProduct(id: string, data: ProductInput) {
     orderIndex: data.orderIndex ?? 0,
   });
 
+  updateTag('cms');
+  revalidatePath('/', 'layout');
   revalidatePath('/admin/guidos-products');
   revalidatePath('/guidos/menu');
   revalidatePath('/guidos');
@@ -85,6 +89,8 @@ export async function deleteGuidosProduct(id: string) {
     id: id as Id<"guidosProducts">,
   });
 
+  updateTag('cms');
+  revalidatePath('/', 'layout');
   revalidatePath('/admin/guidos-products');
   revalidatePath('/guidos/menu');
   revalidatePath('/guidos');

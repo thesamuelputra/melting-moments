@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { requireAdmin } from '@/lib/auth';
@@ -12,6 +12,7 @@ export async function saveSiteContent(entries: Record<string, string>) {
     await fetchMutation(api.businessSettings.save, { adminSecret: process.env.ADMIN_PASSWORD!, entries: payload });
     await fetchMutation(api.activityLog.log, { adminSecret: process.env.ADMIN_PASSWORD!, action: 'Updated site content', section: 'Site Content' });
 
+    updateTag('cms');
     revalidatePath('/', 'layout');
     revalidatePath('/about');
     revalidatePath('/weddings');
@@ -45,6 +46,7 @@ export async function saveBanner(data: { enabled: boolean; text: string; link: s
       section: 'Banner',
       details: data.text || undefined,
     });
+    updateTag('cms');
     revalidatePath('/', 'layout');
     return { success: true };
   } catch {

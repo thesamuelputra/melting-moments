@@ -4,6 +4,14 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import crypto from 'crypto';
 
+// Constant-time string comparison. Hashing both sides first normalizes
+// lengths so crypto.timingSafeEqual can be used without leaking length info.
+function safeEqual(a: string, b: string): boolean {
+  const digestA = crypto.createHash('sha256').update(a).digest();
+  const digestB = crypto.createHash('sha256').update(b).digest();
+  return crypto.timingSafeEqual(digestA, digestB);
+}
+
 // Generate a signed token from the password to prevent cookie guessing
 function generateToken(): string {
   const secret = process.env.ADMIN_PASSWORD;
@@ -66,9 +74,10 @@ export async function login(formData: FormData) {
   }
   
   const password = formData.get('password');
+  const adminPassword = process.env.ADMIN_PASSWORD;
   const cookieStore = await cookies();
-  
-  if (password === process.env.ADMIN_PASSWORD) {
+
+  if (typeof password === 'string' && adminPassword && safeEqual(password, adminPassword)) {
     clearAttempts(key);
     const token = generateToken();
     cookieStore.set('admin_token', token, { 

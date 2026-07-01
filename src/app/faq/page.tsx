@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
-import { fetchQuery } from 'convex/nextjs';
-import { api } from '@/../convex/_generated/api';
+import { getFaqs } from '@/lib/cms';
 import { jsonLdSafe } from '@/lib/sanitize';
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'FAQ | Melting Moments & Guido\'s Gourmet | Victoria BC',
@@ -26,15 +26,21 @@ const CATERING_FAQS = [
 ];
 
 export default async function FAQ() {
-  const rawFaqs = await fetchQuery(api.faqs.listActive);
+  const rawFaqs = await getFaqs().catch(() => []);
 
-  // Fall back to static defaults if no CMS FAQs exist yet
-  const faqs = rawFaqs.length > 0 ? rawFaqs : [...CATERING_FAQS, ...GUIDOS_FAQS];
+  // CMS FAQs have no category field yet, so we can't sort admin-added entries
+  // into the Catering / Ready-Made Meals sections. Until a `category` field is
+  // added to the faqs table (the long-term fix), CMS entries render under a
+  // neutral "Common Questions" heading and the hardcoded Guido's section always
+  // renders — it covers delivery/shelf-life questions the CMS can't yet hold.
+  const hasCmsFaqs = rawFaqs.length > 0;
+  const primaryHeading = hasCmsFaqs ? 'Common Questions' : 'Catering';
+  const primaryFaqs = hasCmsFaqs ? rawFaqs : CATERING_FAQS;
 
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqs.map(faq => ({
+    mainEntity: [...primaryFaqs, ...GUIDOS_FAQS].map(faq => ({
       '@type': 'Question',
       name: faq.question,
       acceptedAnswer: { '@type': 'Answer', text: faq.answer },
@@ -43,37 +49,33 @@ export default async function FAQ() {
 
   return (
     <div>
-      <Script id="faq-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdSafe(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdSafe(faqJsonLd) }} />
       <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
         <div className="menu-index" style={{ marginBottom: "2rem" }}>Information</div>
         <h1 className="haus-display" style={{ textTransform: "uppercase" }}>FAQ</h1>
 
-        {/* Catering FAQs */}
+        {/* CMS FAQs (or static catering fallbacks when the CMS is empty) */}
         <div style={{ maxWidth: '800px', margin: '3rem auto 0 auto' }}>
-          <div className="menu-index" style={{ marginBottom: '1.5rem', fontSize: 'var(--text-micro)' }}>Catering</div>
+          <h2 className="menu-index" style={{ marginBottom: '1.5rem', fontSize: 'var(--text-micro)' }}>{primaryHeading}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginBottom: '4rem' }}>
-            {(rawFaqs.length > 0 ? faqs : CATERING_FAQS).map((faq, i) => (
-              <div key={`catering-${i}`} style={{ padding: '2rem', border: '1px solid rgba(0,0,0,0.1)' }}>
+            {primaryFaqs.map((faq, i) => (
+              <div key={`primary-${i}`} style={{ padding: '2rem', border: '1px solid rgba(0,0,0,0.1)' }}>
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '1rem' }}>{faq.question}</h3>
                 <p style={{ opacity: 0.8 }}>{faq.answer}</p>
               </div>
             ))}
           </div>
 
-          {/* Guido's FAQs (only show static section when using fallbacks) */}
-          {rawFaqs.length === 0 && (
-            <>
-              <div className="menu-index" style={{ marginBottom: '1.5rem', fontSize: 'var(--text-micro)' }}>Ready-Made Meals</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                {GUIDOS_FAQS.map((faq, i) => (
-                  <div key={`guidos-${i}`} style={{ padding: '2rem', border: '1px solid rgba(0,0,0,0.1)' }}>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '1rem' }}>{faq.question}</h3>
-                    <p style={{ opacity: 0.8 }}>{faq.answer}</p>
-                  </div>
-                ))}
+          {/* Guido's FAQs — always rendered; the CMS has no way to hold these yet */}
+          <h2 className="menu-index" style={{ marginBottom: '1.5rem', fontSize: 'var(--text-micro)' }}>Ready-Made Meals</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {GUIDOS_FAQS.map((faq, i) => (
+              <div key={`guidos-${i}`} style={{ padding: '2rem', border: '1px solid rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '1rem' }}>{faq.question}</h3>
+                <p style={{ opacity: 0.8 }}>{faq.answer}</p>
               </div>
-            </>
-          )}
+            ))}
+          </div>
         </div>
       </header>
     </div>

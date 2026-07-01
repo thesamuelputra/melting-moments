@@ -5,6 +5,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes: { path: string; priority: number; changeFrequency: 'weekly' | 'monthly' | 'yearly' }[] = [
     { path: '', priority: 1, changeFrequency: 'monthly' },
     // High-value conversion pages
+    { path: '/catering', priority: 0.9, changeFrequency: 'monthly' },
     { path: '/contact', priority: 0.9, changeFrequency: 'monthly' },
     { path: '/menus', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/weddings', priority: 0.9, changeFrequency: 'monthly' },

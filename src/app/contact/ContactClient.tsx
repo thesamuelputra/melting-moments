@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useId } from 'react';
 
 type ContactInfo = {
   name: string;
@@ -13,10 +13,13 @@ type ContactInfo = {
 };
 
 // Custom Minimalist Dropdown
-function CustomSelect({ options, value, onChange, placeholder }: { options: {value: string, label: string}[], value: string, onChange: (val: string) => void, placeholder: string }) {
+function CustomSelect({ options, value, onChange, placeholder, labelId, required }: { options: {value: string, label: string}[], value: string, onChange: (val: string) => void, placeholder: string, labelId: string, required?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const ref = useRef<HTMLDivElement>(null);
+  const baseId = useId();
+  const listboxId = `${baseId}-listbox`;
+  const optionId = (idx: number) => `${baseId}-option-${idx}`;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -36,6 +39,8 @@ function CustomSelect({ options, value, onChange, placeholder }: { options: {val
     } else if (e.key === 'Escape') { setIsOpen(false); }
     else if (e.key === 'ArrowDown' && isOpen) { e.preventDefault(); setActiveIndex(prev => prev < options.length - 1 ? prev + 1 : prev); }
     else if (e.key === 'ArrowUp' && isOpen) { e.preventDefault(); setActiveIndex(prev => prev > 0 ? prev - 1 : 0); }
+    else if (e.key === 'Home' && isOpen) { e.preventDefault(); setActiveIndex(0); }
+    else if (e.key === 'End' && isOpen) { e.preventDefault(); setActiveIndex(options.length - 1); }
   };
 
   const selectedLabel = options.find(o => o.value === value)?.label || placeholder;
@@ -43,15 +48,17 @@ function CustomSelect({ options, value, onChange, placeholder }: { options: {val
   return (
     <div ref={ref} style={{ position: 'relative', width: '100%', cursor: 'pointer' }}
       onClick={() => setIsOpen(!isOpen)} role="combobox" aria-expanded={isOpen}
-      aria-haspopup="listbox" aria-label={placeholder} tabIndex={0} onKeyDown={handleKeyDown}>
+      aria-haspopup="listbox" aria-labelledby={labelId} aria-controls={listboxId}
+      aria-activedescendant={isOpen && activeIndex >= 0 ? optionId(activeIndex) : undefined}
+      aria-required={required ? 'true' : undefined} tabIndex={0} onKeyDown={handleKeyDown}>
       <div style={{ padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'border-color 0.3s' }}>
         <span>{selectedLabel}</span>
         <span style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s ease' }}>↓</span>
       </div>
       {isOpen && (
-        <div role="listbox" style={{ position: 'absolute', top: '100%', left: 0, width: '100%', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', zIndex: 50, animation: 'fadeIn 0.2s ease', marginTop: '4px' }}>
+        <div role="listbox" id={listboxId} aria-labelledby={labelId} style={{ position: 'absolute', top: '100%', left: 0, width: '100%', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', zIndex: 50, animation: 'fadeIn 0.2s ease', marginTop: '4px' }}>
           {options.map((opt, idx) => (
-            <div key={opt.value} role="option" aria-selected={value === opt.value}
+            <div key={opt.value} id={optionId(idx)} role="option" aria-selected={value === opt.value}
               onClick={(e) => { e.stopPropagation(); onChange(opt.value); setIsOpen(false); }}
               style={{ padding: '1rem', borderBottom: '1px solid rgba(0,0,0,0.02)', transition: 'background-color 0.2s', backgroundColor: (value === opt.value || activeIndex === idx) ? 'rgba(0,0,0,0.03)' : 'transparent' }}
               onMouseEnter={() => setActiveIndex(idx)}>
@@ -66,7 +73,7 @@ function CustomSelect({ options, value, onChange, placeholder }: { options: {val
 
 function ProgressBar({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) {
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+    <div role="progressbar" aria-valuenow={currentStep} aria-valuemin={1} aria-valuemax={totalSteps} aria-label="Form progress" style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
       {Array.from({ length: totalSteps }).map((_, i) => (
         <div key={i} style={{ flex: 1, height: '3px', backgroundColor: i < currentStep ? 'var(--clr-ink)' : 'rgba(0,0,0,0.1)', transition: 'background-color 0.4s ease' }} />
       ))}
@@ -85,6 +92,14 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
     website: '', // Honeypot
   });
 
+  const headingRefs = useRef<Record<number, HTMLHeadingElement | null>>({});
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    if (isInitialMount.current) { isInitialMount.current = false; return; }
+    headingRefs.current[step]?.focus();
+  }, [step]);
+
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1 && !formData.eventType) { setStep1Error('Please select an event type to continue.'); return; }
@@ -96,6 +111,10 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
     setSubmitting(true); setError('');
     try {
       const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+      if (res.status === 429) {
+        setError(`We've received a lot of requests just now. Please wait a minute and try again, or call us at ${contactInfo.phone}.`);
+        return;
+      }
       if (!res.ok) throw new Error('Failed to submit');
       setStep(4);
     } catch (err) {
@@ -150,16 +169,16 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
             {step === 1 && (
               <form onSubmit={handleNext} style={{ animation: 'fadeIn 0.5s ease forwards' }}>
                 <div className="menu-index" style={{ marginBottom: '1rem' }}>Step 01 / 03</div>
-                <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Event Details</h2>
+                <h2 className="noire-serif" tabIndex={-1} ref={(el) => { headingRefs.current[1] = el; }} style={{ marginBottom: '2rem' }}>Event Details</h2>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Event Type *</span>
-                  <CustomSelect value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="Select event type"
+                  <span id="event-type-label" style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Event Type *</span>
+                  <CustomSelect labelId="event-type-label" required value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="Select event type"
                     options={[{ value: "corporate", label: "Corporate Function" }, { value: "wedding", label: "Wedding" }, { value: "private", label: "Private Gathering" }, { value: "fountain", label: "Chocolate Fountain Rental" }, { value: "ready-made", label: "Ready-Made Meals (Guido's)" }, { value: "other", label: "General Inquiry" }]} />
-                  {step1Error && <div style={{ color: '#B91C1C', fontSize: '0.8rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>{step1Error}</div>}
+                  {step1Error && <div role="alert" style={{ color: '#B91C1C', fontSize: '0.8rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>{step1Error}</div>}
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Estimated Guests</span>
-                  <CustomSelect value={formData.guestCount} onChange={(val) => setFormData({...formData, guestCount: val})} placeholder="Select guest count..."
+                  <span id="guest-count-label" style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Estimated Guests</span>
+                  <CustomSelect labelId="guest-count-label" value={formData.guestCount} onChange={(val) => setFormData({...formData, guestCount: val})} placeholder="Select guest count..."
                     options={[{ value: "under50", label: "Under 50" }, { value: "50-100", label: "50 - 100" }, { value: "100-250", label: "100 - 250" }, { value: "250+", label: "250+" }]} />
                 </label>
                 <button type="submit" className="btn-solid" style={{ width: '100%', marginTop: '2rem' }}>Next Step</button>
@@ -173,13 +192,13 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
             {step === 2 && (
               <form onSubmit={handleNext} style={{ animation: 'fadeIn 0.5s ease forwards' }}>
                 <div className="menu-index" style={{ marginBottom: '1rem' }}>Step 02 / 03</div>
-                <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Date &amp; Venue</h2>
+                <h2 className="noire-serif" tabIndex={-1} ref={(el) => { headingRefs.current[2] = el; }} style={{ marginBottom: '2rem' }}>Date &amp; Venue</h2>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Event Date</span>
+                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Event Date</span>
                   <input type="date" required min={new Date().toISOString().split('T')[0]} value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Venue / Location (Optional)</span>
+                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Venue / Location (Optional)</span>
                   <input type="text" placeholder="e.g. Victoria Conference Centre" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
                 </label>
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
@@ -192,26 +211,26 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
             {step === 3 && (
               <form onSubmit={handleSubmit} style={{ animation: 'fadeIn 0.5s ease forwards' }}>
                 <div className="menu-index" style={{ marginBottom: '1rem' }}>Step 03 / 03</div>
-                <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>Your Information</h2>
+                <h2 className="noire-serif" tabIndex={-1} ref={(el) => { headingRefs.current[3] = el; }} style={{ marginBottom: '2rem' }}>Your Information</h2>
                 <input type="text" name="website" value={formData.website} onChange={(e) => setFormData({...formData, website: e.target.value})} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Full Name *</span>
-                  <input type="text" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Full Name *</span>
+                  <input type="text" required autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Email Address *</span>
-                  <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Email Address *</span>
+                  <input type="email" required autoComplete="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Phone Number (Optional)</span>
-                  <input type="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Phone Number (Optional)</span>
+                  <input type="tel" autoComplete="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
-                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.5rem' }}>Additional Details (Optional)</span>
+                  <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Additional Details (Optional)</span>
                   <textarea rows={4} placeholder="Dietary needs, theme preferences, budget range, etc." value={formData.details} onChange={(e) => setFormData({...formData, details: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem', resize: 'vertical', fontFamily: 'inherit' }} />
                 </label>
                 {error && (
-                  <div style={{ padding: '1rem', backgroundColor: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem', animation: 'fadeIn 0.3s ease' }}>
+                  <div role="alert" style={{ padding: '1rem', backgroundColor: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem', animation: 'fadeIn 0.3s ease' }}>
                     {error}
                   </div>
                 )}
@@ -227,7 +246,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
             {step === 4 && (
               <div style={{ animation: 'fadeIn 0.8s ease forwards', textAlign: 'center', padding: '4rem 0' }}>
                 <div className="shape-circle" style={{ width: '80px', height: '80px', backgroundColor: 'var(--clr-ink)', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2rem' }}>✓</div>
-                <h2 className="noire-serif" style={{ marginBottom: '1rem' }}>Request Received</h2>
+                <h2 className="noire-serif" tabIndex={-1} ref={(el) => { headingRefs.current[4] = el; }} style={{ marginBottom: '1rem' }}>Request Received</h2>
                 <p style={{ opacity: 0.7, maxWidth: '32ch', margin: '0 auto', marginBottom: '0.5rem' }}>
                   Thank you, {(formData.name.trim().split(' ')[0]) || 'there'}. Chef Paul will personally reply within one business day.
                 </p>

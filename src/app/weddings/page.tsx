@@ -7,11 +7,17 @@ export const metadata: Metadata = {
   title: 'Wedding Catering | Melting Moments Victoria BC',
   description: 'Wedding catering by Chef Paul Silletta. A menu built around your day, cooked from scratch in Victoria, BC.',
   openGraph: {
+    url: '/weddings',
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
     title: 'Wedding Catering | Melting Moments Victoria BC',
     description: 'Wedding catering by Chef Paul Silletta, made for your day.',
     images: ['/wedding_entree.webp'],
   },
 };
+
+export const revalidate = 300;
 
 export default async function Weddings() {
   const cms = await getCmsContent();
@@ -50,7 +56,7 @@ export default async function Weddings() {
                 <Link href="/contact" className="btn-solid">{ctaButton}</Link>
               </div>
               <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%' }}>
-                <Image src="/wedding_entree.webp" alt="Wedding reception lamb with rosemary" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
+                <Image src="/wedding_entree.webp" alt="Wedding reception lamb with rosemary" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} priority />
               </div>
             </div>
         </header>

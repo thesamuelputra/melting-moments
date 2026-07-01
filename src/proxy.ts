@@ -17,6 +17,16 @@ async function getExpectedToken(): Promise<string | null> {
   return hashArray.map((b: number) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Constant-time string comparison (edge runtime has no crypto.timingSafeEqual)
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
 // ---------- Contact API Rate Limiter ----------
 // Sliding window: max 10 requests per minute per IP
 const contactRateMap = new Map<string, number[]>();
@@ -50,10 +60,13 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   
-  // CSP: allow self, inline styles (needed for Next.js), and common CDNs
+  // CSP: allow self, inline styles (needed for Next.js), and common CDNs.
+  // 'unsafe-eval' is dev-only: React/Next need eval for HMR + debug builds,
+  // but production builds run without it (per Next's own CSP guide).
+  const scriptEval = process.env.NODE_ENV !== 'production' ? " 'unsafe-eval'" : '';
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",  // Next.js inline/runtime + Vercel Analytics
+    `script-src 'self' 'unsafe-inline'${scriptEval} https://va.vercel-scripts.com`,  // Next.js inline/runtime + Vercel Analytics
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
@@ -69,11 +82,14 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 }
 
 export async function proxy(request: NextRequest) {
-  // --- guidosgourmet.ca domain redirect ---
+  // --- guidosgourmet.ca domain redirect (path-preserving) ---
   const host = request.headers.get('host') || '';
   if (host.includes('guidosgourmet')) {
+    const path = request.nextUrl.pathname === '/'
+      ? '/guidos'
+      : `/guidos${request.nextUrl.pathname}`;
     return NextResponse.redirect(
-      new URL('/guidos', 'https://meltingmoments.ca'),
+      new URL(path, 'https://meltingmoments.ca'),
       301
     );
   }
@@ -103,7 +119,7 @@ export async function proxy(request: NextRequest) {
       );
     }
     const token = request.cookies.get('admin_token')?.value;
-    if (!token || token !== expected) {
+    if (!token || !timingSafeEqual(token, expected)) {
       return addSecurityHeaders(
         NextResponse.redirect(new URL('/admin-login', request.url))
       );

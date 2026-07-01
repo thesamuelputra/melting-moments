@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Meet Chef Paul Silletta — 17 years of culinary craft behind Melting Moments Catering and Guido's Gourmet in Victoria, BC.",
 }
 
+export const revalidate = 300;
+
 export default async function ChefPaul() {
   const cms = await getCmsContent();
 
@@ -22,9 +24,9 @@ export default async function ChefPaul() {
           {heading}
         </h1>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) 1fr', gap: '4rem', marginTop: 'clamp(4rem, 8vw, 8rem)' }}>
+        <div className="about-header-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) 1fr', gap: '4rem', marginTop: 'clamp(4rem, 8vw, 8rem)' }}>
           <div className="shape-editorial-tall" style={{ width: '100%', aspectRatio: '3/4', position: 'relative' }}>
-            <Image src="/chef_salmon.webp" alt="Chef Paul plating salmon with lemon" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
+            <Image src="/chef_salmon.webp" alt="Chef Paul plating salmon with lemon" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} priority />
           </div>
           
           <div style={{ paddingBottom: '4rem' }}>
