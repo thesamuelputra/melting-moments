@@ -7,11 +7,17 @@ export const metadata: Metadata = {
   title: 'Private Events | Melting Moments Catering Victoria BC',
   description: 'Intimate, fine-dining private event catering, from formal dinners to yacht catering in Victoria, BC.',
   openGraph: {
+    url: '/private-events',
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
     title: 'Private Events | Melting Moments Catering Victoria BC',
     description: 'Intimate, fine-dining private event catering in Victoria, BC.',
     images: ['/private_dinner.webp'],
   },
 };
+
+export const revalidate = 300;
 
 export default async function PrivateEvents() {
   const cms = await getCmsContent();

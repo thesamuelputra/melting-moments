@@ -1,7 +1,9 @@
 import { Metadata } from 'next';
-import { fetchQuery } from 'convex/nextjs';
-import { api } from '@/../convex/_generated/api';
+import { getGalleryImages } from '@/lib/cms';
 import GalleryClient from './GalleryClient';
+
+// ISR: pairs with the unstable_cache wrappers in src/lib/cms.ts
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Gallery | Melting Moments Catering Victoria',
@@ -9,12 +11,17 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Gallery | Melting Moments Catering Victoria',
     description: 'Visual exhibition of our event installations, plate designs, and culinary artistry.',
-    images: ['/macro_charcuterie.webp'],
+    images: ['/hero-main.webp'],
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
+    url: '/gallery',
   },
 };
 
 export default async function Gallery() {
-  const images = await fetchQuery(api.files.list, { section: 'gallery' });
+  // Convex outage degrades to the hardcoded fallback photos in GalleryClient
+  const images = await getGalleryImages().catch(() => []);
 
   const cmsImages = images
     .filter((img) => img.url) // Only images with resolved URLs

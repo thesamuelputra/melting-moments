@@ -2,6 +2,8 @@ import Link from 'next/link';
 import GuidosImage from '@/components/GuidosImage';
 import type { Metadata } from 'next';
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: 'Guido\'s Gourmet | Ready-Made Italian Meals Victoria BC',
   description: 'Homemade Italian meals ready to heat and serve. Lasagnes, pot pies, soups, pasta, and desserts. Delivery available in Victoria, BC.',
@@ -41,7 +43,7 @@ export default function GuidosPage() {
           We started in a family kitchen. Seventeen years later, the recipes are the same. The portions are bigger.
         </p>
         <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, maxWidth: '50ch', margin: '0 auto' }}>
-          Good food at a fair price. Shop online or visit by appointment. Everything is made fresh by Chef Paul Silletta using traditional Italian recipes passed down through generations.
+          Good food at a fair price. Order online or visit by appointment. Everything is made fresh by Chef Paul Silletta using traditional Italian recipes passed down through generations.
         </p>
       </section>
 

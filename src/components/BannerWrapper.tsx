@@ -1,23 +1,20 @@
 'use client';
 
-import { useQuery } from 'convex/react';
-import { api } from '@/../convex/_generated/api';
 import AnnouncementBanner from './AnnouncementBanner';
 import { usePathname } from 'next/navigation';
 
-export default function BannerWrapper() {
+export type BannerData = {
+  enabled: boolean;
+  text: string;
+  link: string;
+  style: 'dark' | 'accent' | 'light';
+  showOn: string;
+};
+
+// Banner content arrives as props from the server layout (cached Convex read)
+// — this component only handles the client-side path targeting.
+export default function BannerWrapper({ data }: { data: BannerData }) {
   const pathname = usePathname();
-  const settings = useQuery(api.businessSettings.getAll);
-
-  if (settings === undefined) return null; // Loading state
-
-  const data = {
-    enabled: settings['banner_enabled'] === 'true',
-    text: settings['banner_text'] || '',
-    link: settings['banner_link'] || '',
-    style: (settings['banner_style'] || 'dark') as 'dark' | 'accent' | 'light',
-    showOn: settings['banner_show_on'] || 'all',
-  };
 
   if (!data.enabled || !data.text) return null;
 

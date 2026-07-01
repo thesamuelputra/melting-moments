@@ -7,46 +7,51 @@ export default function Preloader() {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    // Wait for fonts + critical images
+    // Brand moment only on the first hard load per session — deep-link
+    // landings (ads, search) and returning visitors shouldn't pay it twice.
+    let seen = false;
+    try { seen = sessionStorage.getItem('mm-preloader') === '1'; } catch { /* private mode */ }
+    if (seen || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setLoaded(true);
+      setHidden(true);
+      return;
+    }
+
+    const started = performance.now();
     const waitForAssets = async () => {
       try {
-        // Wait for fonts to be ready
         await document.fonts.ready;
-        
-        // Wait up to 2 seconds for priority images to be rendered into the DOM by React
-        let heroImages = document.querySelectorAll('img[fetchpriority="high"]');
-        let attempts = 0;
-        while (heroImages.length === 0 && attempts < 40) {
-          await new Promise(r => setTimeout(r, 50));
-          heroImages = document.querySelectorAll('img[fetchpriority="high"]');
-          attempts++;
+
+        // Give a hero image (if this page has one) a beat to mount…
+        let hero: HTMLImageElement | null = null;
+        for (let i = 0; i < 6 && !hero; i++) {
+          hero = document.querySelector<HTMLImageElement>('main img');
+          if (!hero) await new Promise(r => setTimeout(r, 50));
         }
-        
-        // Wait for all images with priority attribute to load
-        const imagePromises = Array.from(heroImages).map((img) => {
-          const imgEl = img as HTMLImageElement;
-          if (imgEl.complete) return Promise.resolve();
-          return new Promise<void>((resolve) => {
-            imgEl.addEventListener('load', () => resolve(), { once: true });
-            imgEl.addEventListener('error', () => resolve(), { once: true });
-          });
-        });
-        
-        // Wait for images with a timeout fallback of 5s
-        await Promise.race([
-          Promise.all(imagePromises),
-          new Promise(resolve => setTimeout(resolve, 5000))
-        ]);
+        // …then wait for it to finish decoding, capped so slow networks
+        // aren't stuck behind the overlay. Image-less pages skip straight on.
+        if (hero && !hero.complete) {
+          const target = hero;
+          await Promise.race([
+            new Promise<void>(resolve => {
+              target.addEventListener('load', () => resolve(), { once: true });
+              target.addEventListener('error', () => resolve(), { once: true });
+            }),
+            new Promise(r => setTimeout(r, 1500)),
+          ]);
+        }
       } catch {
         // Fallback: proceed anyway
       }
-      
-      // Minimum display time of 1.2s for brand impression
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      
+
+      // Minimum display measured from mount (not additive on top of waits)
+      const elapsed = performance.now() - started;
+      if (elapsed < 600) await new Promise(r => setTimeout(r, 600 - elapsed));
+
+      try { sessionStorage.setItem('mm-preloader', '1'); } catch { /* private mode */ }
       setLoaded(true);
-      // Remove from DOM after exit animation
-      setTimeout(() => setHidden(true), 900);
+      // Remove from DOM after the 0.5s exit transition
+      setTimeout(() => setHidden(true), 550);
     };
 
     waitForAssets();

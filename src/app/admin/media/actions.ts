@@ -2,7 +2,7 @@
 
 import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { Id } from '@/../convex/_generated/dataModel';
 import { requireAdmin } from '@/lib/auth';
 
@@ -37,6 +37,8 @@ export async function saveUploadedImage(data: {
     details: data.section || 'general',
   });
 
+  updateTag('cms');
+  revalidatePath('/', 'layout');
   revalidatePath('/admin/media');
   revalidatePath('/gallery');
 }
@@ -63,6 +65,8 @@ export async function updateImage(id: string, data: {
     section: 'Media',
   });
 
+  updateTag('cms');
+  revalidatePath('/', 'layout');
   revalidatePath('/admin/media');
   revalidatePath('/gallery');
 }
@@ -81,6 +85,8 @@ export async function deleteImage(id: string) {
     section: 'Media',
   });
 
+  updateTag('cms');
+  revalidatePath('/', 'layout');
   revalidatePath('/admin/media');
   revalidatePath('/gallery');
   return { success: true };

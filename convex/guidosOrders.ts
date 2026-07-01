@@ -46,6 +46,25 @@ export const create = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // This is a public mutation callable directly (bypassing the API route),
+    // so validate inputs server-side before inserting.
+    if (
+      !args.customerName.trim() ||
+      !args.customerEmail.trim() ||
+      !args.customerPhone.trim() ||
+      !args.items.trim() ||
+      !args.deliveryMethod.trim() ||
+      args.customerName.length > 200 ||
+      args.customerEmail.length > 200 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(args.customerEmail) ||
+      args.customerPhone.length > 50 ||
+      args.deliveryMethod.length > 300 ||
+      args.items.length > 3000 ||
+      (args.deliveryAddress ?? "").length > 3000 ||
+      (args.notes ?? "").length > 3000
+    ) {
+      throw new Error("Invalid submission");
+    }
     return await ctx.db.insert("guidosOrders", {
       customerName: args.customerName,
       customerEmail: args.customerEmail,

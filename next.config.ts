@@ -5,9 +5,10 @@ const nextConfig: NextConfig = {
   // duplication. See proxy.ts addSecurityHeaders() for the full set
   // including CSP, X-Frame-Options, etc.
   images: {
-    // Prefer AVIF (smaller) then WebP; allow the quality levels used by hero images
+    // Prefer AVIF (smaller) then WebP. 100 intentionally not allowed — q75/q90
+    // keep hero LCP bytes sane; q100 was 2-4x heavier for no visible gain.
     formats: ["image/avif", "image/webp"],
-    qualities: [75, 90, 100],
+    qualities: [75, 90],
     remotePatterns: [
       {
         protocol: "https",

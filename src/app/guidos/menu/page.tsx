@@ -1,9 +1,10 @@
-import { fetchQuery } from 'convex/nextjs';
-import { api } from '@/../convex/_generated/api';
+import { getGuidosProducts } from '@/lib/cms';
 import GuidosMenuClient from './GuidosMenuClient';
 
+export const revalidate = 300;
+
 export default async function GuidosMenuPage() {
-  const items = await fetchQuery(api.guidosProducts.list);
+  const items = await getGuidosProducts().catch(() => []);
 
   const products = items.map((item) => ({
     id: item._id,

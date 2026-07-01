@@ -1,34 +1,35 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function ScrollIndicator() {
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const barRef = useRef<HTMLDivElement>(null);
 
+  // Driven imperatively (rAF + transform) — a setState here would re-render
+  // React on every scroll tick, and animating height forces layout.
   useEffect(() => {
-    const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const scrollY = window.scrollY;
+    let ticking = false;
 
-      // Calculate percentage
-      const totalScrollable = documentHeight - windowHeight;
-      if (totalScrollable <= 0) {
-        setScrollProgress(0);
-      } else {
-        const progress = Math.min(100, Math.max(0, (scrollY / totalScrollable) * 100));
-        setScrollProgress(progress);
+    const update = () => {
+      ticking = false;
+      const totalScrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = totalScrollable <= 0
+        ? 0
+        : Math.min(1, Math.max(0, window.scrollY / totalScrollable));
+      if (barRef.current) barRef.current.style.transform = `scaleY(${progress})`;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Initial call
-    handleScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update();
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
@@ -43,12 +44,17 @@ export default function ScrollIndicator() {
       pointerEvents: 'none',
       mixBlendMode: 'difference' // Keeps it visible across light/dark backgrounds
     }}>
-      <div style={{
-        width: '100%',
-        height: `${scrollProgress}%`,
-        backgroundColor: '#F7F6F0', // Bone white line cutting through difference mode
-        transition: 'height 0.1s ease-out'
-      }} />
+      <div
+        ref={barRef}
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#F7F6F0', // Bone white line cutting through difference mode
+          transform: 'scaleY(0)',
+          transformOrigin: 'top',
+          transition: 'transform 0.1s ease-out',
+        }}
+      />
     </div>
   );
 }

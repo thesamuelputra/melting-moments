@@ -89,8 +89,9 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
     // Small delay to allow React to render the filtered content
     setTimeout(() => {
       if (filterRef.current) {
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const top = filterRef.current.getBoundingClientRect().top + window.scrollY - 90;
-        window.scrollTo({ top, behavior: 'smooth' });
+        window.scrollTo({ top, behavior: prefersReduced ? 'auto' : 'smooth' });
       }
     }, 50);
   };
@@ -103,8 +104,9 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
     const scrollToSection = () => {
       const el = document.getElementById(sectionId(cat));
       if (el) {
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const top = el.getBoundingClientRect().top + window.scrollY - 100;
-        window.scrollTo({ top, behavior: 'smooth' });
+        window.scrollTo({ top, behavior: prefersReduced ? 'auto' : 'smooth' });
       }
     };
     if (filter !== 'ALL') {
@@ -176,7 +178,7 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
                 const current = filter === 'ALL' ? spyActive === sectionId(cat) : filter === cat;
                 return (
                   <li key={cat} style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem' }}>
-                    <span className="menu-index" style={{ opacity: current ? 1 : 0.4 }}>{String(i + 1).padStart(2, '0')}</span>
+                    <span className="menu-index" style={{ opacity: current ? 1 : 0.75 }}>{String(i + 1).padStart(2, '0')}</span>
                     <a
                       href={`#${sectionId(cat)}`}
                       onClick={(e) => handleIndexClick(e, cat)}
@@ -228,7 +230,7 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
 
                 {/* Single quiet note for sections with no per-item pricing */}
                 {allIncluded && (
-                  <p className="menu-index" style={{ opacity: 0.45, marginBottom: '2rem', textTransform: 'uppercase' }}>
+                  <p className="menu-index" style={{ marginBottom: '2rem', textTransform: 'uppercase' }}>
                     Included in package pricing
                   </p>
                 )}
@@ -261,7 +263,7 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
                         </div>
                       )}
                       {item.priceLabel && included && !allIncluded && (
-                        <div className="menu-index" style={{ textAlign: 'right', marginTop: '8px', alignSelf: 'start', marginLeft: 'auto', opacity: 0.45 }}>
+                        <div className="menu-index" style={{ textAlign: 'right', marginTop: '8px', alignSelf: 'start', marginLeft: 'auto' }}>
                           Included
                         </div>
                       )}
@@ -311,7 +313,10 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
       {/* Scroll to Top Button (#22) */}
       {showScrollTop && (
         <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => {
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+          }}
           aria-label="Scroll to top"
           style={{
             position: 'fixed',

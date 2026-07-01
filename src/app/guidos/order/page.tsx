@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
 export default function GuidosOrderPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const successHeadingRef = useRef<HTMLHeadingElement>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,6 +18,13 @@ export default function GuidosOrderPage() {
     notes: '',
     website: '', // Honeypot
   });
+
+  // Move focus to the confirmation heading so screen readers announce success
+  useEffect(() => {
+    if (submitted) {
+      successHeadingRef.current?.focus();
+    }
+  }, [submitted]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +41,7 @@ export default function GuidosOrderPage() {
       if (!res.ok) throw new Error('Failed to submit');
       setSubmitted(true);
     } catch {
-      setError('We were unable to send your order request. Please try again, or call us directly at 250.385.2462.');
+      setError('We were unable to send your order request. Please try again, or call us directly at 250-385-2462.');
     } finally {
       setSubmitting(false);
     }
@@ -53,7 +61,7 @@ export default function GuidosOrderPage() {
     fontSize: '0.8rem',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.1em',
-    opacity: 0.5,
+    opacity: 0.62,
     marginBottom: '0.5rem',
   };
 
@@ -79,17 +87,17 @@ export default function GuidosOrderPage() {
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Full Name *</span>
-              <input type="text" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={inputStyle} />
+              <input type="text" required autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={inputStyle} />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Email Address *</span>
-              <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={inputStyle} />
+              <input type="email" required autoComplete="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={inputStyle} />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Phone Number *</span>
-              <input type="tel" required placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} style={inputStyle} />
+              <input type="tel" required autoComplete="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} style={inputStyle} />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
@@ -105,8 +113,8 @@ export default function GuidosOrderPage() {
             </label>
 
             {/* Delivery Method */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={labelStyle}>Delivery Method *</span>
+            <fieldset style={{ border: 'none', padding: 0, margin: 0, marginBottom: '1.5rem' }}>
+              <legend style={labelStyle}>Delivery Method *</legend>
               <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)' }}>
                   <input
@@ -131,7 +139,7 @@ export default function GuidosOrderPage() {
                   Pickup
                 </label>
               </div>
-            </div>
+            </fieldset>
 
             {/* Conditional address field */}
             {formData.deliveryMethod === 'delivery' && (
@@ -140,6 +148,7 @@ export default function GuidosOrderPage() {
                 <input
                   type="text"
                   required
+                  autoComplete="street-address"
                   placeholder="e.g. 123 Government St, Victoria"
                   value={formData.address}
                   onChange={(e) => setFormData({...formData, address: e.target.value})}
@@ -160,7 +169,7 @@ export default function GuidosOrderPage() {
             </label>
 
             {error && (
-              <div style={{ padding: '1rem', backgroundColor: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem', animation: 'fadeIn 0.3s ease' }}>
+              <div role="alert" style={{ padding: '1rem', backgroundColor: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem', animation: 'fadeIn 0.3s ease' }}>
                 {error}
               </div>
             )}
@@ -174,14 +183,14 @@ export default function GuidosOrderPage() {
               <p className="menu-index" style={{ marginBottom: '0.5rem' }}>Pickup Location</p>
               <p style={{ fontSize: 'var(--text-body)', opacity: 0.5 }}>
                 614 Grenville Ave, Esquimalt<br />
-                Mon-Wed 8am-12pm, Thu-Sat by appointment
+                Pickup by appointment &mdash; Paul will arrange a time when he confirms your order.
               </p>
             </div>
           </form>
         ) : (
           <div style={{ animation: 'fadeIn 0.8s ease forwards', textAlign: 'center', padding: '4rem', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.05)' }}>
             <div className="shape-circle" style={{ width: '80px', height: '80px', backgroundColor: 'var(--clr-ink)', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2rem' }}>✓</div>
-            <h2 className="noire-serif" style={{ marginBottom: '1rem' }}>Request Received</h2>
+            <h2 ref={successHeadingRef} tabIndex={-1} className="noire-serif" style={{ marginBottom: '1rem', outline: 'none' }}>Request Received</h2>
             <p style={{ opacity: 0.7, maxWidth: '38ch', margin: '0 auto', marginBottom: '0.5rem' }}>
               Thank you, {formData.name}. We&apos;ve received your request. Chef Paul will confirm your items, total, and pickup/delivery within 24 hours.
             </p>

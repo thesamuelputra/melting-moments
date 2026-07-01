@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   description: 'Terms of service for catering bookings and ready-made meal orders with Melting Moments and Guido\'s Gourmet in Victoria, BC.',
 };
 
+export const revalidate = 300;
+
 export default function Terms() {
   return (
     <div>

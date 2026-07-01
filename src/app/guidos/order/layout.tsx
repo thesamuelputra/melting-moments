@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   description: 'Order ready-made Italian meals for delivery or pickup in Victoria, BC. Flat rate delivery $12.50.',
 };
 
+// Segment config lives here because page.tsx is a client component
+export const revalidate = 300;
+
 export default function GuidosOrderLayout({
   children,
 }: {

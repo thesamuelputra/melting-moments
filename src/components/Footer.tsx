@@ -36,7 +36,7 @@ export default function Footer() {
             <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.72)', textAlign: 'right' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '2.5rem', marginBottom: '2rem' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.5, marginBottom: '0.3rem' }}>Catering</div>
+                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Catering</div>
                         <Link href="/catering">Overview</Link>
                         <Link href="/menus">Menus</Link>
                         <Link href="/weddings">Weddings</Link>
@@ -47,19 +47,22 @@ export default function Footer() {
                         <Link href="/gallery">Gallery</Link>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.5, marginBottom: '0.3rem' }}>Guido&apos;s</div>
+                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Guido&apos;s</div>
                         <Link href="/guidos">About</Link>
                         <Link href="/guidos/menu">Menu</Link>
                         <Link href="/guidos/order">Order</Link>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.5, marginBottom: '0.3rem' }}>Discover</div>
+                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Discover</div>
                         <Link href="/about">About Us</Link>
                         <Link href="/chef-paul">Chef Paul</Link>
                         <Link href="/testimonials">Testimonials</Link>
                         <Link href="/faq">FAQ</Link>
                         <Link href="/service-area">Service Area</Link>
                     </div>
+                </div>
+                <div style={{ marginBottom: '0.75rem', fontSize: '0.75rem' }}>
+                    <a href="tel:+12503852462">250-385-2462</a> · <a href="mailto:info@meltingmoments.ca">info@meltingmoments.ca</a> · 614 Grenville Ave, Esquimalt BC
                 </div>
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginBottom: '1rem', fontSize: '0.75rem' }}>
                     <Link href="/privacy">Privacy</Link>

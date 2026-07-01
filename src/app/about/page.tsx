@@ -6,11 +6,17 @@ export const metadata: Metadata = {
   title: 'Our Philosophy | Melting Moments Catering Victoria',
   description: 'Family recipes, Vancouver Island ingredients, and custom menus built around your event. Catering in Victoria, BC since 2009.',
   openGraph: {
+    url: '/about',
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
     title: 'Our Philosophy | Melting Moments Catering Victoria',
     description: 'Family recipes and custom catering across Vancouver Island.',
     images: ['/chef_plating_sauce.webp'],
   },
 }
+
+export const revalidate = 300;
 
 export default async function About() {
   const cms = await getCmsContent();
@@ -36,7 +42,7 @@ export default async function About() {
         
         <div className="about-header-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', marginTop: '-5vw', alignItems: 'end' }}>
           <div className="shape-editorial-tall" style={{ width: '100%', aspectRatio: '3/4', zIndex: 1, position: 'relative' }}>
-            <Image src="/chef_plating_sauce.webp" alt="Chef plating with red wine reduction" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} quality={100} priority />
+            <Image src="/chef_plating_sauce.webp" alt="Chef plating with red wine reduction" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} priority />
           </div>
           
           <div style={{ paddingBottom: '4rem' }}>

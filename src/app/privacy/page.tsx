@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   description: 'How Melting Moments Catering and Guido\'s Gourmet handle your personal information.',
 };
 
+export const revalidate = 300;
+
 export default function PrivacyPolicy() {
   return (
     <div>

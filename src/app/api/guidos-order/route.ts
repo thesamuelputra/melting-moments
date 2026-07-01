@@ -5,6 +5,12 @@ import { Resend } from 'resend';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+// RESEND_FROM must be an address on a domain verified in the Resend dashboard.
+const FROM_ADDRESS = process.env.RESEND_FROM || 'onboarding@resend.dev';
+
+// Strip control characters from user input before interpolating into email subject headers
+const clean = (s: string) => s.replace(/[\r\n\t]+/g, ' ').slice(0, 120);
+
 import { escapeHtml, isValidEmail } from '@/lib/sanitize';
 
 export async function POST(request: Request) {
@@ -56,10 +62,11 @@ export async function POST(request: Request) {
     // Dispatch Email Notification to Owner
     if (process.env.RESEND_API_KEY) {
       // Email to Chef Paul
-      await resend!.emails.send({
-        from: 'Guido\'s Gourmet <onboarding@resend.dev>',
+      const { error: ownerEmailError } = await resend!.emails.send({
+        from: `Guido's Gourmet <${FROM_ADDRESS}>`,
         to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
-        subject: `New Guido's Gourmet Order from ${name}`,
+        replyTo: email,
+        subject: `New Guido's Gourmet Order from ${clean(name)}`,
         html: `
           <h2>New Ready-Made Meals Order</h2>
           <p><strong>Name:</strong> ${eName}</p>
@@ -75,9 +82,14 @@ export async function POST(request: Request) {
         `
       });
 
+      // Don't fail the request: the order is already saved in Convex. Log loudly instead.
+      if (ownerEmailError) {
+        console.error('[Guidos Order API] Owner notification email failed:', ownerEmailError);
+      }
+
       // Confirmation email to the customer
-      await resend!.emails.send({
-        from: 'Guido\'s Gourmet <onboarding@resend.dev>',
+      const { error: confirmationEmailError } = await resend!.emails.send({
+        from: `Guido's Gourmet <${FROM_ADDRESS}>`,
         to: email,
         subject: 'Order Received - Guido\'s Gourmet',
         html: `
@@ -103,6 +115,11 @@ export async function POST(request: Request) {
           </div>
         `
       });
+
+      // Don't fail the request: the order is already saved in Convex. Log loudly instead.
+      if (confirmationEmailError) {
+        console.error('[Guidos Order API] Customer confirmation email failed:', confirmationEmailError);
+      }
     }
 
     console.log(`[Guidos Order API] Order received (${deliveryMethod}) from ${name.charAt(0)}***.`);

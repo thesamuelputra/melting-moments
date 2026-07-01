@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { fetchQuery } from 'convex/nextjs';
-import { api } from '@/../convex/_generated/api';
+import { getTestimonials } from '@/lib/cms';
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Catering | Melting Moments — Victoria BC',
@@ -13,6 +14,10 @@ export const metadata: Metadata = {
     description:
       'Weddings, corporate, private & yacht dining, family style and chocolate fountains — catered across Vancouver Island by Chef Paul Silletta.',
     images: ['/catering_menu_hero.webp'],
+    url: '/catering',
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
   },
 };
 
@@ -50,19 +55,8 @@ const offerings = [
 ];
 
 export default async function Catering() {
-  const rawReviews = await fetchQuery(api.testimonials.listActive);
-
-  const reviews =
-    rawReviews.length > 0
-      ? rawReviews.slice(0, 2)
-      : [
-          {
-            author: 'Victoria Tech Group',
-            role: 'Corporate Client',
-            text: 'Chef Paul catered our 300-guest corporate gala flawlessly.',
-            rating: 5,
-          },
-        ];
+  const rawReviews = await getTestimonials().catch(() => []);
+  const reviews = rawReviews.slice(0, 2);
 
   return (
     <div>
@@ -112,7 +106,6 @@ export default async function Catering() {
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               style={{ objectFit: 'cover' }}
-              quality={100}
               priority
             />
           </div>
@@ -167,62 +160,66 @@ export default async function Catering() {
       </section>
 
       {/* 3. SOCIAL PROOF */}
-      <section className="container spacer-massive">
-        <div className="menu-index" style={{ marginBottom: '2rem' }}>In Their Words</div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '2rem',
-            marginTop: '3rem',
-          }}
-        >
-          {reviews.map((rev, i) => (
-            <div key={i} className="haus-block-container" style={{ padding: '3rem' }}>
-              {rev.rating && (
-                <div
-                  style={{
-                    color: '#E2C992',
-                    fontSize: '1.1rem',
-                    marginBottom: '1.5rem',
-                    letterSpacing: '0.1em',
-                  }}
-                >
-                  {'★'.repeat(rev.rating)}
-                </div>
-              )}
-              <p
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: '1.5rem',
-                  marginBottom: '2rem',
-                  fontStyle: 'italic',
-                }}
-              >
-                &ldquo;{rev.text}&rdquo;
-              </p>
-              <div>
-                <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>
-                  — {rev.author}
-                </div>
-                {rev.role && (
+      {reviews.length > 0 && (
+        <section className="container spacer-massive">
+          <div className="menu-index" style={{ marginBottom: '2rem' }}>In Their Words</div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '2rem',
+              marginTop: '3rem',
+            }}
+          >
+            {reviews.map((rev, i) => (
+              <div key={i} className="haus-block-container" style={{ padding: '3rem' }}>
+                {rev.rating && (
                   <div
+                    role="img"
+                    aria-label={`${rev.rating} out of 5 stars`}
                     style={{
-                      fontSize: '0.7rem',
-                      color: 'rgba(255,255,255,0.3)',
-                      marginTop: '0.25rem',
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
+                      color: '#E2C992',
+                      fontSize: '1.1rem',
+                      marginBottom: '1.5rem',
+                      letterSpacing: '0.1em',
                     }}
                   >
-                    {rev.role}
+                    {'★'.repeat(rev.rating)}
                   </div>
                 )}
+                <p
+                  style={{
+                    fontFamily: 'var(--font-serif)',
+                    fontSize: '1.5rem',
+                    marginBottom: '2rem',
+                    fontStyle: 'italic',
+                  }}
+                >
+                  &ldquo;{rev.text}&rdquo;
+                </p>
+                <div>
+                  <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>
+                    — {rev.author}
+                  </div>
+                  {rev.role && (
+                    <div
+                      style={{
+                        fontSize: '0.7rem',
+                        color: 'rgba(255,255,255,0.55)',
+                        marginTop: '0.25rem',
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {rev.role}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 4. CLOSING CTA */}
       <section className="haus-block-container spacer-massive">

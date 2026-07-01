@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Vancouver Island's largest chocolate fountain supplier — premium Lindt chocolate fountains for events from 20 to 1,000 guests in Victoria, BC.",
 }
 
+export const revalidate = 300;
+
 export default function Fountains() {
   return (
     <div>
@@ -20,7 +22,7 @@ export default function Fountains() {
           </p>
         </div>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '4/5' }}>
-          <Image src="/chocolate_fountain.webp" alt="Chocolate fountain at event with strawberry dipping" fill sizes="100vw" quality={100} style={{ objectFit: 'cover' }} priority />
+          <Image src="/chocolate_fountain.webp" alt="Chocolate fountain at event with strawberry dipping" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
         </div>
       </header>
 

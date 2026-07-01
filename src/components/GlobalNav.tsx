@@ -7,15 +7,30 @@ function NavDropdown({ label, items, active, currentPath }: { label: string; ite
   const [open, setOpen] = useState(false);
   const timeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const enter = () => { clearTimeout(timeout.current); setOpen(true); };
   const leave = () => { timeout.current = setTimeout(() => setOpen(false), 200); };
 
   return (
-    <div ref={ref} style={{ position: 'relative' }} onMouseEnter={enter} onMouseLeave={leave}>
+    <div
+      ref={ref}
+      style={{ position: 'relative' }}
+      onMouseEnter={enter}
+      onMouseLeave={leave}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape' && open) {
+          setOpen(false);
+          triggerRef.current?.focus();
+        }
+      }}
+      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false); }}
+    >
       <button
+        ref={triggerRef}
         onClick={() => setOpen(!open)}
         aria-expanded={open}
+        aria-haspopup="true"
         aria-current={active ? 'true' : undefined}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
@@ -117,14 +132,19 @@ export default function GlobalNav() {
   const isAboutSection = aboutItems.some((i) => i.href === pathname);
   const isContactPage = pathname === '/contact';
   const mobileNavRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
 
-  // Focus trap + Escape handler + body scroll lock for mobile nav (#6)
+  // Focus trap + Escape handler + focus management + body scroll lock for mobile nav (#6)
   useEffect(() => {
     if (!isOpen) return;
 
     // Lock body scroll while menu is open
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+
+    // Move focus to the first focusable element inside the panel
+    const firstFocusable = mobileNavRef.current?.querySelector<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])');
+    firstFocusable?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { setIsOpen(false); return; }
@@ -141,6 +161,8 @@ export default function GlobalNav() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = originalOverflow;
+      // Return focus to the hamburger button when the menu closes
+      hamburgerRef.current?.focus();
     };
   }, [isOpen]);
 
@@ -173,6 +195,8 @@ export default function GlobalNav() {
 
   const navOpacity = visible ? 1 : 0;
   const navPointerEvents = visible ? 'auto' as const : 'none' as const;
+  // visibility:hidden removes the invisible nav's controls from the tab order (it still animates)
+  const navVisibility = visible ? 'visible' as const : 'hidden' as const;
 
   // Context-aware CTA — consistent verbs: "Get a Quote" for catering, "Order Now" for Guido's
   const ctaLabel = isGuidosPage ? 'Order Now' : 'Get a Quote';
@@ -201,9 +225,10 @@ export default function GlobalNav() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          transition: 'background-color 0.4s ease, border-color 0.4s ease, opacity 0.4s ease',
+          transition: 'background-color 0.4s ease, border-color 0.4s ease, opacity 0.4s ease, visibility 0.4s',
           opacity: navOpacity,
           pointerEvents: navPointerEvents,
+          visibility: navVisibility,
       }}>
           <Link href="/" aria-label="Melting Moments home" style={{ fontWeight: 600, letterSpacing: '-0.02em', zIndex: 10001, fontSize: '0.85rem' }}>Melting Moments</Link>
 
@@ -218,6 +243,7 @@ export default function GlobalNav() {
 
           {/* Mobile Hamburger Button */}
           <button
+            ref={hamburgerRef}
             className="nav-hamburger"
             onClick={() => setIsOpen(!isOpen)}
             aria-expanded={isOpen}
@@ -264,6 +290,7 @@ export default function GlobalNav() {
             {/* Mobile Catering Accordion */}
             <button
               onClick={() => setMobileCateringOpen(!mobileCateringOpen)}
+              aria-expanded={mobileCateringOpen}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 font: 'inherit', color: 'inherit', padding: '0.75rem 0',
@@ -289,6 +316,7 @@ export default function GlobalNav() {
             {/* Mobile Guido's Accordion */}
             <button
               onClick={() => setMobileGuidosOpen(!mobileGuidosOpen)}
+              aria-expanded={mobileGuidosOpen}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 font: 'inherit', color: 'inherit', padding: '0.75rem 0',
@@ -314,6 +342,7 @@ export default function GlobalNav() {
             {/* Mobile About Accordion */}
             <button
               onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
+              aria-expanded={mobileAboutOpen}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 font: 'inherit', color: 'inherit', padding: '0.75rem 0',
