@@ -38,17 +38,19 @@ export default function PageTransition({ children }: { children: React.ReactNode
       // Step 1: Fire shutter — covers the current page
       setShutterActive(true);
 
-      // Step 2: Navigate AFTER shutter fully covers screen (~450ms)
+      // Step 2: Navigate once the shutter is mostly covering (fully at 500ms)
       // Content swaps behind the shutter while it's opaque
       setTimeout(() => {
         router.push(href);
       }, 300);
 
-      // Step 3: Clean up after the reveal completes
+      // Step 3: Clean up only after the reveal fully completes — the last
+      // panel finishes at ~1.2s (see .page-shutter--active in globals.css);
+      // removing the class earlier snaps the panels mid-animation.
       setTimeout(() => {
         setShutterActive(false);
         isNavigating.current = false;
-      }, 850);
+      }, 1250);
     };
 
     // Capture phase fires BEFORE React's synthetic event handlers

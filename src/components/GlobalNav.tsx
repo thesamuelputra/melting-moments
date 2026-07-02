@@ -48,47 +48,51 @@ function NavDropdown({ label, items, active, currentPath }: { label: string; ite
         </svg>
       </button>
 
-      {open && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 0.75rem)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: 'var(--clr-ink)',
-            minWidth: '180px',
-            padding: '0.75rem 0',
-            display: 'flex',
-            flexDirection: 'column',
-            animation: 'fadeIn 0.15s ease forwards',
-            zIndex: 10002,
-          }}
-        >
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={currentPath === item.href ? 'page' : undefined}
-              onClick={() => { setOpen(false); }}
-              style={{
-                color: 'var(--clr-oat)',
-                padding: '0.5rem 1.25rem',
-                fontSize: '0.75rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                textDecoration: currentPath === item.href ? 'underline' : 'none',
-                textUnderlineOffset: '3px',
-                transition: 'background-color 0.15s',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
+      {/* Always mounted so open/close can ease instead of popping;
+          visibility removes it from the tab order while closed */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 'calc(100% + 0.75rem)',
+          left: '50%',
+          transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-6px)',
+          backgroundColor: 'var(--clr-ink)',
+          minWidth: '180px',
+          padding: '0.75rem 0',
+          display: 'flex',
+          flexDirection: 'column',
+          opacity: open ? 1 : 0,
+          visibility: open ? 'visible' : 'hidden',
+          pointerEvents: open ? 'auto' : 'none',
+          transition: 'opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s',
+          zIndex: 10002,
+        }}
+      >
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={currentPath === item.href ? 'page' : undefined}
+            onClick={() => { setOpen(false); }}
+            tabIndex={open ? 0 : -1}
+            style={{
+              color: 'var(--clr-oat)',
+              padding: '0.5rem 1.25rem',
+              fontSize: '0.75rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              textDecoration: currentPath === item.href ? 'underline' : 'none',
+              textUnderlineOffset: '3px',
+              transition: 'background-color 0.15s',
+              whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
