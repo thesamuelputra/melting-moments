@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 type MenuItem = {
@@ -91,34 +91,66 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
     }
   };
 
-  // Lightweight scroll-spy: highlight the section currently in view within the
-  // sticky index. Only subscribes on desktop where the index renders; state is
-  // only updated from the observer callback (an external event).
+  // Scroll-spy: the active section is the LAST header at or above the reading
+  // line (140px under the fixed nav), so exactly one chip/index entry is lit
+  // even mid-section. Drives the sticky index (desktop) and the rail (mobile).
+  // rAF-throttled; setState with an unchanged value is a no-op re-render-wise.
   useEffect(() => {
-    if (!isDesktop) return;
-    const sections = availableCategories
-      .map(cat => document.getElementById(sectionId(cat)))
-      .filter((el): el is HTMLElement => el !== null);
-    if (sections.length === 0) return;
+    const ids = availableCategories.map(cat => sectionId(cat));
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      let current: string | null = null;
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= 140) current = id;
+        else break; // sections are in DOM order — the rest are below the line
+      }
+      setActiveSection(current ?? ids[0] ?? null);
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [availableCategories]);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter(en => en.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActiveSection(visible[0].target.id);
-      },
-      { rootMargin: '-100px 0px -65% 0px', threshold: 0 }
-    );
-    sections.forEach(s => observer.observe(s));
-    return () => observer.disconnect();
-  }, [isDesktop, availableCategories]);
+  const spyActive = activeSection;
 
-  // Only trust the scroll-spy highlight on desktop where the index renders.
-  const spyActive = isDesktop ? activeSection : null;
+  // Keep the active chip visible inside the mobile rail as the user scrolls
+  const railRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (isDesktop || !spyActive || !railRef.current) return;
+    const chip = railRef.current.querySelector<HTMLAnchorElement>(`a[href="#${spyActive}"]`);
+    if (!chip) return;
+    const rail = railRef.current;
+    const target = chip.offsetLeft - rail.clientWidth / 2 + chip.clientWidth / 2;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    rail.scrollTo({ left: Math.max(0, target), behavior: prefersReduced ? 'auto' : 'smooth' });
+  }, [spyActive, isDesktop]);
 
   return (
-    <section className="container" style={{ paddingTop: 'clamp(2rem, 4vw, 4rem)', paddingBottom: '8rem' }}>
+    <section className="container" style={{ paddingTop: 'clamp(1rem, 2vw, 2rem)', paddingBottom: '8rem' }}>
+
+      {/* MOBILE SECTION RAIL — sticky anchors under the nav (hidden on
+          desktop via CSS, where the sticky left index takes over) */}
+      <nav ref={railRef} aria-label="Menu sections" className="menu-rail">
+        {availableCategories.map(cat => (
+          <a
+            key={cat}
+            href={`#${sectionId(cat)}`}
+            className={spyActive === sectionId(cat) ? 'menu-rail__active' : undefined}
+            onClick={(e) => handleIndexClick(e, cat)}
+          >
+            {formatCategoryName(cat)}
+          </a>
+        ))}
+      </nav>
 
       {/* Two-column shell: a sticky category index occupies the otherwise-empty
           left margin on desktop; the menu column holds the existing content.
@@ -268,40 +300,42 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
         Get a Quote
       </Link>
 
-      {/* Scroll to Top Button (#22) */}
-      {showScrollTop && (
-        <button
-          onClick={() => {
-            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
-          }}
-          aria-label="Scroll to top"
-          style={{
-            position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--clr-ink)',
-            color: 'var(--clr-bone)',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1.2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            zIndex: 100,
-            animation: 'fadeIn 0.3s ease',
-            transition: 'transform 0.2s ease',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          ↑
-        </button>
-      )}
+      {/* Scroll to Top Button (#22) — stays mounted so it can fade out
+          instead of popping */}
+      <button
+        onClick={() => {
+          const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+        }}
+        aria-label="Scroll to top"
+        aria-hidden={!showScrollTop}
+        tabIndex={showScrollTop ? 0 : -1}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--clr-ink)',
+          color: 'var(--clr-bone)',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '1.2rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 100,
+          opacity: showScrollTop ? 1 : 0,
+          visibility: showScrollTop ? 'visible' : 'hidden',
+          pointerEvents: showScrollTop ? 'auto' : 'none',
+          transform: showScrollTop ? 'translateY(0)' : 'translateY(8px)',
+          transition: 'opacity 0.3s ease, transform 0.3s ease, visibility 0.3s',
+        }}
+      >
+        ↑
+      </button>
 
     </section>
   );

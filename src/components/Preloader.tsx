@@ -50,8 +50,9 @@ export default function Preloader() {
 
       try { sessionStorage.setItem('mm-preloader', '1'); } catch { /* private mode */ }
       setLoaded(true);
-      // Remove from DOM after the 0.5s exit transition
-      setTimeout(() => setHidden(true), 550);
+      // Remove from DOM after the staggered exit finishes
+      // (brand fade 0.3s, then panel lift 0.12s delay + 0.6s)
+      setTimeout(() => setHidden(true), 800);
     };
 
     waitForAssets();

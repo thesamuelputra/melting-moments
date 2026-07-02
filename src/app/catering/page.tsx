@@ -43,7 +43,7 @@ const offerings = [
   {
     name: 'Family Style',
     href: '/family-style',
-    image: '/family-spread.webp',
+    image: '/macro_pasta.webp',
     line: 'Generous platters passed around the table, the way good food is meant to be shared.',
   },
   {

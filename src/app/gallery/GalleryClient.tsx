@@ -12,14 +12,16 @@ type GalleryImage = {
 
 // Hardcoded fallback for when no CMS images are tagged "gallery" yet
 const FALLBACK_PHOTOS = [
-  { src: '/macro_lunch.webp', title: 'Corporate Luncheon Setup', alt: 'Elegant corporate lunch spread with mixed greens and grilled proteins' },
-  { src: '/macro_charcuterie.webp', title: 'Artisan Charcuterie', alt: 'Rustic charcuterie board with cured meats, cheeses, and seasonal fruits' },
-  { src: '/macro_fountain.webp', title: 'Chocolate Cascade', alt: 'Belgian chocolate fountain with cascading tiers at a formal event' },
-  { src: '/macro_appetizer.webp', title: 'Canapés Display', alt: 'Assorted canapés and appetizer bites arranged on serving trays' },
-  { src: '/macro_pasta.webp', title: 'Handmade Pasta', alt: 'Fresh pasta with tomato and basil sauce plated on white ceramic' },
-  { src: '/banquet_prep.webp', title: 'Banquet Preparation', alt: 'Kitchen team preparing banquet dishes in a commercial kitchen setup' },
-  { src: '/chef_prep.webp', title: 'Chef in Action', alt: 'Chef Paul preparing ingredients with precision knife work' },
-  { src: '/macro_family.webp', title: 'Harvest Table', alt: 'Family-style dining table with communal dishes and fresh bread' }
+  { src: '/chef_plating_sauce.webp', title: 'Finishing the Plate', alt: 'Chef spooning red wine reduction over a plated entrée' },
+  { src: '/macro_appetizer.webp', title: 'Canapés Display', alt: 'Assorted canapés and appetizer bites arranged on slate' },
+  { src: '/banquet_prep.webp', title: 'Banquet Service', alt: 'Kitchen team plating banquet dishes in a commercial kitchen' },
+  { src: '/macro_pasta.webp', title: 'Penne Pomodoro', alt: 'Fresh pasta with tomato and basil sauce in a stoneware bowl' },
+  { src: '/chef_prep.webp', title: 'Knife Work', alt: 'Chef preparing fresh produce with precision knife work' },
+  { src: '/wedding_entree.webp', title: 'Wedding Entrée', alt: 'Herb-crusted lamb medallions plated for a wedding reception' },
+  { src: '/chef_salmon.webp', title: 'Salmon, Plated', alt: 'Chef finishing a plated salmon with lemon and dill' },
+  { src: '/chocolate_fountain.webp', title: 'Chocolate Fountain', alt: 'Guest dipping a strawberry at a chocolate fountain station' },
+  { src: '/private_dinner.webp', title: 'Private Dinner', alt: 'Sliced roast with cranberry compote plated for a private dinner' },
+  { src: '/copper_pots.webp', title: 'The Kitchen', alt: 'Copper pots hanging above the range in the kitchen' }
 ];
 
 export default function GalleryClient({ cmsImages }: { cmsImages?: GalleryImage[] }) {

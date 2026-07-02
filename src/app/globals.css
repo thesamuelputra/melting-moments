@@ -419,6 +419,64 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 .category-tabs::-webkit-scrollbar { display: none; }
 
+/* Mobile: keep the filter rail reachable while browsing — full-bleed,
+   pinned just under the fixed nav, frosted so content scrolls beneath */
+@media (max-width: 900px) {
+  .category-tabs {
+    position: sticky;
+    top: 63px;
+    z-index: 90;
+    margin-left: -1.25rem;
+    margin-right: -1.25rem;
+    padding: 0.9rem 1.25rem;
+    background: rgba(247, 246, 240, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+  }
+}
+
+/* Sticky section rail for the catering menu on mobile — anchors, not
+   filters; mirrors the desktop sticky index. */
+.menu-rail {
+  display: none;
+}
+@media (max-width: 900px) {
+  .menu-rail {
+    display: flex;
+    gap: 1.75rem;
+    position: sticky;
+    top: 63px;
+    z-index: 90;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -1.25rem clamp(2rem, 4vw, 3rem);
+    padding: 0.9rem 1.25rem;
+    background: rgba(247, 246, 240, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+  }
+  .menu-rail::-webkit-scrollbar { display: none; }
+  .menu-rail a {
+    font-family: var(--font-sans);
+    font-size: var(--text-micro);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(17, 17, 17, 0.66);
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid transparent;
+    transition: color 0.25s ease, border-color 0.25s ease;
+  }
+  .menu-rail a.menu-rail__active {
+    color: var(--clr-ink);
+    border-bottom-color: var(--clr-ink);
+  }
+}
+
 .category-tab {
   font-family: var(--font-sans);
   font-size: var(--text-micro);
@@ -592,7 +650,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .preloader {
   will-change: transform;
-  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+  /* 0.12s delay lets the brand fade (0.3s) read before the panel lifts */
+  transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1) 0.12s;
 }
 
 .preloader--exit {
@@ -663,7 +722,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .preloader__bar-fill--done {
   width: 100% !important;
   animation: none;
-  transition: width 0.2s ease;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes preloaderBar {
@@ -694,15 +753,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   will-change: transform;
 }
 
-/* Active: panels wipe down then back up */
+/* Active: panels wipe down (sharp in-out), hold while the route swaps
+   behind full cover, then reveal with a long decelerating ease-out.
+   Timeline: down 0..0.5s · covered 0.5..0.6s · up 0.6..1.2s.
+   PageTransition.tsx must not remove --active before 1.2s or the
+   reveal snaps mid-animation. */
 .page-shutter--active .page-shutter__panel {
   animation: shutterDown 0.4s cubic-bezier(0.76, 0, 0.24, 1) forwards,
-             shutterUp 0.4s cubic-bezier(0.76, 0, 0.24, 1) 0.7s forwards;
+             shutterUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
 }
 
-.page-shutter--active .page-shutter__panel--1 { animation-delay: 0s, 0.7s; }
-.page-shutter--active .page-shutter__panel--2 { animation-delay: 0.06s, 0.76s; }
-.page-shutter--active .page-shutter__panel--3 { animation-delay: 0.12s, 0.82s; }
+.page-shutter--active .page-shutter__panel--1 { animation-delay: 0s, 0.6s; }
+.page-shutter--active .page-shutter__panel--2 { animation-delay: 0.05s, 0.65s; }
+.page-shutter--active .page-shutter__panel--3 { animation-delay: 0.1s, 0.7s; }
 
 @keyframes shutterDown {
   from { transform: scaleY(0); transform-origin: top; }
