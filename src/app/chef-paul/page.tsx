@@ -26,7 +26,7 @@ export default async function ChefPaul() {
         
         <div className="about-header-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.5fr) 1fr', gap: '4rem', marginTop: 'clamp(4rem, 8vw, 8rem)' }}>
           <div className="shape-editorial-tall" style={{ width: '100%', aspectRatio: '3/4', position: 'relative' }}>
-            <Image src="/chef_salmon.webp" alt="Chef Paul plating salmon with lemon" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} priority />
+            <Image src="/chef_plating_sauce.webp" alt="Chef Paul finishing a plate with red wine reduction" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} priority />
           </div>
           
           <div style={{ paddingBottom: '4rem' }}>

@@ -22,7 +22,7 @@ export default function Fountains() {
           </p>
         </div>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '4/5' }}>
-          <Image src="/chocolate_fountain.webp" alt="Chocolate fountain at event with strawberry dipping" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
+          <Image src="/wedding_entree.webp" alt="Candle-lit plated course at an evening reception" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
         </div>
       </header>
 
