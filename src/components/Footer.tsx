@@ -44,7 +44,6 @@ export default function Footer() {
                         <Link href="/private-events">Private Events</Link>
                         <Link href="/family-style">Family Style</Link>
                         <Link href="/fountains">Fountains</Link>
-                        <Link href="/gallery">Gallery</Link>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                         <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Guido&apos;s</div>

@@ -18,8 +18,6 @@ const SERVICES = [
   { href: '/fountains', name: 'Chocolate Fountains', line: "Vancouver Island's largest fountain rental service." },
 ];
 
-const GALLERY_PEEK = ['/chef_plating_sauce.webp', '/wedding_entree.webp', '/private_dinner.webp', '/macro_roulade.webp'];
-
 export default async function Home() {
   const [cms, rawReviews] = await Promise.all([
     getCmsContent(),
@@ -114,23 +112,6 @@ export default async function Home() {
               <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.6rem' }}>{s.name}</h3>
               <p style={{ fontSize: '0.95rem', opacity: 0.65, lineHeight: 1.55, maxWidth: '30ch' }}>{s.line}</p>
               <span style={{ display: 'inline-block', marginTop: '1rem', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', borderBottom: '1px solid currentColor', paddingBottom: '2px' }}>Explore →</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ================================================
-          FROM THE TABLE — gallery peek
-          ================================================ */}
-      <section className="container" style={{ paddingBottom: 'clamp(4rem, 8vw, 8rem)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <div className="menu-index">From the Table</div>
-          <Link href="/gallery" style={{ fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', borderBottom: '1px solid currentColor', paddingBottom: '2px', textDecoration: 'none', color: 'var(--clr-ink)' }}>View Gallery →</Link>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem' }}>
-          {GALLERY_PEEK.map((src) => (
-            <Link key={src} href="/gallery" aria-label="Browse the gallery" style={{ position: 'relative', aspectRatio: '4/5', overflow: 'hidden', display: 'block', backgroundColor: 'var(--clr-charcoal)' }}>
-              <Image src={src} alt="" fill sizes="(max-width: 768px) 50vw, 25vw" style={{ objectFit: 'cover' }} />
             </Link>
           ))}
         </div>
