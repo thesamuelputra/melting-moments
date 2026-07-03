@@ -39,12 +39,6 @@ export const getGuidosProducts = unstable_cache(
   { revalidate: REVALIDATE_SECONDS, tags: [CMS_TAG] }
 );
 
-export const getGalleryImages = unstable_cache(
-  () => fetchQuery(api.files.list, { section: 'gallery' }),
-  ['gallery-files'],
-  { revalidate: REVALIDATE_SECONDS, tags: [CMS_TAG] }
-);
-
 /**
  * Business settings with outage protection: a Convex failure degrades to the
  * hardcoded fallback copy baked into every page instead of a 500.

@@ -105,7 +105,6 @@ const cateringItems = [
   { href: '/weddings', label: 'Weddings' },
   { href: '/private-events', label: 'Private Events' },
   { href: '/fountains', label: 'Fountains' },
-  { href: '/gallery', label: 'Gallery' },
 ];
 
 const guidosItems = [

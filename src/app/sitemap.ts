@@ -16,7 +16,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/fountains', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/private-events', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/family-style', priority: 0.8, changeFrequency: 'monthly' },
-    { path: '/gallery', priority: 0.7, changeFrequency: 'monthly' },
     { path: '/testimonials', priority: 0.7, changeFrequency: 'monthly' },
     // Utility pages
     { path: '/faq', priority: 0.6, changeFrequency: 'monthly' },
