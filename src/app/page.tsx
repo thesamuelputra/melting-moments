@@ -34,13 +34,13 @@ export default async function Home() {
       {/* ================================================
           HERO — Split brand names with vertical separator
           ================================================ */}
-      <header style={{ width: '100%', height: '100dvh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+      <header className="hero-dark" style={{ width: '100%', minHeight: '100dvh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <Image src="/hero-main.webp" alt="Editorial Italian cuisine plating" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
 
         {/* Gradient overlay */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.55) 100%)' }}></div>
 
-        <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%', padding: '0 2rem' }}>
+        <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%', padding: '6rem 2rem' }}>
           <div className="hero-brand-lockup">
             <h1 className="haus-display hero-brand-name" aria-label="Melting Moments" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
               Melting<br />Moments
@@ -53,13 +53,9 @@ export default async function Home() {
           <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 'var(--text-body)', maxWidth: '46ch', margin: '2rem auto 0 auto', lineHeight: 1.6 }}>
             Catering for weddings, events and private dining across Vancouver Island — plus Guido&apos;s ready-made Italian, at home.
           </p>
-          <Link href="/contact" style={{ display: 'inline-block', marginTop: '2.25rem', background: 'var(--clr-bone)', color: 'var(--clr-ink)', padding: '0.9rem 2.25rem', fontSize: '0.75rem', letterSpacing: '0.14em', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 500 }}>
+          <Link href="/contact" className="btn-bone" style={{ marginTop: '2.25rem' }}>
             Get a Quote
           </Link>
-        </div>
-
-        <div style={{ position: 'absolute', bottom: '3rem', left: '50%', transform: 'translateX(-50%)', zIndex: 3, opacity: 0.6, animation: 'pulse 2s infinite' }}>
-            <span style={{ color: 'white', fontSize: 'var(--text-micro)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>↓ Scroll</span>
         </div>
       </header>
 
@@ -79,7 +75,7 @@ export default async function Home() {
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--text-body)', maxWidth: '35ch', marginBottom: '2rem' }}>
                 Weddings, corporate events, and private dining across Vancouver Island.
               </p>
-              <span className="btn-outline btn-outline--inverse" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>Explore Catering</span>
+              <span className="btn-outline btn-outline--inverse">Explore Catering</span>
             </div>
           </Link>
 
@@ -94,7 +90,7 @@ export default async function Home() {
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--text-body)', maxWidth: '35ch', marginBottom: '2rem' }}>
                 Homemade Italian meals, ready to heat and serve. Delivery available in Victoria.
               </p>
-              <span className="btn-outline btn-outline--inverse" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>See the Menu</span>
+              <span className="btn-outline btn-outline--inverse">See the Menu</span>
             </div>
           </Link>
         </div>
@@ -104,10 +100,10 @@ export default async function Home() {
           WHAT WE CATER
           ================================================ */}
       <section className="container" style={{ paddingBottom: 'clamp(4rem, 8vw, 7rem)' }}>
-        <div className="menu-index" style={{ marginBottom: '2.5rem' }}>What We Cater</div>
+        <div className="menu-index" style={{ marginBottom: '2rem' }}>What We Cater</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2.5rem 3rem', borderTop: '1px solid rgba(0,0,0,0.12)', paddingTop: '3rem' }}>
           {SERVICES.map((s, i) => (
-            <Link key={s.href} href={s.href} style={{ textDecoration: 'none', color: 'var(--clr-ink)', display: 'block' }}>
+            <Link key={s.href} href={s.href} className="service-link" style={{ textDecoration: 'none', color: 'var(--clr-ink)', display: 'block' }}>
               <div className="menu-index" style={{ opacity: 0.4, marginBottom: '0.75rem' }}>{String(i + 1).padStart(2, '0')}</div>
               <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.6rem' }}>{s.name}</h3>
               <p style={{ fontSize: '0.95rem', opacity: 0.65, lineHeight: 1.55, maxWidth: '30ch' }}>{s.line}</p>
@@ -128,9 +124,9 @@ export default async function Home() {
               {reviews.map((rev, i) => (
                 <div key={i}>
                   {rev.rating ? (
-                    <div role="img" aria-label={`${rev.rating} out of 5 stars`} style={{ color: '#E2C992', marginBottom: '1rem', letterSpacing: '0.1em' }}>{'★'.repeat(rev.rating)}</div>
+                    <div role="img" aria-label={`${rev.rating} out of 5 stars`} style={{ color: '#E2C992', fontSize: '1.1rem', marginBottom: '1rem', letterSpacing: '0.1em' }}>{'★'.repeat(rev.rating)}</div>
                   ) : null}
-                  <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontStyle: 'italic', color: 'var(--clr-oat)', lineHeight: 1.4, marginBottom: '1.5rem' }}>&ldquo;{rev.text}&rdquo;</p>
+                  <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontStyle: 'italic', color: 'var(--clr-oat)', lineHeight: 1.4, marginBottom: '1.5rem' }}>&ldquo;{rev.text}&rdquo;</p>
                   <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>— {rev.author}</div>
                   {rev.role ? <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)', marginTop: '0.25rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{rev.role}</div> : null}
                 </div>
@@ -158,7 +154,7 @@ export default async function Home() {
           <p style={{ fontSize: '0.8rem', opacity: 0.45, color: 'white', margin: '0 auto 2.5rem auto' }}>
             Chef Paul personally replies within one business day.
           </p>
-          <Link href="/contact" className="btn-outline btn-outline--inverse" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>{ctaButton}</Link>
+          <Link href="/contact" className="btn-outline btn-outline--inverse">{ctaButton}</Link>
         </div>
       </section>
     </div>

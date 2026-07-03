@@ -33,6 +33,20 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Fade the floating controls out when the footer scrolls into view so
+  // they never sit over the legal links / © line.
+  const [footerVisible, setFooterVisible] = useState(false);
+  useEffect(() => {
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+    const observer = new IntersectionObserver(
+      (entries) => setFooterVisible(entries[0]?.isIntersecting ?? false),
+      { threshold: 0 }
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
   // Track viewport so the sticky desktop index only mounts where there is room
   // for it. On mobile the menu reads top-to-bottom like a printed menu.
   useEffect(() => {
@@ -80,13 +94,18 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
   const sectionId = (cat: string) => `menu-${cat.toLowerCase()}`;
 
   // Jump from the sticky index to a section. The anchor href is the no-JS
-  // fallback; this handler scrolls with a header offset.
+  // fallback; this handler scrolls with an offset matching the actual fixed
+  // chrome (nav + banner + mobile rail), so headers never land underneath it.
   const handleIndexClick = (e: React.MouseEvent<HTMLAnchorElement>, cat: string) => {
     e.preventDefault();
     const el = document.getElementById(sectionId(cat));
     if (el) {
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const top = el.getBoundingClientRect().top + window.scrollY - 100;
+      const rail = railRef.current;
+      const railPinned = rail && getComputedStyle(rail).display !== 'none';
+      const offset = railPinned ? rail.getBoundingClientRect().height + 63 + 16 : 100;
+      const banner = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--banner-height')) || 0;
+      const top = el.getBoundingClientRect().top + window.scrollY - offset - banner;
       window.scrollTo({ top, behavior: prefersReduced ? 'auto' : 'smooth' });
     }
   };
@@ -176,19 +195,7 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
                     <a
                       href={`#${sectionId(cat)}`}
                       onClick={(e) => handleIndexClick(e, cat)}
-                      className="noire-serif"
-                      style={{
-                        fontSize: 'var(--text-body)',
-                        lineHeight: 1.3,
-                        color: 'var(--clr-ink)',
-                        textDecoration: 'none',
-                        opacity: current ? 1 : 0.55,
-                        borderBottom: current ? '1px solid var(--clr-ink)' : '1px solid transparent',
-                        paddingBottom: '2px',
-                        transition: 'opacity 0.2s ease, border-color 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.opacity = current ? '1' : '0.55'; }}
+                      className={`noire-serif menu-index-link${current ? ' is-current' : ''}`}
                     >
                       {formatCategoryName(cat)}
                     </a>
@@ -214,7 +221,7 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
               <div key={cat} style={{ animation: 'fadeIn 0.5s ease forwards' }}>
                 <div
                   id={sectionId(cat)}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: allIncluded ? '1.5rem' : '3rem', marginTop: showTopBorder ? '4rem' : 0, borderTop: showTopBorder ? '1px solid var(--clr-charcoal)' : 'none', paddingTop: showTopBorder ? '3rem' : 0, scrollMarginTop: '100px' }}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: allIncluded ? '1.5rem' : '3rem', marginTop: showTopBorder ? '4rem' : 0, borderTop: showTopBorder ? '1px solid var(--clr-charcoal)' : 'none', paddingTop: showTopBorder ? '3rem' : 0, scrollMarginTop: 'calc(var(--banner-height, 0px) + 130px)' }}
                 >
                   <h2 className="noire-serif" style={{ color: 'var(--clr-ink)' }}>{formatCategoryName(cat)}</h2>
                   <span className="menu-index">{String(groupIdx + 1).padStart(2, '0')}</span>
@@ -283,16 +290,21 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
           collide. */}
       <Link
         href="/contact"
-        className="btn-solid"
+        className="btn-solid btn-solid--stay"
+        tabIndex={footerVisible ? -1 : 0}
+        aria-hidden={footerVisible}
         style={{
           position: 'fixed',
-          bottom: '2rem',
+          bottom: 'calc(2rem + env(safe-area-inset-bottom))',
           right: showScrollTop ? '5.5rem' : '2rem',
           zIndex: 100,
           boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
           borderRadius: '999px',
           padding: '0.85rem 1.5rem',
-          transition: 'right 0.25s ease, transform 0.2s ease',
+          opacity: footerVisible ? 0 : 1,
+          visibility: footerVisible ? 'hidden' : 'visible',
+          pointerEvents: footerVisible ? 'none' : 'auto',
+          transition: 'right 0.25s ease, transform 0.2s ease, opacity 0.3s ease, visibility 0.3s, background-color 0.3s ease, border-color 0.3s ease',
         }}
         onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
         onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
@@ -308,11 +320,11 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
           window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
         }}
         aria-label="Scroll to top"
-        aria-hidden={!showScrollTop}
-        tabIndex={showScrollTop ? 0 : -1}
+        aria-hidden={!showScrollTop || footerVisible}
+        tabIndex={showScrollTop && !footerVisible ? 0 : -1}
         style={{
           position: 'fixed',
-          bottom: '2rem',
+          bottom: 'calc(2rem + env(safe-area-inset-bottom))',
           right: '2rem',
           width: '48px',
           height: '48px',
@@ -327,10 +339,10 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
           justifyContent: 'center',
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           zIndex: 100,
-          opacity: showScrollTop ? 1 : 0,
-          visibility: showScrollTop ? 'visible' : 'hidden',
-          pointerEvents: showScrollTop ? 'auto' : 'none',
-          transform: showScrollTop ? 'translateY(0)' : 'translateY(8px)',
+          opacity: showScrollTop && !footerVisible ? 1 : 0,
+          visibility: showScrollTop && !footerVisible ? 'visible' : 'hidden',
+          pointerEvents: showScrollTop && !footerVisible ? 'auto' : 'none',
+          transform: showScrollTop && !footerVisible ? 'translateY(0)' : 'translateY(8px)',
           transition: 'opacity 0.3s ease, transform 0.3s ease, visibility 0.3s',
         }}
       >

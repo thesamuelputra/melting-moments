@@ -51,6 +51,7 @@ function NavDropdown({ label, items, active, currentPath }: { label: string; ite
       {/* Always mounted so open/close can ease instead of popping;
           visibility removes it from the tab order while closed */}
       <div
+        className="nav-dropdown-panel"
         style={{
           position: 'absolute',
           top: 'calc(100% + 0.75rem)',
@@ -258,7 +259,10 @@ export default function GlobalNav() {
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                zIndex: 10001
+                zIndex: 10001,
+                // 44px+ tap target without shifting the visual position
+                padding: '13px',
+                margin: '-13px',
             }}
             id="mobile-menu-btn"
           >
@@ -268,11 +272,13 @@ export default function GlobalNav() {
           </button>
       </nav>
 
-      {/* Mobile Navigation Panel */}
-      {isOpen && (
+      {/* Mobile Navigation Panel — always mounted so close eases like open
+          (visibility keeps it out of the tab order while closed) */}
+      {(
         <div
           ref={mobileNavRef}
           className="nav-mobile-panel"
+          aria-hidden={!isOpen}
           style={{
             position: 'fixed',
             display: 'flex',
@@ -284,7 +290,10 @@ export default function GlobalNav() {
             backgroundColor: 'var(--clr-bone)',
             zIndex: 10000,
             padding: '7rem 2rem 2rem 2rem',
-            animation: 'fadeIn 0.2s ease forwards',
+            opacity: isOpen ? 1 : 0,
+            visibility: isOpen ? 'visible' : 'hidden',
+            pointerEvents: isOpen ? 'auto' : 'none',
+            transition: 'opacity 0.22s ease, visibility 0.22s',
             overflowY: 'auto'
           }}
         >

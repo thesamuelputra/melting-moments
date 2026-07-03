@@ -56,11 +56,11 @@ function CustomSelect({ options, value, onChange, placeholder, labelId, required
         <span style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s ease' }}>↓</span>
       </div>
       {isOpen && (
-        <div role="listbox" id={listboxId} aria-labelledby={labelId} style={{ position: 'absolute', top: '100%', left: 0, width: '100%', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', zIndex: 50, animation: 'fadeIn 0.2s ease', marginTop: '4px' }}>
+        <div role="listbox" id={listboxId} aria-labelledby={labelId} onMouseLeave={() => setActiveIndex(-1)} style={{ position: 'absolute', top: '100%', left: 0, width: '100%', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', zIndex: 50, animation: 'fadeIn 0.2s ease', marginTop: '4px' }}>
           {options.map((opt, idx) => (
             <div key={opt.value} id={optionId(idx)} role="option" aria-selected={value === opt.value}
               onClick={(e) => { e.stopPropagation(); onChange(opt.value); setIsOpen(false); }}
-              style={{ padding: '1rem', borderBottom: '1px solid rgba(0,0,0,0.02)', transition: 'background-color 0.2s', backgroundColor: (value === opt.value || activeIndex === idx) ? 'rgba(0,0,0,0.03)' : 'transparent' }}
+              style={{ padding: '1rem', borderBottom: '1px solid rgba(0,0,0,0.02)', transition: 'background-color 0.2s', backgroundColor: activeIndex === idx ? 'rgba(0,0,0,0.06)' : value === opt.value ? 'rgba(0,0,0,0.03)' : 'transparent', fontWeight: value === opt.value ? 500 : undefined }}
               onMouseEnter={() => setActiveIndex(idx)}>
               {opt.label}
             </div>
@@ -123,13 +123,22 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
     } finally { setSubmitting(false); }
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '1rem',
+    border: '1px solid rgba(0,0,0,0.2)',
+    backgroundColor: 'transparent',
+    fontSize: '1rem',
+    fontFamily: 'inherit',
+  };
+
   // Format address for display (newline → <br>)
   const addressLines = contactInfo.address.split('\n');
 
   return (
     <div>
       <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
-        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(400px, 1.5fr)', gap: 'clamp(4rem, 10vw, 8rem)' }}>
+        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(min(300px, 100%), 1fr) minmax(min(400px, 100%), 1.5fr)', gap: 'clamp(4rem, 10vw, 8rem)' }}>
 
           {/* LEFT COLUMN — dynamic from Settings */}
           <div>
@@ -174,7 +183,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                   <span id="event-type-label" style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Event Type *</span>
                   <CustomSelect labelId="event-type-label" required value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="Select event type"
                     options={[{ value: "corporate", label: "Corporate Function" }, { value: "wedding", label: "Wedding" }, { value: "private", label: "Private Gathering" }, { value: "fountain", label: "Chocolate Fountain Rental" }, { value: "ready-made", label: "Ready-Made Meals (Guido's)" }, { value: "other", label: "General Inquiry" }]} />
-                  {step1Error && <div role="alert" style={{ color: '#B91C1C', fontSize: '0.8rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>{step1Error}</div>}
+                  {step1Error && <div role="alert" style={{ color: '#B91C1C', fontSize: '0.85rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>{step1Error}</div>}
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span id="guest-count-label" style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Estimated Guests</span>
@@ -195,15 +204,15 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <h2 className="noire-serif" tabIndex={-1} ref={(el) => { headingRefs.current[2] = el; }} style={{ marginBottom: '2rem' }}>Date &amp; Venue</h2>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Event Date</span>
-                  <input type="date" required min={new Date().toISOString().split('T')[0]} value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <input type="date" required min={new Date().toISOString().split('T')[0]} value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} style={inputStyle} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Venue / Location (Optional)</span>
-                  <input type="text" placeholder="e.g. Victoria Conference Centre" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <input type="text" placeholder="e.g. Victoria Conference Centre" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} style={inputStyle} />
                 </label>
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                  <button type="button" onClick={() => setStep(1)} className="btn-outline" style={{ flex: 1, padding: '1rem' }}>Back</button>
-                  <button type="submit" className="btn-solid" style={{ flex: 2, padding: '1rem' }}>Next Step</button>
+                  <button type="button" onClick={() => setStep(1)} className="btn-outline" style={{ flex: 1, padding: 'clamp(1rem, 2vw, 1.2rem) 1rem' }}>Back</button>
+                  <button type="submit" className="btn-solid" style={{ flex: 2, padding: 'clamp(1rem, 2vw, 1.2rem) 1rem' }}>Next Step</button>
                 </div>
               </form>
             )}
@@ -215,19 +224,19 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <input type="text" name="website" value={formData.website} onChange={(e) => setFormData({...formData, website: e.target.value})} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Full Name *</span>
-                  <input type="text" required autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <input type="text" required autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={inputStyle} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Email Address *</span>
-                  <input type="email" required autoComplete="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <input type="email" required autoComplete="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={inputStyle} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Phone Number (Optional)</span>
-                  <input type="tel" autoComplete="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem' }} />
+                  <input type="tel" autoComplete="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} style={inputStyle} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Additional Details (Optional)</span>
-                  <textarea rows={4} placeholder="Dietary needs, theme preferences, budget range, etc." value={formData.details} onChange={(e) => setFormData({...formData, details: e.target.value})} style={{ width: '100%', padding: '1rem', border: '1px solid rgba(0,0,0,0.2)', backgroundColor: 'transparent', fontSize: '1rem', resize: 'vertical', fontFamily: 'inherit' }} />
+                  <textarea rows={4} placeholder="Dietary needs, theme preferences, budget range, etc." value={formData.details} onChange={(e) => setFormData({...formData, details: e.target.value})} style={{ ...inputStyle, resize: 'vertical' as const }} />
                 </label>
                 {error && (
                   <div role="alert" style={{ padding: '1rem', backgroundColor: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem', animation: 'fadeIn 0.3s ease' }}>
@@ -235,9 +244,9 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                  <button type="button" onClick={() => setStep(2)} className="btn-outline" style={{ flex: 1, padding: '1rem' }}>Back</button>
-                  <button type="submit" className="btn-solid" style={{ flex: 2, padding: '1rem', opacity: submitting ? 0.7 : 1, cursor: submitting ? 'wait' : 'pointer' }} disabled={submitting}>
-                    {submitting ? 'Submitting...' : 'Request Quote'}
+                  <button type="button" onClick={() => setStep(2)} className="btn-outline" disabled={submitting} style={{ flex: 1, padding: 'clamp(1rem, 2vw, 1.2rem) 1rem' }}>Back</button>
+                  <button type="submit" className="btn-solid" style={{ flex: 2, padding: 'clamp(1rem, 2vw, 1.2rem) 1rem', opacity: submitting ? 0.7 : 1, cursor: submitting ? 'wait' : 'pointer' }} disabled={submitting}>
+                    {submitting ? 'Sending…' : 'Request Quote'}
                   </button>
                 </div>
               </form>

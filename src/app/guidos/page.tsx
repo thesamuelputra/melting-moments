@@ -21,7 +21,7 @@ export default function GuidosPage() {
       {/* Hero */}
       <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>Est. 2009</div>
-        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', marginBottom: '3rem' }}>
+        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', marginBottom: '3rem', textTransform: 'uppercase' }}>
           Guido&apos;s<br />Gourmet
         </h1>
         <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%', maxWidth: '900px' }}>
@@ -70,7 +70,7 @@ export default function GuidosPage() {
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--text-body)', fontWeight: 400, marginBottom: '0.25rem' }}>
                 {product.name}
               </h3>
-              <span style={{ fontSize: 'var(--text-micro)', letterSpacing: '0.1em', opacity: 0.5 }}>
+              <span style={{ fontSize: 'var(--text-micro)', letterSpacing: '0.1em', opacity: 0.65 }}>
                 {product.price}
               </span>
             </Link>
@@ -90,17 +90,10 @@ export default function GuidosPage() {
           </h2>
           <p style={{ opacity: 0.5, marginBottom: '0.5rem', color: 'white' }}>Pickup by appointment.</p>
           <p style={{ opacity: 0.5, marginBottom: '2.5rem', color: 'white' }}>614 Grenville Ave, Esquimalt.</p>
-          <Link href="/guidos/order" className="btn-outline btn-outline--inverse" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', display: 'inline-block' }}>
+          <Link href="/guidos/order" className="btn-outline btn-outline--inverse">
             Order Now
           </Link>
         </div>
-      </section>
-
-      {/* Cross-sell */}
-      <section className="container" style={{ padding: 'clamp(2rem, 4vw, 3rem) 0', textAlign: 'center' }}>
-        <span className="menu-index">
-          Planning an event? <Link href="/menus" style={{ textDecoration: 'underline' }}>Melting Moments Catering →</Link>
-        </span>
       </section>
     </div>
   );

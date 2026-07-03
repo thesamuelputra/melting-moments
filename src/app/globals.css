@@ -117,6 +117,12 @@ body {
   overflow: hidden;
 }
 
+/* About-page oval: editorial upward overlap on desktop only
+   (reset inside the mobile media query where the grid stacks) */
+.about-oval {
+  transform: translateY(-30%);
+}
+
 /* Haus Extreme Terracotta Overlap Block */
 .haus-block-container {
   background-color: var(--clr-ink);
@@ -169,13 +175,20 @@ body {
   transition: all 0.3s ease;
   min-height: 48px; /* Mobile touch target */
 }
-.btn-outline:hover, .btn-outline.active {
+.btn-outline:hover, .btn-outline:focus-visible, .btn-outline.active {
   background-color: var(--clr-ink);
   color: var(--clr-bone);
 }
 
-/* Inverse variant for outline buttons on dark backgrounds */
-.btn-outline--inverse:hover, .btn-outline--inverse.active {
+/* Inverse variant for outline buttons on dark backgrounds.
+   The base state lives HERE — never set color/border inline on these
+   buttons, or the inline style will override the hover state and the
+   label disappears against the filled pill. */
+.btn-outline--inverse {
+  color: var(--clr-bone);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.btn-outline--inverse:hover, .btn-outline--inverse:focus-visible, .btn-outline--inverse.active {
   background-color: var(--clr-bone);
   color: var(--clr-ink);
   border-color: var(--clr-bone);
@@ -196,17 +209,51 @@ body {
   transition: all 0.3s ease;
   min-height: 48px; /* Mobile touch target */
 }
-.btn-solid:hover {
+.btn-solid:hover, .btn-solid:focus-visible {
   background-color: transparent;
   color: var(--clr-ink);
   border-color: var(--clr-ink);
 }
 
-/* Inverse variant for buttons on dark backgrounds */
-.btn-solid--inverse:hover {
+/* Inverse variant for solid buttons on dark backgrounds — the default
+   hover would ghost to ink-on-dark and disappear. */
+.btn-solid--inverse {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.btn-solid--inverse:hover, .btn-solid--inverse:focus-visible {
   background-color: var(--clr-bone);
   color: var(--clr-ink);
   border-color: var(--clr-bone);
+}
+
+/* Floating/sticky pills keep a solid fill on hover — ghosting a floating
+   element over arbitrary scrolling content is unreadable. */
+.btn-solid--stay:hover, .btn-solid--stay:focus-visible {
+  background-color: var(--clr-charcoal);
+  color: var(--clr-bone);
+  border-color: var(--clr-charcoal);
+}
+
+/* Bone-filled pill for CTAs sitting on photography/dark heroes */
+.btn-bone {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: clamp(1rem, 2vw, 1.2rem) clamp(2rem, 4vw, 3rem);
+  border: 1px solid var(--clr-bone);
+  border-radius: 40px;
+  background-color: var(--clr-bone);
+  color: var(--clr-ink);
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 48px;
+  text-decoration: none;
+}
+.btn-bone:hover, .btn-bone:focus-visible {
+  background-color: transparent;
+  color: var(--clr-bone);
 }
 
 /* React Filter Categories */
@@ -233,11 +280,6 @@ body {
   padding: 2rem;
   border: 1px solid rgba(17, 17, 17, 0.1);
   background-color: white;
-  transition: transform 0.3s ease;
-}
-.pricing-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 /* Global Navbar Styling */
@@ -269,6 +311,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   outline: 2px solid var(--clr-ink);
   outline-offset: 4px;
   border-radius: 2px;
+}
+
+/* Ink outlines are invisible on dark surfaces — flip to bone wherever the
+   background is charcoal/ink (footer, dark sections, nav dropdown panels,
+   the hero over the photo). */
+footer :focus-visible,
+.haus-block-container :focus-visible,
+.nav-dropdown-panel a:focus-visible,
+.hero-dark :focus-visible,
+.chooser-card:focus-visible {
+  outline-color: var(--clr-bone) !important;
 }
 
 .skip-nav {
@@ -348,9 +401,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   transform: scale(1.03);
 }
 
-.chooser-card:hover .btn-outline {
+.chooser-card:hover .btn-outline,
+.chooser-card:focus-visible .btn-outline {
   background-color: white;
-  color: var(--clr-ink);
+  color: var(--clr-ink) !important; /* beats any stray inline color */
   border-color: white;
 }
 
@@ -424,15 +478,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 @media (max-width: 900px) {
   .category-tabs {
     position: sticky;
-    top: 63px;
+    top: calc(var(--banner-height, 0px) + 63px);
     z-index: 90;
-    margin-left: -1.25rem;
-    margin-right: -1.25rem;
-    padding: 0.9rem 1.25rem;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 0 clamp(1.25rem, 5vw, 4rem);
     background: rgba(247, 246, 240, 0.92);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+  }
+  /* Tap target: the tab itself carries the rail's vertical padding */
+  .category-tab {
+    padding: 1rem 0;
   }
 }
 
@@ -446,19 +504,21 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     display: flex;
     gap: 1.75rem;
     position: sticky;
-    top: 63px;
+    top: calc(var(--banner-height, 0px) + 63px);
     z-index: 90;
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    margin: 0 -1.25rem clamp(2rem, 4vw, 3rem);
-    padding: 0.9rem 1.25rem;
+    margin: 0 calc(50% - 50vw) clamp(2rem, 4vw, 3rem);
+    padding: 0 clamp(1.25rem, 5vw, 4rem);
     background: rgba(247, 246, 240, 0.92);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(17, 17, 17, 0.08);
   }
   .menu-rail::-webkit-scrollbar { display: none; }
+  /* Chips carry the rail's vertical padding so each tap target spans the
+     full ~48px rail height (WCAG 2.5.8) */
   .menu-rail a {
     font-family: var(--font-sans);
     font-size: var(--text-micro);
@@ -467,7 +527,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     color: rgba(17, 17, 17, 0.66);
     text-decoration: none;
     white-space: nowrap;
-    padding: 0.25rem 0;
+    padding: 1rem 0;
     border-bottom: 1px solid transparent;
     transition: color 0.25s ease, border-color 0.25s ease;
   }
@@ -562,17 +622,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     gap: 2rem !important;
     margin-top: 0 !important;
   }
+  /* The editorial oval overlap is a desktop device — stacked, it rides up
+     over the philosophy copy */
+  .about-oval {
+    transform: none !important;
+  }
 
-  /* M-4: Stack homepage CTA grid on mobile */
-  .homepage-cta-grid {
-    grid-template-columns: 1fr !important;
-    gap: 2rem !important;
-    text-align: center;
-  }
-  .homepage-cta-grid .shape-circle {
-    justify-self: center !important;
-    width: clamp(180px, 50vw, 280px) !important;
-  }
 
   /* M-5: Prevent serif text overflow on mobile */
   .noire-serif {
@@ -636,11 +691,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse {
-  0% { opacity: 0.4; transform: translate(-50%, 0); }
-  50% { opacity: 0.8; transform: translate(-50%, 5px); }
-  100% { opacity: 0.4; transform: translate(-50%, 0); }
-}
 
 /* ========================================================
    6. PRELOADER
@@ -810,9 +860,60 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .page-shutter--active .page-shutter__panel { animation: none; }
 }
 
+.footer-nav a {
+  transition: color 0.2s ease;
+}
+.footer-nav a:hover, .footer-nav a:focus-visible {
+  color: #fff;
+}
+
+/* Giant footer CTA — hover/focus dim lives here so keyboard users get it too */
+.footer-cta h2 {
+  transition: opacity 0.3s ease;
+}
+.footer-cta:hover h2, .footer-cta:focus-visible h2 {
+  opacity: 0.7;
+}
+
+/* Top-level nav links (non-dropdown) get the same quiet feedback */
+.nav-links-desktop > a {
+  transition: opacity 0.2s ease;
+}
+.nav-links-desktop > a:hover {
+  opacity: 0.65;
+}
+
+/* Homepage service-card links: quiet, non-shifting hover */
+.service-link {
+  transition: opacity 0.25s ease;
+}
+.service-link:hover, .service-link:focus-visible {
+  opacity: 0.75;
+}
+
+/* Menus sticky index links — CSS-owned states so the scroll-spy class and
+   pointer hover can't fight (inline mouseenter/leave used to clobber this) */
+.menu-index-link {
+  font-size: var(--text-body);
+  line-height: 1.3;
+  color: var(--clr-ink);
+  text-decoration: none;
+  opacity: 0.55;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.menu-index-link:hover, .menu-index-link:focus-visible {
+  opacity: 1;
+}
+.menu-index-link.is-current {
+  opacity: 1;
+  border-bottom-color: var(--clr-ink);
+}
+
 /* A11y: enlarge footer link tap targets to meet WCAG 2.2 AA target size (>=24px) */
 .footer-nav a {
   display: inline-block;
-  padding: 5px 0;
+  padding: 8px 0;
 }
 

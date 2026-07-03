@@ -191,6 +191,7 @@ export default async function Catering() {
                   style={{
                     fontFamily: 'var(--font-serif)',
                     fontSize: '1.5rem',
+                    lineHeight: 1.4,
                     marginBottom: '2rem',
                     fontStyle: 'italic',
                   }}
@@ -233,7 +234,7 @@ export default async function Catering() {
           <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '2.5rem', lineHeight: 1.6 }}>
             Chef Paul personally replies within one business day.
           </p>
-          <Link href="/contact" className="btn-solid">Get a Quote</Link>
+          <Link href="/contact" className="btn-solid btn-solid--inverse">Get a Quote</Link>
         </div>
       </section>
     </div>

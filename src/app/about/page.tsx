@@ -32,7 +32,7 @@ export default async function About() {
 
   return (
     <div>
-      <header className="container" style={{ paddingTop: 'calc(70px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 3rem)' }}>
+      <header className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 3rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>{headerIndex}</div>
         <h1 className="haus-display" style={{ maxWidth: '900px', position: 'relative', zIndex: 2 }}>
           {headerTitle.split('\n').map((line, i) => (
@@ -77,7 +77,7 @@ export default async function About() {
               </p>
             </div>
 
-            <div className="shape-oval" style={{ width: '100%', aspectRatio: '1/1', transform: 'translateY(-30%)', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
+            <div className="shape-oval about-oval" style={{ width: '100%', aspectRatio: '1/1', position: 'relative' }}>
               <Image src="/copper_pots.webp" alt="Copper pots hanging above the range in the kitchen" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
             </div>
           </div>

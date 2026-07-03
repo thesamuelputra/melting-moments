@@ -15,11 +15,14 @@ export default async function Testimonials() {
   return (
     <div>
       <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
-        <div className="menu-index" style={{ marginBottom: "2rem" }}>Information</div>
+        <div className="menu-index" style={{ marginBottom: "2rem" }}>Kind Words</div>
         <h1 className="haus-display" style={{ textTransform: "uppercase" }}>Testimonials</h1>
+        <div className="spacer-large">
+          <div className="noire-divider"></div>
+        </div>
 
         {reviews.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginTop: '6rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginTop: '3rem' }}>
             {reviews.map((rev, i) => (
               <div key={i} className="haus-block-container" style={{ padding: '3rem' }}>
                 {rev.rating && (
@@ -27,7 +30,7 @@ export default async function Testimonials() {
                     {'★'.repeat(rev.rating)}
                   </div>
                 )}
-                <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '2rem', fontStyle: 'italic' }}>&ldquo;{rev.text}&rdquo;</p>
+                <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', lineHeight: 1.4, marginBottom: '2rem', fontStyle: 'italic' }}>&ldquo;{rev.text}&rdquo;</p>
                 <div>
                   <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>— {rev.author}</div>
                   {rev.role && <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)', marginTop: '0.25rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{rev.role}</div>}
@@ -36,7 +39,7 @@ export default async function Testimonials() {
             ))}
           </div>
         ) : (
-          <div style={{ marginTop: '6rem', maxWidth: '55ch' }}>
+          <div style={{ marginTop: '3rem', maxWidth: '55ch' }}>
             <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, lineHeight: 1.7, marginBottom: '2rem' }}>
               We&apos;re gathering words from recent clients. In the meantime, we&apos;d be glad to tell you about our work directly.
             </p>

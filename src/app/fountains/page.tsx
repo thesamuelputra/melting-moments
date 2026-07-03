@@ -13,7 +13,7 @@ export default function Fountains() {
     <div>
       <header className="container page-header-grid" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1.2fr', gap: '3rem', alignItems: 'center' }}>
         <div>
-          <div className="menu-index" style={{ marginBottom: '1.5rem' }}>Fountains</div>
+          <div className="menu-index" style={{ marginBottom: '2rem' }}>Fountains</div>
           <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 6vw, 6rem)' }}>
             CHOCOLATE <br /> CASCADES
           </h1>
@@ -22,13 +22,13 @@ export default function Fountains() {
           </p>
         </div>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '4/5' }}>
-          <Image src="/wedding_entree.webp" alt="Candle-lit plated course at an evening reception" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
+          <Image src="/copper_pots.webp" alt="Copper pots above the range in our kitchen" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
         </div>
       </header>
 
       <section className="container" style={{ paddingTop: 'clamp(2rem, 4vw, 4rem)', paddingBottom: '5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4rem' }}>
-          <h2 className="noire-serif" style={{ color: 'var(--clr-pine)' }}>Chocolate Fountains</h2>
+          <h2 className="noire-serif">Chocolate Fountains</h2>
           <span className="menu-index">SIZES</span>
         </div>
         
@@ -65,7 +65,7 @@ export default function Fountains() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2rem', marginTop: '6rem', borderTop: '1px solid var(--clr-charcoal)', paddingTop: '4rem' }}>
           <h2 className="noire-serif" style={{ color: 'var(--clr-ink)' }}>Dipping Goodies</h2>
         </div>
-        <div style={{ padding: '2rem', backgroundColor: 'var(--clr-ink)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '2rem', backgroundColor: 'var(--clr-ink)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <p style={{ maxWidth: '50ch', lineHeight: 1.6, opacity: 0.8 }}>Strawberries, pineapples, cantaloupe, marshmallows, graham crackers, angel food cake, pound cake, chocolate chip cookies, sugar and shortbread cookies, Oreo cookies, cream puffs, Rice Krispies, and lady fingers.</p>
             <div className="menu-price" style={{ color: 'white', fontSize: '1.5rem' }}>$5.50<span style={{ fontSize: '0.8rem', opacity: 0.5 }}> / PP</span></div>
         </div>
@@ -74,13 +74,16 @@ export default function Fountains() {
 
       <section className="container" style={{ paddingBottom: '10rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2rem', borderTop: '1px solid var(--clr-charcoal)', paddingTop: '4rem' }}>
-          <h2 className="noire-serif" style={{ color: 'var(--clr-pine)' }}>Champagne Fountain</h2>
+          <h2 className="noire-serif">Champagne Fountain</h2>
         </div>
         <p style={{ marginBottom: '4rem', opacity: 0.6, maxWidth: '50ch', lineHeight: 1.6 }}>Create lasting memories with an elegant Champagne fountain which provides the ambiance of a cascading waterfall complete with lights. The fountain may be embellished with fresh flowers nestled in the crown.</p>
 
-        <div className="menu-grid-constraint"><div className="menu-index" style={{ marginTop: '6px' }}>AU</div><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Gold Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Includes a Melting Moments attendant, fresh flower display, a platter of fresh strawberries, fluted glasses and seven litres of your preferred non-alcoholic beverage. (Our specialty is a fruit punch). Serves up to 100.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$549</div></div>
-        <div className="menu-grid-constraint"><div className="menu-index" style={{ marginTop: '6px' }}>AG</div><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Silver Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Includes a fresh flower display and a platter of fresh strawberries for your champagne glass.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$349</div></div>
-        <div className="menu-grid-constraint"><div className="menu-index" style={{ marginTop: '6px' }}>CU</div><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Bronze Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Champagne Fountain delivery and pick up service only. The fountain is simple to operate.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$199</div></div>
+        {/* Per-row numbering removed (the chemical-symbol markers read as row
+            numbers) — package names already carry Gold/Silver/Bronze. Spacers
+            keep the 3-column grid aligned. */}
+        <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Gold Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Includes a Melting Moments attendant, fresh flower display, a platter of fresh strawberries, fluted glasses and seven litres of your preferred non-alcoholic beverage. (Our specialty is a fruit punch). Serves up to 100.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$549</div></div>
+        <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Silver Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Includes a fresh flower display and a platter of fresh strawberries for your champagne glass.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$349</div></div>
+        <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Bronze Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Champagne Fountain delivery and pick up service only. The fountain is simple to operate.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$199</div></div>
       </section>
 
     </div>
