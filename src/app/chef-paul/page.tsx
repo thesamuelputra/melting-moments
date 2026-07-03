@@ -18,7 +18,7 @@ export default async function ChefPaul() {
 
   return (
     <div>
-      <header className="container" style={{ paddingTop: 'calc(80px + 4vw)', paddingBottom: 'clamp(4rem, 10vw, 8rem)' }}>
+      <header className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(4rem, 10vw, 8rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>About Us</div>
         <h1 className="haus-display" style={{ maxWidth: '900px', position: 'relative', zIndex: 2, whiteSpace: 'pre-line' }}>
           {heading}

@@ -10,7 +10,8 @@ export const revalidate = 300;
 export default function Terms() {
   return (
     <div>
-        <header className="container" style={{ paddingTop: "clamp(8rem, 15vw, 12rem)", paddingBottom: "clamp(4rem, 10vw, 8rem)" }}>
+        <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(4rem, 10vw, 8rem)" }}>
+            <div className="menu-index" style={{ marginBottom: "2rem" }}>Legal</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>Terms of Service</h1>
             <div className="spacer-large">
                 <div className="noire-divider"></div>

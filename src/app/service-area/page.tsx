@@ -10,13 +10,13 @@ export const revalidate = 300;
 export default function ServiceArea() {
   return (
     <div>
-        <header className="container" style={{ paddingTop: "clamp(8rem, 15vw, 12rem)", paddingBottom: "clamp(4rem, 10vw, 8rem)" }}>
-            <div className="menu-index" style={{ marginBottom: "2rem" }}>Information</div>
+        <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(4rem, 10vw, 8rem)" }}>
+            <div className="menu-index" style={{ marginBottom: "2rem" }}>Where We Serve</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>Service Area</h1>
             <div className="spacer-large">
                 <div className="noire-divider"></div>
             </div>
-            
+
             <div style={{ maxWidth: '760px', margin: '3rem auto 0 auto', textAlign: 'center' }}>
                <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>Victoria &amp; Beyond</h2>
                <p style={{ fontSize: "var(--text-body)", opacity: 0.8, maxWidth: '60ch', margin: '0 auto 1.5rem auto' }}>
@@ -24,13 +24,10 @@ export default function ServiceArea() {
                </p>
             </div>
 
-            <div className="spacer-large">
-                <div className="noire-divider"></div>
-            </div>
-
-            {/* Where We Serve */}
-            <div style={{ maxWidth: '880px', margin: '0 auto', textAlign: 'center' }}>
-               <div className="menu-index" style={{ marginBottom: '2rem' }}>Where We Serve</div>
+            {/* Communities served — the page eyebrow already says "Where We
+                Serve", so this grid carries a distinct micro-label */}
+            <div style={{ maxWidth: '880px', margin: 'clamp(3rem, 6vw, 5rem) auto 0', textAlign: 'center' }}>
+               <div className="menu-index" style={{ marginBottom: '2rem' }}>Greater Victoria</div>
                <ul
                  style={{
                    listStyle: 'none',
@@ -68,15 +65,11 @@ export default function ServiceArea() {
                </ul>
             </div>
 
-            <div className="spacer-large">
-                <div className="noire-divider"></div>
-            </div>
-
             {/* Notes */}
             <div
               style={{
                 maxWidth: '880px',
-                margin: '0 auto',
+                margin: 'clamp(3rem, 6vw, 5rem) auto 0',
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                 gap: 'clamp(2rem, 4vw, 3rem)',

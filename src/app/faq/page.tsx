@@ -51,8 +51,11 @@ export default async function FAQ() {
     <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdSafe(faqJsonLd) }} />
       <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
-        <div className="menu-index" style={{ marginBottom: "2rem" }}>Information</div>
+        <div className="menu-index" style={{ marginBottom: "2rem" }}>Questions</div>
         <h1 className="haus-display" style={{ textTransform: "uppercase" }}>FAQ</h1>
+        <div className="spacer-large">
+          <div className="noire-divider"></div>
+        </div>
 
         {/* CMS FAQs (or static catering fallbacks when the CMS is empty) */}
         <div style={{ maxWidth: '800px', margin: '3rem auto 0 auto' }}>

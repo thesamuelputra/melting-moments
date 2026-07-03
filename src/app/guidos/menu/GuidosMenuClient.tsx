@@ -30,7 +30,7 @@ export default function GuidosMenuClient({ products }: { products: Product[] }) 
     <div>
       <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(4rem, 8vw, 8rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>Guido&apos;s Gourmet</div>
-        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', marginBottom: 'clamp(2rem, 4vw, 4rem)' }}>
+        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', marginBottom: 'clamp(2rem, 4vw, 4rem)', textTransform: 'uppercase' }}>
           Menu
         </h1>
 
@@ -136,13 +136,6 @@ export default function GuidosMenuClient({ products }: { products: Product[] }) 
           </p>
           <Link href="/guidos/order" className="btn-solid">Place an Order</Link>
         </div>
-      </section>
-
-      {/* Cross-sell */}
-      <section className="container" style={{ padding: 'clamp(2rem, 4vw, 3rem) 0', textAlign: 'center' }}>
-        <span className="menu-index">
-          Planning an event? <Link href="/menus" style={{ textDecoration: 'underline' }}>Melting Moments Catering →</Link>
-        </span>
       </section>
     </div>
   );

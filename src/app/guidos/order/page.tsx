@@ -69,7 +69,7 @@ export default function GuidosOrderPage() {
     <div>
       <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(4rem, 8vw, 8rem)', maxWidth: '700px' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>Guido&apos;s Gourmet</div>
-        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', marginBottom: '1rem' }}>
+        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', marginBottom: '1rem', textTransform: 'uppercase' }}>
           Order Request
         </h1>
         <p style={{ fontSize: 'var(--text-body)', opacity: 0.5, marginBottom: 'clamp(2rem, 4vw, 4rem)', maxWidth: '45ch' }}>
@@ -116,25 +116,25 @@ export default function GuidosOrderPage() {
             <fieldset style={{ border: 'none', padding: 0, margin: 0, marginBottom: '1.5rem' }}>
               <legend style={labelStyle}>Delivery Method *</legend>
               <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)', padding: '0.6rem 0' }}>
                   <input
                     type="radio"
                     name="deliveryMethod"
                     value="delivery"
                     checked={formData.deliveryMethod === 'delivery'}
                     onChange={() => setFormData({...formData, deliveryMethod: 'delivery'})}
-                    style={{ accentColor: 'var(--clr-ink)' }}
+                    style={{ accentColor: 'var(--clr-ink)', width: '20px', height: '20px' }}
                   />
                   Delivery ($12.50)
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)', padding: '0.6rem 0' }}>
                   <input
                     type="radio"
                     name="deliveryMethod"
                     value="pickup"
                     checked={formData.deliveryMethod === 'pickup'}
                     onChange={() => setFormData({...formData, deliveryMethod: 'pickup', address: ''})}
-                    style={{ accentColor: 'var(--clr-ink)' }}
+                    style={{ accentColor: 'var(--clr-ink)', width: '20px', height: '20px' }}
                   />
                   Pickup
                 </label>
@@ -175,7 +175,7 @@ export default function GuidosOrderPage() {
             )}
 
             <button type="submit" className="btn-solid" style={{ width: '100%', marginTop: '1rem', opacity: submitting ? 0.7 : 1, cursor: submitting ? 'wait' : 'pointer' }} disabled={submitting}>
-              {submitting ? 'Sending...' : 'Send Order Request'}
+              {submitting ? 'Sending…' : 'Send Order Request'}
             </button>
 
             {/* Pickup info */}
@@ -198,13 +198,6 @@ export default function GuidosOrderPage() {
             <Link href="/guidos/menu" className="btn-outline">Back to Menu</Link>
           </div>
         )}
-      </section>
-
-      {/* Cross-sell */}
-      <section className="container" style={{ padding: 'clamp(2rem, 4vw, 3rem) 0', textAlign: 'center' }}>
-        <span className="menu-index">
-          Planning an event? <Link href="/menus" style={{ textDecoration: 'underline' }}>Melting Moments Catering →</Link>
-        </span>
       </section>
     </div>
   );

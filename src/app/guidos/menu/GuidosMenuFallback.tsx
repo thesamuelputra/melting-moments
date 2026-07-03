@@ -109,7 +109,7 @@ export default function GuidosMenuFallback() {
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--text-body)', fontWeight: 400, marginBottom: '0.25rem' }}>
                 {product.name}
               </h3>
-              <span style={{ fontSize: 'var(--text-micro)', letterSpacing: '0.1em', opacity: 0.5 }}>
+              <span style={{ fontSize: 'var(--text-micro)', letterSpacing: '0.1em', opacity: 0.65 }}>
                 From ${product.priceFrom.toFixed(2)}
               </span>
 
@@ -142,13 +142,6 @@ export default function GuidosMenuFallback() {
           </p>
           <Link href="/guidos/order" className="btn-solid">Place an Order</Link>
         </div>
-      </section>
-
-      {/* Cross-sell */}
-      <section className="container" style={{ padding: 'clamp(2rem, 4vw, 3rem) 0', textAlign: 'center' }}>
-        <span className="menu-index">
-          Planning an event? <Link href="/menus" style={{ textDecoration: 'underline' }}>Melting Moments Catering →</Link>
-        </span>
       </section>
     </div>
   );

@@ -82,7 +82,9 @@ export default function AnnouncementBanner({ data }: { data: BannerData }) {
       <button
         onClick={handleDismiss}
         aria-label="Dismiss announcement"
-        style={{ position: 'absolute', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color, opacity: 0.5, fontSize: '1rem', lineHeight: 1, padding: '0.25rem 0.5rem' }}
+        style={{ position: 'absolute', right: '0.5rem', background: 'none', border: 'none', cursor: 'pointer', color, opacity: 0.5, fontSize: '1rem', lineHeight: 1, padding: '0.75rem 1rem', transition: 'opacity 0.2s ease' }}
+        onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.5'; }}
       >
         ✕
       </button>

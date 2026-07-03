@@ -16,8 +16,8 @@ export default function Footer() {
   return (
     <footer className="haus-block-container" style={{ backgroundColor: 'var(--clr-charcoal)' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '2rem' }}>
-            <Link href={ctaHref} style={{ textDecoration: 'none' }}>
-                <h2 className="haus-display" style={{ color: 'var(--clr-oat)', margin: 0, fontSize: 'clamp(3rem, 10vw, 8rem)', transition: 'opacity 0.3s ease', whiteSpace: 'pre-line' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
+            <Link href={ctaHref} className="footer-cta" style={{ textDecoration: 'none' }}>
+                <h2 className="haus-display" style={{ color: 'var(--clr-oat)', margin: 0, fontSize: 'clamp(3rem, 10vw, 8rem)', whiteSpace: 'pre-line' }}>
                     {ctaText}
                 </h2>
             </Link>
@@ -36,7 +36,7 @@ export default function Footer() {
             <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.72)', textAlign: 'right' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '2.5rem', marginBottom: '2rem' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Catering</div>
+                        <div style={{ fontSize: '0.65rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Catering</div>
                         <Link href="/catering">Overview</Link>
                         <Link href="/menus">Menus</Link>
                         <Link href="/weddings">Weddings</Link>
@@ -46,13 +46,13 @@ export default function Footer() {
                         <Link href="/fountains">Fountains</Link>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Guido&apos;s</div>
+                        <div style={{ fontSize: '0.65rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Guido&apos;s</div>
                         <Link href="/guidos">About</Link>
                         <Link href="/guidos/menu">Menu</Link>
                         <Link href="/guidos/order">Order</Link>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Discover</div>
+                        <div style={{ fontSize: '0.65rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Discover</div>
                         <Link href="/about">About Us</Link>
                         <Link href="/chef-paul">Chef Paul</Link>
                         <Link href="/testimonials">Testimonials</Link>

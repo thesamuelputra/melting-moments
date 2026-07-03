@@ -38,11 +38,21 @@ export default function CorporateMenuClient({ menuItems }: { menuItems: MenuItem
   return (
     <section className="container" style={{ paddingTop: 'clamp(2rem, 4vw, 4rem)', paddingBottom: '8rem' }}>
       
-      {/* INTERACTIVE FILTER */}
-      <div className="filter-container">
-        <button className={`btn-outline ${filter === 'ALL' ? 'active' : ''}`} onClick={() => setFilter('ALL')}>Complete Menu</button>
+      {/* Category Tabs — quiet underline filters (mirrors Guido's menu),
+          not CTA-weight buttons */}
+      <div className="category-tabs">
+        <button
+          className={`category-tab ${filter === 'ALL' ? 'category-tab--active' : ''}`}
+          onClick={() => setFilter('ALL')}
+        >
+          Complete Menu
+        </button>
         {availableCategories.map(cat => (
-          <button key={cat} className={`btn-outline ${filter === cat ? 'active' : ''}`} onClick={() => setFilter(cat)}>
+          <button
+            key={cat}
+            className={`category-tab ${filter === cat ? 'category-tab--active' : ''}`}
+            onClick={() => setFilter(cat)}
+          >
             {formatCategoryName(cat)}
           </button>
         ))}
@@ -57,14 +67,16 @@ export default function CorporateMenuClient({ menuItems }: { menuItems: MenuItem
 
         return (
           <div key={cat} style={{ animation: 'fadeIn 0.5s ease forwards' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '3rem', marginTop: filter === 'ALL' && groupIdx > 0 ? '4rem' : filter === 'ALL' ? '3rem' : 0, borderTop: filter === 'ALL' && groupIdx > 0 ? '1px solid rgba(0,0,0,0.1)' : 'none', paddingTop: filter === 'ALL' && groupIdx > 0 ? '3rem' : 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '3rem', marginTop: filter === 'ALL' && groupIdx > 0 ? '4rem' : filter === 'ALL' ? '3rem' : 0, borderTop: filter === 'ALL' && groupIdx > 0 ? '1px solid var(--clr-charcoal)' : 'none', paddingTop: filter === 'ALL' && groupIdx > 0 ? '3rem' : 0 }}>
               <h2 className="noire-serif" style={{ color: 'var(--clr-ink)' }}>{formatCategoryName(cat)}</h2>
               <span className="menu-index">{getCategoryTag(cat)}</span>
             </div>
 
-            {items.map((item, idx) => (
+            {items.map((item) => (
               <div key={item.id} className="menu-grid-constraint">
-                <div className="menu-index" style={{ marginTop: '6px' }}>{String(idx + 1).padStart(2, '0')}</div>
+                {/* Per-row numbering removed — the section header carries the
+                    single index marker. Spacer keeps the 3-column grid aligned. */}
+                <div aria-hidden="true" />
                 <div>
                   <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{item.name}</h3>
                   {item.description && <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>{item.description}</p>}
