@@ -78,7 +78,7 @@ export default async function About() {
             </div>
 
             <div className="shape-oval" style={{ width: '100%', aspectRatio: '1/1', transform: 'translateY(-30%)', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
-              <Image src="/chef_prep.webp" alt="Chef Paul chopping fresh produce on a well-worn cutting board" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+              <Image src="/copper_pots.webp" alt="Copper pots hanging above the range in the kitchen" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
             </div>
           </div>
         </div>

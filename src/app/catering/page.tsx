@@ -31,7 +31,7 @@ const offerings = [
   {
     name: 'Corporate',
     href: '/corporate',
-    image: '/banquet_prep.webp',
+    image: '/hero-main.webp',
     line: 'Galas, launches and lunches — punctual, polished and easy to hand off.',
   },
   {
@@ -43,13 +43,13 @@ const offerings = [
   {
     name: 'Family Style',
     href: '/family-style',
-    image: '/macro_pasta.webp',
+    image: '/macro_roulade.webp',
     line: 'Generous platters passed around the table, the way good food is meant to be shared.',
   },
   {
     name: 'Chocolate Fountains',
     href: '/fountains',
-    image: '/chocolate_fountain.webp',
+    image: '/copper_pots.webp',
     line: 'A warm, flowing centrepiece — premium chocolate, set up and tended for you.',
   },
 ];

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     type: 'website',
     title: 'Family Style Service | Victoria BC Catering',
     description: 'Big shared platters passed around the table, the way an Italian family eats at home. Family-style catering in Victoria, BC.',
-    images: ['/macro_pasta.webp'],
+    images: ['/macro_roulade.webp'],
   },
 }
 
@@ -26,7 +26,7 @@ export default function FamilyStyle() {
           GATHERED <br /> AT THE TABLE
         </h1>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '16/9', marginBottom: '4rem' }}>
-          <Image src="/macro_pasta.webp" alt="Penne pomodoro with shaved parmesan and basil, served family style" fill sizes="100vw" style={{ objectFit: 'cover' }} />
+          <Image src="/macro_roulade.webp" alt="Sliced pork roulade plated to share" fill sizes="100vw" style={{ objectFit: 'cover' }} />
         </div>
       </header>
 

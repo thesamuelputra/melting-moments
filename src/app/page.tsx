@@ -18,7 +18,7 @@ const SERVICES = [
   { href: '/fountains', name: 'Chocolate Fountains', line: "Vancouver Island's largest fountain rental service." },
 ];
 
-const GALLERY_PEEK = ['/macro_appetizer.webp', '/wedding_entree.webp', '/macro_pasta.webp', '/macro_roulade.webp'];
+const GALLERY_PEEK = ['/chef_plating_sauce.webp', '/wedding_entree.webp', '/private_dinner.webp', '/macro_roulade.webp'];
 
 export default async function Home() {
   const [cms, rawReviews] = await Promise.all([

@@ -13,14 +13,11 @@ type GalleryImage = {
 // Hardcoded fallback for when no CMS images are tagged "gallery" yet
 const FALLBACK_PHOTOS = [
   { src: '/chef_plating_sauce.webp', title: 'Finishing the Plate', alt: 'Chef spooning red wine reduction over a plated entrée' },
-  { src: '/macro_appetizer.webp', title: 'Canapés Display', alt: 'Assorted canapés and appetizer bites arranged on slate' },
-  { src: '/banquet_prep.webp', title: 'Banquet Service', alt: 'Kitchen team plating banquet dishes in a commercial kitchen' },
-  { src: '/macro_pasta.webp', title: 'Penne Pomodoro', alt: 'Fresh pasta with tomato and basil sauce in a stoneware bowl' },
-  { src: '/chef_prep.webp', title: 'Knife Work', alt: 'Chef preparing fresh produce with precision knife work' },
-  { src: '/wedding_entree.webp', title: 'Wedding Entrée', alt: 'Herb-crusted lamb medallions plated for a wedding reception' },
-  { src: '/chef_salmon.webp', title: 'Salmon, Plated', alt: 'Chef finishing a plated salmon with lemon and dill' },
-  { src: '/chocolate_fountain.webp', title: 'Chocolate Fountain', alt: 'Guest dipping a strawberry at a chocolate fountain station' },
+  { src: '/hero-main.webp', title: 'From the Pass', alt: 'Sliced entrée with purée and jus, plated on stoneware' },
+  { src: '/wedding_entree.webp', title: 'Wedding Entrée', alt: 'Herb-crusted medallions plated for a wedding reception' },
+  { src: '/catering_menu_hero.webp', title: 'Three Courses', alt: 'Three plated dishes — pasta, sliced beef, and stuffed roulade' },
   { src: '/private_dinner.webp', title: 'Private Dinner', alt: 'Sliced roast with cranberry compote plated for a private dinner' },
+  { src: '/macro_roulade.webp', title: 'Stuffed Roulade', alt: 'Sliced pork roulade with herb stuffing and chutney' },
   { src: '/copper_pots.webp', title: 'The Kitchen', alt: 'Copper pots hanging above the range in the kitchen' }
 ];
 
