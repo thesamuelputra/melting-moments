@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import { JsonLd, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Melting Moments & Guido\'s Gourmet',
+  title: 'Terms of Service',
   description: 'Terms of service for catering bookings and ready-made meal orders with Melting Moments and Guido\'s Gourmet in Victoria, BC.',
 };
 
@@ -10,6 +11,7 @@ export const revalidate = 300;
 export default function Terms() {
   return (
     <div>
+        <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Terms of Service', path: '/terms' }])} />
         <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(4rem, 10vw, 8rem)" }}>
             <div className="menu-index" style={{ marginBottom: "2rem" }}>Legal</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>Terms of Service</h1>

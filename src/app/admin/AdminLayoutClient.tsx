@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 type NavLink = { href: string; label: string; icon: React.ReactNode; liveTag?: boolean };
 type NavDivider = { divider: string };
@@ -16,7 +16,6 @@ const BREADCRUMBS: Array<{ match: (p: string) => boolean; crumbs: Array<{ label:
   { match: p => p.startsWith('/admin/menus'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Menu Editor' }] },
   { match: p => p.startsWith('/admin/faq'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'FAQ' }] },
   { match: p => p.startsWith('/admin/testimonials'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Testimonials' }] },
-  { match: p => p.startsWith('/admin/media'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Media Library' }] },
   { match: p => p.startsWith('/admin/guidos-products'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Products' }] },
   { match: p => p.startsWith('/admin/guidos-orders'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Orders' }] },
   { match: p => p.startsWith('/admin/settings'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'System', href: undefined }, { label: 'Settings' }] },
@@ -70,13 +69,6 @@ function buildNavItems(bannerEnabled: boolean): NavItem[] {
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
       </svg>
     )},
-    { href: '/admin/media', label: 'Media Library', icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <polyline points="21 15 16 10 5 21" />
-      </svg>
-    )},
     { divider: "Guido's Gourmet" },
     { href: '/admin/guidos-products', label: 'Products', icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
@@ -106,23 +98,101 @@ const _listeners = new Set<DirtyListener>();
 export function registerDirtyListener(fn: DirtyListener) { _listeners.add(fn); return () => _listeners.delete(fn); }
 export function isAnyFormDirty() { return [..._listeners].some(fn => fn()); }
 
-export default function AdminLayoutClient({ children, bannerEnabled }: { children: React.ReactNode; bannerEnabled: boolean }) {
+type LeaveConfirm = { type: 'nav'; href: string } | { type: 'logout' };
+
+export default function AdminLayoutClient({ children, bannerEnabled, displayName }: { children: React.ReactNode; bannerEnabled: boolean; displayName: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [navConfirm, setNavConfirm] = useState<{ href: string } | null>(null);
+  const [navConfirm, setNavConfirm] = useState<LeaveConfirm | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const stayBtnRef = useRef<HTMLButtonElement>(null);
+  const lastFocusedRef = useRef<HTMLElement | null>(null);
   const navItems = buildNavItems(bannerEnabled);
   const breadcrumbs = getBreadcrumbs(pathname);
 
   useEffect(() => { setIsSidebarOpen(false); }, [pathname]);
 
+  // Warn on refresh / tab close / back-forward while any form is dirty —
+  // the in-app nav guard below only covers link clicks.
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isAnyFormDirty()) {
+        e.preventDefault();
+        e.returnValue = ''; // required by some browsers to show the prompt
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, []);
+
+  // Lock body scroll while the mobile drawer is open.
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [isSidebarOpen]);
+
+  // Unsaved-changes dialog: initial focus on "Stay", focus trap, Escape
+  // cancels, and focus restoration to the invoking element on close.
+  useEffect(() => {
+    if (!navConfirm) return;
+    lastFocusedRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    stayBtnRef.current?.focus();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setNavConfirm(null);
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusables = modalRef.current?.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusables || focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      lastFocusedRef.current?.focus();
+    };
+  }, [navConfirm]);
+
   const handleNavClick = useCallback((href: string, e: React.MouseEvent) => {
+    // Modifier clicks open a new tab/window — nothing is lost, let them through.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     if (href === pathname) return;
     if (isAnyFormDirty()) {
       e.preventDefault();
-      setNavConfirm({ href });
+      setNavConfirm({ type: 'nav', href });
     }
   }, [pathname]);
+
+  const performLogout = useCallback(async () => {
+    const { logout } = await import('@/app/admin-login/actions');
+    await logout();
+  }, []);
+
+  const confirmLeave = useCallback(() => {
+    if (!navConfirm) return;
+    setNavConfirm(null);
+    if (navConfirm.type === 'nav') {
+      router.push(navConfirm.href);
+    } else {
+      void performLogout();
+    }
+  }, [navConfirm, router, performLogout]);
 
   // Page title for the document <h1> — the last breadcrumb names the current page.
   const pageTitle = breadcrumbs[breadcrumbs.length - 1]?.label ?? 'Admin';
@@ -133,20 +203,31 @@ export default function AdminLayoutClient({ children, bannerEnabled }: { childre
       <a href="#admin-main" className="skip-nav">Skip to content</a>
       {/* Dirty-nav confirmation modal */}
       {navConfirm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '10px', padding: '2rem', maxWidth: '380px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 400, marginBottom: '0.75rem' }}>Unsaved Changes</h3>
-            <p style={{ fontSize: '0.85rem', color: 'rgba(0,0,0,0.5)', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => setNavConfirm(null)}
+        >
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-unsaved-title"
+            aria-describedby="admin-unsaved-desc"
+            style={{ background: 'white', borderRadius: '10px', padding: '2rem', maxWidth: '380px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="admin-unsaved-title" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', fontWeight: 400, marginBottom: '0.75rem' }}>Unsaved Changes</h3>
+            <p id="admin-unsaved-desc" style={{ fontSize: '0.85rem', color: 'rgba(0,0,0,0.5)', lineHeight: 1.5, marginBottom: '1.5rem' }}>
               You have unsaved changes on this page. If you leave now, your edits will be lost.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-              <button className="admin-btn" onClick={() => setNavConfirm(null)}>Stay</button>
+              <button ref={stayBtnRef} className="admin-btn" onClick={() => setNavConfirm(null)}>Stay</button>
               <button
                 className="admin-btn"
                 style={{ background: '#111', color: 'white', borderColor: '#111' }}
-                onClick={() => { setNavConfirm(null); router.push(navConfirm.href); }}
+                onClick={confirmLeave}
               >
-                Leave anyway
+                {navConfirm.type === 'logout' ? 'Log out anyway' : 'Leave anyway'}
               </button>
             </div>
           </div>
@@ -202,7 +283,7 @@ export default function AdminLayoutClient({ children, bannerEnabled }: { childre
       <div className="admin-main">
         <header className="admin-topbar">
           <div className="admin-topbar__left">
-            <button className="admin-topbar__hamburger" onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Toggle Menu">
+            <button className="admin-topbar__hamburger" onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Toggle Menu" aria-expanded={isSidebarOpen}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
                 <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
               </svg>
@@ -234,11 +315,17 @@ export default function AdminLayoutClient({ children, bannerEnabled }: { childre
             </nav>
           </div>
           <div className="admin-topbar__actions" style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', alignSelf: 'center' }}>Chef Paul Silletta</span>
-            <form action={async () => {
-              const { logout } = await import('@/app/admin-login/actions');
-              await logout();
-            }}>
+            <span style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', alignSelf: 'center' }}>{displayName}</span>
+            <form
+              action={performLogout}
+              onSubmit={(e) => {
+                // Gate logout behind the same unsaved-changes confirmation.
+                if (isAnyFormDirty()) {
+                  e.preventDefault();
+                  setNavConfirm({ type: 'logout' });
+                }
+              }}
+            >
               <button type="submit" style={{ background: 'none', border: 'none', fontSize: '0.75rem', color: '#EF4444', cursor: 'pointer', marginLeft: '1rem', fontWeight: 500 }}>Logout</button>
             </form>
           </div>

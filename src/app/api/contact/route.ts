@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchMutation } from 'convex/nextjs';
+import { fetchMutation, fetchQuery } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { Resend } from 'resend';
 
@@ -54,6 +54,17 @@ export async function POST(request: Request) {
     
     // Dispatch Email Notification to Owner
     if (process.env.RESEND_API_KEY) {
+      // Admin notification preference: only 'false' suppresses the owner
+      // email (missing/any other value = notify). A settings outage must
+      // never block notifications, so default to notifying on failure.
+      let notifyOwner = true;
+      try {
+        const settings = await fetchQuery(api.businessSettings.getAll);
+        notifyOwner = settings['emailOnNewInquiry'] !== 'false';
+      } catch (settingsError) {
+        console.error('[Contact API] Could not load notification settings, defaulting to notify:', settingsError);
+      }
+
       // Escape all user input for HTML context
       const eName = escapeHtml(name);
       const eEmail = escapeHtml(email);
@@ -64,30 +75,33 @@ export async function POST(request: Request) {
       const eVenue = escapeHtml(venue);
       const eDetails = escapeHtml(details);
 
-      // Email to Chef Paul / business owner
-      const { error: ownerEmailError } = await resend!.emails.send({
-        from: `Melting Moments Catering <${FROM_ADDRESS}>`,
-        to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
-        replyTo: email,
-        subject: `New Catering Inquiry: ${clean(eventType)} - ${clean(name)}`,
-        html: `
-          <h2>New Booking Inquiry</h2>
-          <p><strong>Name:</strong> ${eName}</p>
-          <p><strong>Email:</strong> ${eEmail}</p>
-          <p><strong>Phone:</strong> ${ePhone || 'N/A'}</p>
-          <p><strong>Event Type:</strong> ${eEventType}</p>
-          <p><strong>Guest Count:</strong> ${eGuestCount || 'N/A'}</p>
-          <p><strong>Date:</strong> ${eDate || 'N/A'}</p>
-          <p><strong>Venue:</strong> ${eVenue || 'N/A'}</p>
-          <p><strong>Details:</strong> ${eDetails || 'N/A'}</p>
-          <br/>
-          <p><a href="https://meltingmoments.ca/admin">View in Admin Dashboard</a></p>
-        `
-      });
+      // Email to Chef Paul / business owner — skipped when the admin turned
+      // off "Email on new inquiry" (customer confirmation is unaffected).
+      if (notifyOwner) {
+        const { error: ownerEmailError } = await resend!.emails.send({
+          from: `Melting Moments Catering <${FROM_ADDRESS}>`,
+          to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
+          replyTo: email,
+          subject: `New Catering Inquiry: ${clean(eventType)} - ${clean(name)}`,
+          html: `
+            <h2>New Booking Inquiry</h2>
+            <p><strong>Name:</strong> ${eName}</p>
+            <p><strong>Email:</strong> ${eEmail}</p>
+            <p><strong>Phone:</strong> ${ePhone || 'N/A'}</p>
+            <p><strong>Event Type:</strong> ${eEventType}</p>
+            <p><strong>Guest Count:</strong> ${eGuestCount || 'N/A'}</p>
+            <p><strong>Date:</strong> ${eDate || 'N/A'}</p>
+            <p><strong>Venue:</strong> ${eVenue || 'N/A'}</p>
+            <p><strong>Details:</strong> ${eDetails || 'N/A'}</p>
+            <br/>
+            <p><a href="https://meltingmoments.ca/admin">View in Admin Dashboard</a></p>
+          `
+        });
 
-      // Don't fail the request: the lead is already saved in Convex. Log loudly instead.
-      if (ownerEmailError) {
-        console.error('[Contact API] Owner notification email failed:', ownerEmailError);
+        // Don't fail the request: the lead is already saved in Convex. Log loudly instead.
+        if (ownerEmailError) {
+          console.error('[Contact API] Owner notification email failed:', ownerEmailError);
+        }
       }
 
       // Confirmation email to the customer

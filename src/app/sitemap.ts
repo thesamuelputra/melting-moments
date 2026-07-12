@@ -30,9 +30,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/guidos/order', priority: 0.8, changeFrequency: 'monthly' },
   ];
 
+  // No lastModified: stamping every URL with the build time is fake freshness
+  // that Google detects and then ignores. Omitting the field entirely is
+  // better than an inaccurate one.
   return routes.map((route) => ({
     url: `https://meltingmoments.ca${route.path}`,
-    lastModified: new Date(),
     changeFrequency: route.changeFrequency,
     priority: route.priority,
   }));

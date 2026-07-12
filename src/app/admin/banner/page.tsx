@@ -1,15 +1,25 @@
 import { fetchQuery } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
-import AdminBannerClient from './AdminBannerClient';
+import { ToastProvider } from '../_components';
+import AdminBannerClient, { type BannerFormData } from './AdminBannerClient';
+import { isBannerShowOn, isBannerStyle } from './validation';
 
 export default async function AdminBannerPage() {
   const settings = await fetchQuery(api.businessSettings.getAll);
-  const initial = {
+  const rawStyle = settings['banner_style'] || 'dark';
+  const rawShowOn = settings['banner_show_on'] || 'all';
+  const initial: BannerFormData = {
     enabled: settings['banner_enabled'] === 'true',
     text: settings['banner_text'] || '',
     link: settings['banner_link'] || '',
-    style: (settings['banner_style'] || 'dark') as 'dark' | 'accent' | 'light',
-    showOn: (settings['banner_show_on'] || 'all') as 'all' | 'catering' | 'guidos',
+    // Normalize unexpected stored values so the editor never renders an
+    // unknown style/targeting state.
+    style: isBannerStyle(rawStyle) ? rawStyle : 'dark',
+    showOn: isBannerShowOn(rawShowOn) ? rawShowOn : 'all',
   };
-  return <AdminBannerClient initial={initial} />;
+  return (
+    <ToastProvider>
+      <AdminBannerClient initial={initial} />
+    </ToastProvider>
+  );
 }

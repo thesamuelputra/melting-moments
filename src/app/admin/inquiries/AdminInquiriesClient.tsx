@@ -1,96 +1,252 @@
 'use client';
 
-import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
-import { updateInquiryStatus, deleteInquiry } from './actions';
+import { useCallback, useState } from 'react';
+import SessionExpiredToast from './SessionExpiredToast';
+import {
+  ConfirmDialog,
+  SlidePanel,
+  TextAreaField,
+  useAutoRefresh,
+  useToast,
+} from '../_components';
+import {
+  deleteInquiry,
+  restoreInquiry,
+  updateAdminNotes,
+  updateInquiryStatus,
+  type ActionResult,
+  type InquiryStatus,
+} from './actions';
 
-// Ensure this matches the Convex inquiries schema
+const INQUIRY_STATUSES = ['new', 'contacted', 'booked', 'declined', 'archived'] as const;
+
 export type Inquiry = {
   id: string;
   name: string;
   email: string;
-  phone: string | null;
+  phone: string;
   eventType: string;
   guestCount: string;
-  date: string | null;
-  venue: string | null;
-  status: string; // 'new' | 'contacted' | 'booked' | 'declined' | 'archived'
-  notes: string | null;
-  submittedAt: string;
+  date: string;
+  venue: string;
+  status: InquiryStatus;
+  /** Customer-submitted message — immutable, read-only in the admin. */
+  notes: string;
+  /** Internal admin notes — editable. */
+  adminNotes: string;
+  /** Status the inquiry had before archiving (set server-side on archive). */
+  archivedFromStatus: string | null;
+  submittedAt: string; // ISO string
 };
 
+const STATUS_OPTIONS: { value: InquiryStatus; label: string }[] = [
+  { value: 'new', label: 'New' },
+  { value: 'contacted', label: 'Contacted' },
+  { value: 'booked', label: 'Booked' },
+  { value: 'declined', label: 'Declined' },
+  { value: 'archived', label: 'Archived' },
+];
+
+const ARCHIVED_BADGE_STYLE: React.CSSProperties = { background: '#F3F4F6', color: '#6B7280' };
+
+function isInquiryStatus(value: string): value is InquiryStatus {
+  return (INQUIRY_STATUSES as readonly string[]).includes(value);
+}
+
+function formatAbsolute(iso: string): string {
+  return new Date(iso).toLocaleString('en-CA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+/** Neutralize spreadsheet formula injection: prefix =, +, -, @ with a quote. */
+function sanitizeCsvCell(value: string): string {
+  return /^[=+\-@]/.test(value) ? `'${value}` : value;
+}
+
 export default function AdminInquiriesClient({ initialInquiries }: { initialInquiries: Inquiry[] }) {
+  const toast = useToast();
+  const { refresh } = useAutoRefresh(60000);
+
   const [inquiries, setInquiries] = useState<Inquiry[]>(initialInquiries);
-  const [selected, setSelected] = useState<Inquiry | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [isPending, startTransition] = useTransition();
-  const modalRef = useRef<HTMLDivElement>(null);
-  const [actionError, setActionError] = useState('');
-
-  const filtered = filterStatus === 'all' 
-    ? inquiries.filter(i => i.status !== 'archived') 
-    : inquiries.filter(i => i.status === filterStatus);
-
-  // Focus trap + Escape handler for modal
-  useEffect(() => {
-    if (!selected) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setSelected(null); return; }
-      if (e.key === 'Tab' && modalRef.current) {
-        const focusable = modalRef.current.querySelectorAll<HTMLElement>('button, a, input, [tabindex]:not([tabindex="-1"])');
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selected]);
-
-  // Auto-dismiss error
-  useEffect(() => {
-    if (!actionError) return;
-    const t = setTimeout(() => setActionError(''), 5000);
-    return () => clearTimeout(t);
-  }, [actionError]);
-
-  const handleUpdateStatus = async (id: string, status: string) => {
-    setInquiries(prev => prev.map(i => i.id === id ? { ...i, status } : i));
-    if (selected?.id === id) setSelected(prev => prev ? { ...prev, status } : null);
-
-    startTransition(async () => {
-      const res = await updateInquiryStatus(id, status);
-      if (!res.success) {
-        setActionError('Failed to update status. Please try again.');
-      }
-    });
-  };
-
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
-  const handleDelete = (id: string) => {
-    setInquiries(prev => prev.filter(i => i.id !== id));
-    setSelected(null);
-    setDeleteConfirmId(null);
+  // Admin-notes draft for the currently open inquiry.
+  const [notesDraft, setNotesDraft] = useState('');
+  const [notesSaving, setNotesSaving] = useState(false);
+  const [notesSavedOnce, setNotesSavedOnce] = useState(false);
 
-    startTransition(async () => {
-      const res = await deleteInquiry(id);
-      if (!res.success) {
-        setActionError('Failed to delete inquiry. Please try again.');
-      }
+  // Re-sync local state whenever the server payload changes (auto/manual refresh,
+  // post-action revalidation).
+  const [prevInitial, setPrevInitial] = useState(initialInquiries);
+  if (initialInquiries !== prevInitial) {
+    setPrevInitial(initialInquiries);
+    setInquiries(initialInquiries);
+  }
+
+  const selected = selectedId !== null ? inquiries.find((i) => i.id === selectedId) ?? null : null;
+
+  // Reset the notes draft when a different inquiry is opened.
+  const [prevSelectedId, setPrevSelectedId] = useState<string | null>(null);
+  if (selectedId !== prevSelectedId) {
+    setPrevSelectedId(selectedId);
+    setNotesDraft(selected ? selected.adminNotes : '');
+    setNotesSaving(false);
+    setNotesSavedOnce(false);
+  }
+
+  const notesDirty = selected !== null && notesDraft !== selected.adminNotes;
+
+  const markPending = useCallback((id: string) => {
+    setPendingIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
     });
-  };
+  }, []);
 
-  // CSV Export
+  const unmarkPending = useCallback((id: string) => {
+    setPendingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const patchInquiry = useCallback((id: string, patch: Partial<Inquiry>) => {
+    setInquiries((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
+  }, []);
+
+  const reportFailure = useCallback(
+    (res: Extract<ActionResult, { success: false }>, fallback: string) => {
+      if (res.error === 'unauthorized') {
+        // Persistent SessionExpiredToast takes over — no transient duplicate.
+        setSessionExpired(true);
+      } else {
+        toast.error(res.message ?? fallback);
+      }
+    },
+    [toast]
+  );
+
+  const handleStatusChange = useCallback(
+    async (id: string, status: InquiryStatus) => {
+      const row = inquiries.find((i) => i.id === id);
+      if (!row || row.status === status || pendingIds.has(id)) return;
+
+      // Snapshot for rollback, then apply optimistically (index preserved by map).
+      const previous = { status: row.status, archivedFromStatus: row.archivedFromStatus };
+      patchInquiry(id, {
+        status,
+        archivedFromStatus: status === 'archived' ? row.status : null,
+      });
+      markPending(id);
+      const res = await updateInquiryStatus(id, status).catch(
+        () => ({ success: false, error: 'failed' } as const)
+      );
+      unmarkPending(id);
+      if (res.success) {
+        toast.success(`Status set to ${status}`);
+      } else {
+        patchInquiry(id, previous);
+        reportFailure(res, 'Failed to update status — change reverted');
+      }
+    },
+    [inquiries, pendingIds, patchInquiry, markPending, unmarkPending, reportFailure, toast]
+  );
+
+  const handleRestore = useCallback(
+    async (id: string) => {
+      const row = inquiries.find((i) => i.id === id);
+      if (!row || row.status !== 'archived' || pendingIds.has(id)) return;
+
+      const previous = { status: row.status, archivedFromStatus: row.archivedFromStatus };
+      const optimisticTarget: InquiryStatus =
+        row.archivedFromStatus && isInquiryStatus(row.archivedFromStatus) && row.archivedFromStatus !== 'archived'
+          ? row.archivedFromStatus
+          : 'new';
+      patchInquiry(id, { status: optimisticTarget, archivedFromStatus: null });
+      markPending(id);
+      const res = await restoreInquiry(id).catch(() => ({ success: false, error: 'failed' } as const));
+      unmarkPending(id);
+      if (res.success) {
+        // Reconcile with the authoritative status returned by the server.
+        if (isInquiryStatus(res.restoredStatus)) patchInquiry(id, { status: res.restoredStatus });
+        toast.success(`Inquiry restored to ${res.restoredStatus}`);
+      } else {
+        patchInquiry(id, previous);
+        reportFailure(res, 'Failed to restore inquiry — change reverted');
+      }
+    },
+    [inquiries, pendingIds, patchInquiry, markPending, unmarkPending, reportFailure, toast]
+  );
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      const index = inquiries.findIndex((i) => i.id === id);
+      if (index === -1) return;
+      const row = inquiries[index];
+
+      // Optimistically remove; close panel + confirm dialog immediately.
+      setInquiries((prev) => prev.filter((i) => i.id !== id));
+      setDeleteConfirmId(null);
+      setSelectedId((prev) => (prev === id ? null : prev));
+
+      const res = await deleteInquiry(id).catch(() => ({ success: false, error: 'failed' } as const));
+      if (res.success) {
+        toast.success('Inquiry deleted');
+      } else {
+        // Rollback: restore the row at its original index.
+        setInquiries((prev) => {
+          if (prev.some((i) => i.id === id)) return prev;
+          const next = [...prev];
+          next.splice(Math.min(index, next.length), 0, row);
+          return next;
+        });
+        reportFailure(res, 'Failed to delete inquiry — row restored');
+      }
+    },
+    [inquiries, reportFailure, toast]
+  );
+
+  const handleSaveNotes = useCallback(async () => {
+    if (!selected || notesSaving) return;
+    const id = selected.id;
+    const sent = notesDraft;
+    if (sent === selected.adminNotes) return;
+
+    setNotesSaving(true);
+    const res = await updateAdminNotes(id, sent).catch(
+      () => ({ success: false, error: 'failed' } as const)
+    );
+    setNotesSaving(false);
+    if (res.success) {
+      patchInquiry(id, { adminNotes: sent });
+      setNotesSavedOnce(true);
+    } else {
+      reportFailure(res, 'Failed to save notes');
+    }
+  }, [selected, notesSaving, notesDraft, patchInquiry, reportFailure]);
+
+  // CSV export — includes admin notes; every cell is formula-injection safe.
   const exportCSV = useCallback(() => {
-    const headers = ['Name', 'Email', 'Phone', 'Event Type', 'Guest Count', 'Date', 'Venue', 'Status', 'Notes', 'Submitted'];
-    const rows = inquiries.map(i => [
-      i.name, i.email, i.phone || '', i.eventType, i.guestCount,
-      i.date || '', i.venue || '', i.status, i.notes || '',
-      new Date(i.submittedAt).toISOString().split('T')[0]
+    const headers = ['Name', 'Email', 'Phone', 'Event Type', 'Guest Count', 'Date', 'Venue', 'Status', 'Customer Notes', 'Admin Notes', 'Submitted'];
+    const rows = inquiries.map((i) => [
+      i.name, i.email, i.phone, i.eventType, i.guestCount,
+      i.date, i.venue, i.status, i.notes, i.adminNotes,
+      new Date(i.submittedAt).toISOString().split('T')[0],
     ]);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = [headers, ...rows]
+      .map((r) => r.map((c) => `"${sanitizeCsvCell(String(c)).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -100,27 +256,37 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
     URL.revokeObjectURL(url);
   }, [inquiries]);
 
-  const statusCounts = {
-    all: inquiries.filter(i => i.status !== 'archived').length,
-    new: inquiries.filter(i => i.status === 'new').length,
-    contacted: inquiries.filter(i => i.status === 'contacted').length,
-    booked: inquiries.filter(i => i.status === 'booked').length,
-    declined: inquiries.filter(i => i.status === 'declined').length,
-    archived: inquiries.filter(i => i.status === 'archived').length,
+  const filtered = filterStatus === 'all'
+    ? inquiries.filter((i) => i.status !== 'archived')
+    : inquiries.filter((i) => i.status === filterStatus);
+
+  const statusCounts: Record<string, number> = {
+    all: inquiries.filter((i) => i.status !== 'archived').length,
+    new: 0,
+    contacted: 0,
+    booked: 0,
+    declined: 0,
+    archived: 0,
   };
+  for (const i of inquiries) {
+    if (i.status in statusCounts) statusCounts[i.status] += 1;
+  }
+
+  const notesIndicator = notesSaving
+    ? 'Saving…'
+    : notesDirty
+      ? 'Unsaved changes'
+      : notesSavedOnce
+        ? 'Saved'
+        : '';
 
   return (
     <div>
-      {/* Error banner */}
-      {actionError && (
-        <div role="alert" style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(185,28,28,0.06)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.82rem', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>{actionError}</span>
-          <button onClick={() => setActionError('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B91C1C', fontWeight: 600, fontSize: '0.9rem' }}>×</button>
-        </div>
-      )}
+      {/* Persistent session-expired toast (regular toasts auto-dismiss; this stays). */}
+      <SessionExpiredToast open={sessionExpired} />
 
-      {/* Filter Tabs */}
-      <div className="admin-tabs" style={{ flexWrap: 'wrap' }}>
+      {/* Filter Tabs + toolbar */}
+      <div className="admin-tabs" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
         {(['all', 'new', 'contacted', 'booked', 'declined', 'archived'] as const).map((status) => (
           <button
             key={status}
@@ -131,15 +297,19 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
             <span style={{ marginLeft: '0.35rem', opacity: 0.4 }}>{statusCounts[status]}</span>
           </button>
         ))}
-        {/* Export CSV button */}
-        <button className="admin-btn admin-btn--sm" onClick={exportCSV} style={{ marginLeft: 'auto' }}>
-          Export CSV
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
+          <button className="admin-btn admin-btn--sm" onClick={refresh}>
+            Refresh
+          </button>
+          <button className="admin-btn admin-btn--sm" onClick={exportCSV}>
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="admin-table-container" style={{ opacity: isPending ? 0.7 : 1, transition: 'opacity 0.2s ease' }}>
-        <div className="admin-table-overflow">
+      <div className="admin-table-container">
+        <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
@@ -160,170 +330,259 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                   </td>
                 </tr>
               )}
-              {filtered.map((inq) => (
-                <tr key={inq.id} style={{ cursor: 'pointer', opacity: inq.status === 'archived' ? 0.5 : 1 }} onClick={() => setSelected(inq)}>
-                  <td>
-                    <div className="admin-table__name">{inq.name}</div>
-                    <div className="admin-table__email">{inq.email}</div>
-                  </td>
-                  <td style={{ textTransform: 'capitalize' }}>{inq.eventType}</td>
-                  <td>{inq.guestCount}</td>
-                  <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
-                  <td style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.45)' }}>
-                    {new Date(inq.submittedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
-                  </td>
-                  <td>
-                    <span className={`admin-badge admin-badge--${inq.status}`}>
-                      <span className="admin-badge__dot" />
-                      {inq.status}
-                    </span>
-                  </td>
-                  <td onClick={e => e.stopPropagation()}>
-                    <div style={{ display: 'flex', gap: '0.35rem' }}>
-                      {inq.status === 'new' && (
-                        <button className="admin-btn admin-btn--sm" onClick={() => handleUpdateStatus(inq.id, 'contacted')} disabled={isPending}>
-                          Contacted
-                        </button>
-                      )}
-                      {inq.status === 'contacted' && (
-                        <button className="admin-btn admin-btn--sm admin-btn--primary" onClick={() => handleUpdateStatus(inq.id, 'booked')} disabled={isPending}>
-                          Book
-                        </button>
-                      )}
-                      {inq.status !== 'archived' && (
-                        <button className="admin-btn admin-btn--sm" style={{ opacity: 0.5 }} onClick={() => handleUpdateStatus(inq.id, 'archived')} disabled={isPending} title="Archive">
-                          Archive
-                        </button>
-                      )}
-                      {inq.status === 'archived' && (
-                        <button className="admin-btn admin-btn--sm" onClick={() => handleUpdateStatus(inq.id, 'new')} disabled={isPending}>
-                          Restore
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((inq) => {
+                const rowPending = pendingIds.has(inq.id);
+                return (
+                  <tr
+                    key={inq.id}
+                    tabIndex={0}
+                    aria-busy={rowPending || undefined}
+                    style={{ cursor: 'pointer', opacity: inq.status === 'archived' ? 0.55 : 1 }}
+                    onClick={() => setSelectedId(inq.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedId(inq.id);
+                      }
+                    }}
+                  >
+                    <td>
+                      <div className="admin-table__name">{inq.name}</div>
+                      <div className="admin-table__email">{inq.email}</div>
+                    </td>
+                    <td style={{ textTransform: 'capitalize' }}>{inq.eventType}</td>
+                    <td>{inq.guestCount || '—'}</td>
+                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+                    <td
+                      style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.45)' }}
+                      title={formatAbsolute(inq.submittedAt)}
+                      suppressHydrationWarning
+                    >
+                      {new Date(inq.submittedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
+                    </td>
+                    <td>
+                      <span
+                        className={`admin-badge admin-badge--${inq.status}`}
+                        style={inq.status === 'archived' ? ARCHIVED_BADGE_STYLE : undefined}
+                      >
+                        <span className="admin-badge__dot" />
+                        {inq.status}
+                      </span>
+                    </td>
+                    <td onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                        <select
+                          className="admin-field__input admin-field__input--select"
+                          style={{ width: 'auto', fontSize: '0.75rem', padding: '0.35rem 1.6rem 0.35rem 0.5rem' }}
+                          value={inq.status}
+                          aria-label={`Change status for ${inq.name}`}
+                          disabled={rowPending}
+                          onChange={(e) => {
+                            const next = e.target.value;
+                            if (isInquiryStatus(next)) void handleStatusChange(inq.id, next);
+                          }}
+                        >
+                          {STATUS_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                        {inq.status === 'archived' && (
+                          <button
+                            className="admin-btn admin-btn--sm"
+                            onClick={() => void handleRestore(inq.id)}
+                            disabled={rowPending}
+                            title={`Restore to ${inq.archivedFromStatus && isInquiryStatus(inq.archivedFromStatus) ? inq.archivedFromStatus : 'new'}`}
+                          >
+                            Restore
+                          </button>
+                        )}
+                        {rowPending && (
+                          <span style={{ fontSize: '0.68rem', color: 'rgba(0,0,0,0.35)' }} aria-hidden="true">
+                            Saving…
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Detail Panel Modal — with focus trap and Escape */}
-      {selected && (
-        <>
-          <div className="admin-modal-overlay" onClick={() => { setSelected(null); setDeleteConfirmId(null); }} />
-          <div className="admin-modal" ref={modalRef} role="dialog" aria-modal="true" aria-label="Inquiry Detail">
-            <div className="admin-modal__header">
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', fontWeight: 400 }}>Inquiry Detail</h3>
-              <button className="admin-modal__close" onClick={() => { setSelected(null); setDeleteConfirmId(null); }} aria-label="Close dialog">✕</button>
-            </div>
-
-            <div className="admin-modal__field">
-              <div className="admin-modal__label">Status</div>
-              <span className={`admin-badge admin-badge--${selected.status}`}>
-                <span className="admin-badge__dot" />
-                {selected.status}
-              </span>
-            </div>
-
-            <div className="admin-modal__field">
-              <div className="admin-modal__label">Name</div>
-              <div className="admin-modal__value">{selected.name}</div>
-            </div>
-
-            <div className="admin-modal__field">
-              <div className="admin-modal__label">Email</div>
-              <div className="admin-modal__value">
-                <a href={`mailto:${selected.email}`} style={{ color: '#2563EB', textDecoration: 'underline' }}>{selected.email}</a>
-              </div>
-            </div>
-
-            <div className="admin-modal__field">
-              <div className="admin-modal__label">Phone</div>
-              <div className="admin-modal__value">
-                {selected.phone ? <a href={`tel:${selected.phone}`} style={{ color: '#2563EB', textDecoration: 'underline' }}>{selected.phone}</a> : '—'}
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="admin-modal__field">
-                <div className="admin-modal__label">Event Type</div>
-                <div className="admin-modal__value" style={{ textTransform: 'capitalize' }}>{selected.eventType}</div>
-              </div>
-              <div className="admin-modal__field">
-                <div className="admin-modal__label">Guests</div>
-                <div className="admin-modal__value">{selected.guestCount}</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="admin-modal__field">
-                <div className="admin-modal__label">Event Date</div>
-                <div className="admin-modal__value">
-                  {selected.date ? new Date(selected.date).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' }) : '—'}
-                </div>
-              </div>
-              <div className="admin-modal__field">
-                <div className="admin-modal__label">Venue</div>
-                <div className="admin-modal__value">{selected.venue || '—'}</div>
-              </div>
-            </div>
-
-            <div className="admin-modal__field">
-              <div className="admin-modal__label">Details / Notes</div>
-              <div className="admin-modal__value" style={{ lineHeight: 1.6 }}>{selected.notes || 'No additional details provided.'}</div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap' }}>
-              {/* Reply via Email */}
-              <a 
+      {/* Detail slide-over (kit SlidePanel: focus in on open, restored to the
+          trigger row on close, Escape/overlay handling, dirty-close confirm). */}
+      <SlidePanel
+        open={selected !== null}
+        title="Inquiry Detail"
+        dirty={notesDirty && !notesSaving}
+        onClose={() => setSelectedId(null)}
+        footer={
+          selected ? (
+            <>
+              <a
                 href={`mailto:${selected.email}?subject=Re: Your ${selected.eventType} inquiry, Melting Moments Catering`}
                 className="admin-btn admin-btn--sm"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
+                style={{ textDecoration: 'none' }}
               >
                 Reply via Email
               </a>
-              {selected.status !== 'booked' && (
-                <button className="admin-btn admin-btn--primary" onClick={() => { handleUpdateStatus(selected.id, 'booked'); setSelected(null); }} disabled={isPending}>
-                  Mark as Booked
-                </button>
-              )}
-              {selected.status === 'new' && (
-                <button className="admin-btn" onClick={() => handleUpdateStatus(selected.id, 'contacted')} disabled={isPending}>
-                  Mark Contacted
-                </button>
-              )}
-              {selected.status !== 'archived' && (
-                <button className="admin-btn" style={{ color: '#6B7280' }} onClick={() => { handleUpdateStatus(selected.id, 'archived'); setSelected(null); }} disabled={isPending}>
-                  Archive
-                </button>
-              )}
-              {selected.status === 'archived' && (
-                <button className="admin-btn" onClick={() => { handleUpdateStatus(selected.id, 'new'); setSelected(null); }} disabled={isPending}>
-                  Restore
-                </button>
-              )}
-              {selected.status !== 'declined' && selected.status !== 'archived' && (
-                <button className="admin-btn" style={{ color: '#B91C1C', borderColor: '#FECACA' }} onClick={() => { handleUpdateStatus(selected.id, 'declined'); setSelected(null); }} disabled={isPending}>
-                  Decline
-                </button>
-              )}
-              {/* Delete with inline confirmation */}
-              {deleteConfirmId === selected.id ? (
-                <div style={{ display: 'flex', gap: '0.35rem', marginLeft: 'auto' }}>
-                  <button className="admin-btn admin-btn--sm" style={{ background: '#B91C1C', color: 'white', borderColor: '#B91C1C' }} onClick={() => handleDelete(selected.id)} disabled={isPending}>Confirm delete</button>
-                  <button className="admin-btn admin-btn--sm" onClick={() => setDeleteConfirmId(null)}>Cancel</button>
-                </div>
-              ) : (
-                <button className="admin-btn" style={{ color: '#B91C1C', borderColor: '#FECACA', marginLeft: 'auto' }} onClick={() => setDeleteConfirmId(selected.id)} disabled={isPending}>
-                  Delete
-                </button>
-              )}
+              <button
+                className="admin-btn admin-btn--sm admin-btn--danger"
+                style={{ marginLeft: 'auto' }}
+                onClick={() => setDeleteConfirmId(selected.id)}
+                disabled={pendingIds.has(selected.id)}
+              >
+                Delete
+              </button>
+            </>
+          ) : undefined
+        }
+      >
+        {selected && (
+          <>
+            {/* Admin controls — status */}
+            <div className="admin-modal__field">
+              <div className="admin-modal__label">Status</div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <select
+                  className="admin-field__input admin-field__input--select"
+                  style={{ width: 'auto', fontSize: '0.8rem', padding: '0.45rem 1.8rem 0.45rem 0.6rem' }}
+                  value={selected.status}
+                  aria-label="Inquiry status"
+                  disabled={pendingIds.has(selected.id)}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    if (isInquiryStatus(next)) void handleStatusChange(selected.id, next);
+                  }}
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                {selected.status === 'archived' && (
+                  <button
+                    className="admin-btn admin-btn--sm"
+                    onClick={() => void handleRestore(selected.id)}
+                    disabled={pendingIds.has(selected.id)}
+                  >
+                    Restore to {selected.archivedFromStatus && isInquiryStatus(selected.archivedFromStatus) ? selected.archivedFromStatus : 'new'}
+                  </button>
+                )}
+                {pendingIds.has(selected.id) && (
+                  <span style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.35)' }}>Saving…</span>
+                )}
+              </div>
             </div>
-          </div>
-        </>
-      )}
+
+            {/* Admin notes — editable, autosaves on blur */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <TextAreaField
+                label="Admin Notes"
+                value={notesDraft}
+                onChange={setNotesDraft}
+                onBlur={() => void handleSaveNotes()}
+                maxLength={5000}
+                rows={4}
+                placeholder="Internal notes about this inquiry…"
+                help="Only visible in the admin — autosaves when you click away."
+              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '0.35rem' }}>
+                <button
+                  className="admin-btn admin-btn--sm"
+                  onClick={() => void handleSaveNotes()}
+                  disabled={notesSaving || !notesDirty}
+                >
+                  {notesSaving ? 'Saving…' : 'Save Notes'}
+                </button>
+                <span aria-live="polite" style={{ fontSize: '0.72rem', color: notesDirty && !notesSaving ? '#B45309' : 'rgba(0,0,0,0.4)' }}>
+                  {notesIndicator}
+                </span>
+              </div>
+            </div>
+
+            {/* Customer submission — read-only, visually separated */}
+            <div style={{ background: '#FAFAF8', border: '1px solid rgba(0,0,0,0.07)', borderRadius: '8px', padding: '1rem 1.1rem' }}>
+              <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(0,0,0,0.45)', fontWeight: 600, marginBottom: '1rem' }}>
+                Customer Submission (read-only)
+              </div>
+
+              <div className="admin-modal__field">
+                <div className="admin-modal__label">Name</div>
+                <div className="admin-modal__value">{selected.name}</div>
+              </div>
+
+              <div className="admin-modal__field">
+                <div className="admin-modal__label">Email</div>
+                <div className="admin-modal__value">
+                  <a href={`mailto:${selected.email}`} style={{ color: '#2563EB', textDecoration: 'underline' }}>{selected.email}</a>
+                </div>
+              </div>
+
+              <div className="admin-modal__field">
+                <div className="admin-modal__label">Phone</div>
+                <div className="admin-modal__value">
+                  {selected.phone ? <a href={`tel:${selected.phone}`} style={{ color: '#2563EB', textDecoration: 'underline' }}>{selected.phone}</a> : '—'}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="admin-modal__field">
+                  <div className="admin-modal__label">Event Type</div>
+                  <div className="admin-modal__value" style={{ textTransform: 'capitalize' }}>{selected.eventType}</div>
+                </div>
+                <div className="admin-modal__field">
+                  <div className="admin-modal__label">Guests</div>
+                  <div className="admin-modal__value">{selected.guestCount || '—'}</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="admin-modal__field">
+                  <div className="admin-modal__label">Event Date</div>
+                  <div className="admin-modal__value">
+                    {selected.date ? new Date(selected.date).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' }) : '—'}
+                  </div>
+                </div>
+                <div className="admin-modal__field">
+                  <div className="admin-modal__label">Venue</div>
+                  <div className="admin-modal__value">{selected.venue || '—'}</div>
+                </div>
+              </div>
+
+              <div className="admin-modal__field">
+                <div className="admin-modal__label">Details from Customer</div>
+                <div className="admin-modal__value" style={{ lineHeight: 1.6 }}>{selected.notes || 'No additional details provided.'}</div>
+              </div>
+
+              <div className="admin-modal__field" style={{ marginBottom: 0 }}>
+                <div className="admin-modal__label">Submitted</div>
+                <div className="admin-modal__value" title={formatAbsolute(selected.submittedAt)} suppressHydrationWarning>
+                  {formatAbsolute(selected.submittedAt)}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </SlidePanel>
+
+      {/* Delete confirmation (kit dialog; delete itself is optimistic with rollback) */}
+      <ConfirmDialog
+        open={deleteConfirmId !== null}
+        title="Delete inquiry?"
+        body="This permanently removes the inquiry, including its admin notes. This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (deleteConfirmId !== null) void handleDelete(deleteConfirmId);
+        }}
+        onCancel={() => setDeleteConfirmId(null)}
+      />
     </div>
   );
 }

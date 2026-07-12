@@ -1,8 +1,10 @@
 import { fetchQuery } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
+import { ToastProvider } from '../_components';
 import AdminGuidosOrdersClient from './AdminGuidosOrdersClient';
 
 export default async function GuidosOrdersAdminPage() {
+  // Newest first — guidosOrders.list returns by_submittedAt DESC.
   const items = await fetchQuery(api.guidosOrders.list, { adminSecret: process.env.ADMIN_PASSWORD! });
 
   const orders = items.map((item) => ({
@@ -18,5 +20,9 @@ export default async function GuidosOrdersAdminPage() {
     submittedAt: item.submittedAt,
   }));
 
-  return <AdminGuidosOrdersClient initialOrders={orders} />;
+  return (
+    <ToastProvider>
+      <AdminGuidosOrdersClient initialOrders={orders} />
+    </ToastProvider>
+  );
 }

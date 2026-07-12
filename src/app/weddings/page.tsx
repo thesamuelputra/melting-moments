@@ -2,22 +2,34 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
 import { getCmsContent } from '@/lib/cms';
+import { AREA_SERVED, BUSINESS_ID, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Wedding Catering | Melting Moments Victoria BC',
+  title: 'Wedding Catering',
   description: 'Wedding catering by Chef Paul Silletta. A menu built around your day, cooked from scratch in Victoria, BC.',
   openGraph: {
     url: '/weddings',
     siteName: 'Melting Moments Catering',
     locale: 'en_CA',
     type: 'website',
-    title: 'Wedding Catering | Melting Moments Victoria BC',
     description: 'Wedding catering by Chef Paul Silletta, made for your day.',
-    images: ['/wedding_entree.webp'],
+    images: [{ url: '/og/og-weddings.jpg', width: 1200, height: 630, alt: 'Plated wedding entrée by Melting Moments Catering' }],
   },
 };
 
 export const revalidate = 300;
+
+const weddingService = {
+  '@type': 'Service',
+  '@id': `${SITE.url}/weddings#service`,
+  name: 'Wedding Catering',
+  serviceType: 'Wedding catering',
+  description:
+    'Wedding catering by Chef Paul Silletta. A menu built around your day, cooked from scratch in Victoria, BC.',
+  url: `${SITE.url}/weddings`,
+  provider: { '@id': BUSINESS_ID },
+  areaServed: AREA_SERVED,
+};
 
 export default async function Weddings() {
   const cms = await getCmsContent();
@@ -37,6 +49,8 @@ export default async function Weddings() {
 
   return (
     <div>
+        <JsonLd data={weddingService} />
+        <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Wedding Catering', path: '/weddings' }])} />
         <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
             <div className="menu-index" style={{ marginBottom: "2rem" }}>{subtitle}</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>{title}</h1>

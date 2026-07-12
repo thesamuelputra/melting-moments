@@ -11,10 +11,10 @@
 import type * as activityLog from "../activityLog.js";
 import type * as businessSettings from "../businessSettings.js";
 import type * as faqs from "../faqs.js";
-import type * as files from "../files.js";
 import type * as guidosOrders from "../guidosOrders.js";
 import type * as guidosProducts from "../guidosProducts.js";
 import type * as inquiries from "../inquiries.js";
+import type * as lib from "../lib.js";
 import type * as menuItems from "../menuItems.js";
 import type * as seed from "../seed.js";
 import type * as testimonials from "../testimonials.js";
@@ -29,10 +29,10 @@ declare const fullApi: ApiFromModules<{
   activityLog: typeof activityLog;
   businessSettings: typeof businessSettings;
   faqs: typeof faqs;
-  files: typeof files;
   guidosOrders: typeof guidosOrders;
   guidosProducts: typeof guidosProducts;
   inquiries: typeof inquiries;
+  lib: typeof lib;
   menuItems: typeof menuItems;
   seed: typeof seed;
   testimonials: typeof testimonials;

@@ -1,29 +1,51 @@
 import Image from 'next/image';
 import { Metadata } from 'next';
-import { getCmsContent, getMenuItems } from '@/lib/cms';
+import { getCmsValue, getMenuItems, getSettings } from '@/lib/cms';
+import { resolveCategoryOrder } from '@/lib/menu-category-order';
+import { JsonLd, menuNode } from '@/lib/seo';
 import MenuClient from './MenuClient';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Catering Menus | Melting Moments Victoria BC',
+  title: 'Catering Menus',
   description: 'Browse our catering menus, from Italian family-style dinners to corporate luncheons and BBQ packages. Acclaimed cuisine in Victoria, BC.',
   openGraph: {
     url: '/menus',
     siteName: 'Melting Moments Catering',
     locale: 'en_CA',
     type: 'website',
-    title: 'Catering Menus | Melting Moments Victoria BC',
     description: 'Browse our catering menus. Italian family-style, corporate, BBQ, and more.',
-    images: ['/catering_menu_hero.webp'],
+    images: [{ url: '/og/og-menus.jpg', width: 1200, height: 630, alt: 'Assorted catering dishes by Melting Moments Catering' }],
   },
 };
 
+// Public display names for JSON-LD MenuSection nodes.
+// Keep in sync with formatCategoryName in MenuClient.tsx.
+const CATEGORY_LABELS: Record<string, string> = {
+  BREADS: 'Breads',
+  ANTIPASTO: 'Antipasto Platters',
+  SALADS: 'Salads',
+  STARCHES: 'Starches',
+  VEGETABLES: 'Vegetables',
+  SEAFOOD: 'Gourmet Mirrors',
+  ENTREES: 'Chef Carved',
+  PACKAGES: 'Buffet Packages',
+  SOIREE: 'Soirée',
+  PEASANO: 'Peasano Dinner',
+  MEXICAN: 'Mexican Fiesta',
+  BBQ: 'BBQ Menus',
+  LUNCH: 'Lunch',
+  BREAKFAST: 'Breakfast',
+  BEVERAGES: 'Beverages',
+};
+
 export default async function MenusPage() {
-  const [items, cms] = await Promise.all([
+  const [items, settings] = await Promise.all([
     getMenuItems().catch(() => []),
-    getCmsContent(),
+    getSettings(),
   ]);
+  const cms = (key: string, fallback: string) => getCmsValue(settings, key, fallback);
 
   const headerIndex = cms('menus_header_index', 'Explore Our Offerings');
   const headerTitle = cms('menus_header_title', 'CATERING\nMENUS');
@@ -42,6 +64,30 @@ export default async function MenusPage() {
     isFeatured: item.isFeatured,
   }));
 
+  // Section order: CMS-managed via the admin Menu editor ("Order categories"),
+  // falling back to the original hardcoded order; unknown categories appended.
+  const savedOrder = (settings['menu_category_order'] ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const categoryOrder = resolveCategoryOrder(savedOrder, menuItems.map((m) => m.category));
+
+  // schema.org Menu JSON-LD fed from the SAME server-fetched items.
+  // menuNode emits an Offer only when price is a number (null prices skipped).
+  const sections = categoryOrder
+    .map((cat) => ({
+      name: CATEGORY_LABELS[cat] ?? cat,
+      items: menuItems
+        .filter((m) => m.category === cat && m.isActive !== false)
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+        .map((m) => ({
+          name: m.name,
+          description: m.description || undefined,
+          price: m.price,
+        })),
+    }))
+    .filter((section) => section.items.length > 0);
+
   return (
     <div>
       <header className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(1rem, 2vw, 2rem)' }}>
@@ -55,7 +101,8 @@ export default async function MenusPage() {
           <Image src="/catering_menu_hero.webp" alt="Assorted catering dishes including pasta, steak, and chicken roulade" fill sizes="100vw" style={{ objectFit: 'cover', objectPosition: 'center' }} priority />
         </div>
       </header>
-      <MenuClient menuItems={menuItems} disclaimer={disclaimer} />
+      <MenuClient menuItems={menuItems} disclaimer={disclaimer} categoryOrder={categoryOrder} />
+      <JsonLd data={menuNode(sections)} />
     </div>
   );
 }

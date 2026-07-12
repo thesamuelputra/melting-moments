@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import { JsonLd, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Melting Moments & Guido\'s Gourmet',
+  title: 'Privacy Policy',
   description: 'How Melting Moments Catering and Guido\'s Gourmet handle your personal information.',
 };
 
@@ -10,6 +11,7 @@ export const revalidate = 300;
 export default function PrivacyPolicy() {
   return (
     <div>
+        <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Privacy Policy', path: '/privacy' }])} />
         <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(4rem, 10vw, 8rem)" }}>
             <div className="menu-index" style={{ marginBottom: "2rem" }}>Legal</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>Privacy Policy</h1>

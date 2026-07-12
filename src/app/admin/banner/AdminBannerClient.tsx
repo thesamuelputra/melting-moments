@@ -1,73 +1,132 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { saveBanner } from '../content/actions';
+import { TextField, ToggleSwitch, useDirtyGuard, useToast } from '../_components';
+import {
+  BANNER_LINK_ERROR,
+  BANNER_TEXT_ERROR,
+  isValidBannerLink,
+  type BannerShowOn,
+  type BannerStyle,
+} from './validation';
 
-type Style = 'dark' | 'accent' | 'light';
-
-type ShowOn = 'all' | 'catering' | 'guidos';
-
-type BannerData = {
+export type BannerFormData = {
   enabled: boolean;
   text: string;
   link: string;
-  style: Style;
-  showOn: ShowOn;
+  style: BannerStyle;
+  showOn: BannerShowOn;
 };
 
-const STYLE_PREVIEWS: Record<Style, { bg: string; color: string; label: string }> = {
+const STYLE_PREVIEWS: Record<BannerStyle, { bg: string; color: string; label: string }> = {
   dark: { bg: '#111111', color: '#F5F0E8', label: 'Dark (default)' },
   accent: { bg: '#1a1a2e', color: '#E2C992', label: 'Midnight Gold' },
   light: { bg: '#F5F0E8', color: '#111111', label: 'Light / Bone' },
 };
 
-export default function AdminBannerClient({ initial }: { initial: BannerData }) {
-  const [data, setData] = useState<BannerData>(initial);
-  const [dirty, setDirty] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [isPending, startTransition] = useTransition();
+const SHOW_ON_OPTIONS: { value: BannerShowOn; label: string; desc: string }[] = [
+  { value: 'all', label: 'All Pages', desc: 'Every public page' },
+  { value: 'catering', label: 'Catering Only', desc: "All pages except Guido's" },
+  { value: 'guidos', label: "Guido's Only", desc: "Guido's pages only" },
+  { value: 'home', label: 'Homepage Only', desc: 'The front page only' },
+];
 
-  const update = (patch: Partial<BannerData>) => {
-    setData(prev => ({ ...prev, ...patch }));
-    setDirty(true);
-    setSaved(false);
+function SessionExpiredNotice() {
+  return (
+    <div
+      role="alert"
+      style={{
+        marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)',
+        border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px',
+        display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap',
+      }}
+    >
+      <span>Session expired — log in again to keep editing.</span>
+      <Link href="/admin-login" className="admin-btn admin-btn--sm" style={{ textDecoration: 'none' }}>
+        Log in
+      </Link>
+    </div>
+  );
+}
+
+export default function AdminBannerClient({ initial }: { initial: BannerFormData }) {
+  const [baseline, setBaseline] = useState<BannerFormData>(initial);
+  const [data, setData] = useState<BannerFormData>(initial);
+  const [errors, setErrors] = useState<{ text?: string; link?: string }>({});
+  const [saveError, setSaveError] = useState('');
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const toast = useToast();
+
+  const dirty = useMemo(() => JSON.stringify(data) !== JSON.stringify(baseline), [data, baseline]);
+  useDirtyGuard(dirty);
+
+  const update = (patch: Partial<BannerFormData>) => {
+    setData((prev) => ({ ...prev, ...patch }));
+    if ('text' in patch) setErrors((prev) => ({ ...prev, text: undefined }));
+    if ('link' in patch) setErrors((prev) => ({ ...prev, link: undefined }));
   };
 
   const handleSave = () => {
+    // Client-side validation (the server action re-checks everything).
+    const validationErrors: { text?: string; link?: string } = {};
+    if (data.enabled && data.text.trim() === '') validationErrors.text = BANNER_TEXT_ERROR;
+    if (!isValidBannerLink(data.link)) validationErrors.link = BANNER_LINK_ERROR;
+    setErrors(validationErrors);
+    if (validationErrors.text || validationErrors.link) {
+      toast.error('Fix the highlighted fields before saving');
+      return;
+    }
+
     startTransition(async () => {
-      const res = await saveBanner(data);
+      const res = await saveBanner(data).catch(
+        () => ({ success: false as const, error: 'failed' as const })
+      );
       if (res.success) {
-        setDirty(false);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
+        setBaseline(data);
+        setSaveError('');
+        setSessionExpired(false);
+        toast.success('Banner saved — live site updated');
+      } else if (res.error === 'unauthorized') {
+        setSessionExpired(true);
+        toast.error('Session expired — log in again');
+      } else {
+        const message = ('message' in res && res.message) || 'Failed to save the banner — please try again';
+        setSaveError(message);
+        toast.error(message);
       }
     });
   };
 
-  const preview = STYLE_PREVIEWS[data.style];
+  // Unknown stored style (hand-edited data) must not crash the page.
+  const preview = STYLE_PREVIEWS[data.style] ?? STYLE_PREVIEWS.dark;
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      {sessionExpired && <SessionExpiredNotice />}
+      {saveError && !sessionExpired && (
+        <div role="alert" style={{ marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px' }}>
+          {saveError}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '0.75rem', flexWrap: 'wrap' }}>
         <div>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 400 }}>Announcement Banner</h2>
           <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.25rem' }}>
-            A slim bar pinned above the navigation on every public page
+            A slim bar pinned above the navigation on the public site
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           {dirty && <span style={{ fontSize: '0.7rem', color: '#D97706', fontWeight: 500 }}>Unsaved changes</span>}
-          {/* Visually-hidden live region announces save success to screen readers */}
-          <span role="status" aria-live="polite" style={{
-            position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px',
-            overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0,
-          }}>{saved ? 'Banner changes saved' : ''}</span>
           <button
             className="admin-btn admin-btn--primary"
             onClick={handleSave}
             disabled={isPending || !dirty}
           >
-            {isPending ? 'Saving...' : saved ? '✓ Saved' : 'Save Changes'}
+            {isPending ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </div>
@@ -106,79 +165,68 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
       {/* Controls */}
       <div className="admin-section" style={{ padding: '1.5rem' }}>
         {/* Enable toggle */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1.25rem', marginBottom: '1.25rem', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-          <div>
-            <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Enable Banner</div>
-            <div style={{ fontSize: '0.72rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.2rem' }}>Toggle banner visibility across public pages</div>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={data.enabled}
-            aria-label="Enable Banner"
-            onClick={() => update({ enabled: !data.enabled })}
-            style={{
-              width: '48px', height: '26px', borderRadius: '13px', border: 'none', cursor: 'pointer',
-              backgroundColor: data.enabled ? '#111111' : 'rgba(0,0,0,0.12)',
-              position: 'relative', transition: 'background-color 0.2s ease',
-              padding: 0,
-            }}
-          >
-            <span style={{
-              position: 'absolute', top: '3px', left: data.enabled ? '25px' : '3px',
-              width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'white',
-              transition: 'left 0.2s ease', boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-            }} />
-          </button>
+        <div style={{ paddingBottom: '1.25rem', marginBottom: '1.25rem', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+          <ToggleSwitch
+            label="Enable Banner"
+            checked={data.enabled}
+            onChange={(enabled) => update({ enabled })}
+            help="Toggle banner visibility across public pages"
+            disabled={isPending}
+          />
         </div>
 
         {/* Text */}
         <div style={{ marginBottom: '1.25rem' }}>
-          <label className="admin-modal__label" htmlFor="banner-text">Banner Text *</label>
-          <p id="banner-text-hint" style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Keep it short. Under 80 characters works best</p>
-          <input
+          <TextField
             id="banner-text"
-            aria-describedby="banner-text-hint"
-            className="admin-inline-input"
+            label="Banner Text"
+            required={data.enabled}
             value={data.text}
-            onChange={e => update({ text: e.target.value })}
+            onChange={(text) => update({ text })}
+            error={errors.text}
+            help="Keep it short. Under 80 characters works best"
             placeholder="Now booking 2027 Wedding Season. Limited dates available"
             maxLength={120}
+            disabled={isPending}
           />
           <div style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginTop: '0.3rem', textAlign: 'right' }}>{data.text.length}/120</div>
         </div>
 
         {/* Link */}
         <div style={{ marginBottom: '1.25rem' }}>
-          <label className="admin-modal__label" htmlFor="banner-link">Link (Optional)</label>
-          <p id="banner-link-hint" style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Where clicking the banner takes visitors. Leave blank for no link</p>
-          <input
+          <TextField
             id="banner-link"
-            aria-describedby="banner-link-hint"
-            className="admin-inline-input"
+            label="Link (Optional)"
             value={data.link}
-            onChange={e => update({ link: e.target.value })}
-            placeholder="/contact or https://..."
+            onChange={(link) => update({ link })}
+            error={errors.link}
+            help="Where clicking the banner takes visitors: a relative path (/contact) or an https:// URL. Leave blank for no link"
+            placeholder="/contact or https://…"
+            disabled={isPending}
           />
         </div>
 
         {/* Show On (Targeting) */}
         <div style={{ marginBottom: '1.25rem' }}>
           <label className="admin-modal__label">Show On</label>
-          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Restrict banner to specific sections of the site</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-            {([['all', 'All Pages'], ['catering', 'Catering Only'], ['guidos', "Guido's Only"]] as [ShowOn, string][]).map(([val, label]) => (
+          <p style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.3)', marginBottom: '0.5rem' }}>Restrict the banner to specific sections of the site</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.5rem' }}>
+            {SHOW_ON_OPTIONS.map((opt) => (
               <button
-                key={val}
-                onClick={() => update({ showOn: val })}
+                key={opt.value}
+                type="button"
+                onClick={() => update({ showOn: opt.value })}
+                aria-pressed={data.showOn === opt.value}
+                disabled={isPending}
                 style={{
-                  padding: '0.6rem', fontSize: '0.75rem', cursor: 'pointer',
-                  border: data.showOn === val ? '2px solid #111' : '1px solid rgba(0,0,0,0.1)',
-                  borderRadius: '6px', background: data.showOn === val ? 'rgba(0,0,0,0.03)' : 'white',
-                  fontWeight: data.showOn === val ? 600 : 400,
+                  padding: '0.6rem', fontSize: '0.75rem', cursor: 'pointer', textAlign: 'center',
+                  border: data.showOn === opt.value ? '2px solid #111' : '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '6px', background: data.showOn === opt.value ? 'rgba(0,0,0,0.03)' : 'white',
+                  fontWeight: data.showOn === opt.value ? 600 : 400,
                 }}
               >
-                {label}
+                <span style={{ display: 'block' }}>{opt.label}</span>
+                <span style={{ display: 'block', marginTop: '0.2rem', fontSize: '0.62rem', color: 'rgba(0,0,0,0.4)', fontWeight: 400 }}>{opt.desc}</span>
               </button>
             ))}
           </div>
@@ -188,10 +236,13 @@ export default function AdminBannerClient({ initial }: { initial: BannerData }) 
         <div>
           <label className="admin-modal__label" style={{ marginBottom: '0.75rem' }}>Banner Style</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-            {(Object.keys(STYLE_PREVIEWS) as Style[]).map(style => (
+            {(Object.keys(STYLE_PREVIEWS) as BannerStyle[]).map((style) => (
               <button
                 key={style}
+                type="button"
                 onClick={() => update({ style })}
+                aria-pressed={data.style === style}
+                disabled={isPending}
                 style={{
                   border: data.style === style ? '2px solid #111' : '1px solid rgba(0,0,0,0.1)',
                   borderRadius: '6px', overflow: 'hidden', cursor: 'pointer', background: 'none', padding: 0,

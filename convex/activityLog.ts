@@ -1,18 +1,24 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { assertAdmin, clampLimit, logActivity } from "./lib";
 
+// Most recent activity entries (limit clamped to 1..200, default 50)
 export const recent = query({
   args: { adminSecret: v.string(), limit: v.optional(v.float64()) },
-  handler: async (ctx, { adminSecret, limit }) => {
-    if (adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
-    return ctx.db
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminSecret);
+    return await ctx.db
       .query("activityLog")
       .withIndex("by_performedAt")
       .order("desc")
-      .take(limit ?? 50);
+      .take(clampLimit(args.limit, 50, 200));
   },
 });
 
+// deprecated — activity is now logged INSIDE each entity mutation via
+// logActivity (convex/lib.ts) so it is atomic with the change. Kept exported
+// for back-compat with existing server actions this wave; do not add new
+// callers.
 export const log = mutation({
   args: {
     adminSecret: v.string(),
@@ -21,32 +27,25 @@ export const log = mutation({
     details: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
-    await ctx.db.insert("activityLog", {
+    assertAdmin(args.adminSecret);
+    await logActivity(ctx, {
       action: args.action,
       section: args.section,
       details: args.details,
-      performedAt: Date.now(),
     });
-
-    // Auto-cleanup: prune entries older than 90 days (piggy-backed on writes)
-    const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
-    const cutoff = Date.now() - NINETY_DAYS_MS;
-    const old = await ctx.db
-      .query("activityLog")
-      .withIndex("by_performedAt", (q) => q.lt("performedAt", cutoff))
-      .collect();
-    for (const entry of old) {
-      await ctx.db.delete(entry._id);
-    }
   },
 });
 
+// Clear the entire activity log
 export const clear = mutation({
   args: { adminSecret: v.string() },
   handler: async (ctx, args) => {
-    if (args.adminSecret !== process.env.ADMIN_PASSWORD) throw new Error("Unauthorized");
+    assertAdmin(args.adminSecret);
     const all = await ctx.db.query("activityLog").collect();
     await Promise.all(all.map((e) => ctx.db.delete(e._id)));
+    await logActivity(ctx, {
+      action: "Cleared activity log",
+      section: "Activity",
+    });
   },
 });

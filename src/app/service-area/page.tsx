@@ -1,15 +1,31 @@
 import { Metadata } from 'next';
+import { AREA_SERVED, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Service Area | Melting Moments Catering Victoria BC',
+  title: 'Service Area',
   description: 'Melting Moments serves the Greater Victoria area including Langford, Colwood, Oak Bay, Saanich, and is available up-island to Nanaimo and Tofino.',
 };
 
 export const revalidate = 300;
 
+// The eight Greater Victoria communities + Vancouver Island as an ItemList —
+// mirrors the businesses' areaServed nodes emitted site-wide in layout.tsx.
+const areaServedList = {
+  '@type': 'ItemList',
+  '@id': `${SITE.url}/service-area#areas`,
+  name: `Communities served by ${SITE.name}`,
+  itemListElement: AREA_SERVED.map((area, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: area,
+  })),
+};
+
 export default function ServiceArea() {
   return (
     <div>
+        <JsonLd data={areaServedList} />
+        <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Service Area', path: '/service-area' }])} />
         <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(4rem, 10vw, 8rem)" }}>
             <div className="menu-index" style={{ marginBottom: "2rem" }}>Where We Serve</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>Service Area</h1>

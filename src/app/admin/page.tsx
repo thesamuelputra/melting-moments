@@ -13,6 +13,16 @@ function formatRelativeTime(ts: number): string {
   return `${days}d ago`;
 }
 
+function formatAbsolute(ts: number): string {
+  return new Date(ts).toLocaleString('en-CA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 const SECTION_DOT: Record<string, string> = {
   'Banner': '#D97706',
   'Site Content': '#3B82F6',
@@ -21,32 +31,40 @@ const SECTION_DOT: Record<string, string> = {
   'Menu': '#059669',
   "Guido's Products": '#B45309',
   "Guido's Orders": '#DC2626',
+  'Inquiries': '#0EA5E9',
   'Settings': '#6B7280',
-  'Media': '#0EA5E9',
+  'Activity': '#9CA3AF',
 };
 
+const ARCHIVED_BADGE_STYLE = { background: '#F3F4F6', color: '#6B7280' };
+
 export default async function AdminDashboard() {
-  const [allInquiries, totalMenuItems, categoryCount, faqCount, testimonialCount, recentActivity, settings, guidosProductCount, allGuidosOrders, allSiteImages] = await Promise.all([
-    fetchQuery(api.inquiries.list, { adminSecret: process.env.ADMIN_PASSWORD! }),
+  const adminSecret = process.env.ADMIN_PASSWORD!;
+  const [
+    inquiryCounts,
+    recentInquiries,
+    totalMenuItems,
+    categoryCount,
+    faqs,
+    testimonials,
+    recentActivity,
+    settings,
+    guidosProductCount,
+    guidosOrderCounts,
+  ] = await Promise.all([
+    fetchQuery(api.inquiries.counts, { adminSecret }),
+    fetchQuery(api.inquiries.recent, { adminSecret, limit: 8 }),
     fetchQuery(api.menuItems.count),
     fetchQuery(api.menuItems.categoryCount),
-    fetchQuery(api.faqs.list),
-    fetchQuery(api.testimonials.list),
-    fetchQuery(api.activityLog.recent, { adminSecret: process.env.ADMIN_PASSWORD!, limit: 8 }),
+    fetchQuery(api.faqs.list, { adminSecret }),
+    fetchQuery(api.testimonials.list, { adminSecret }),
+    fetchQuery(api.activityLog.recent, { adminSecret, limit: 8 }),
     fetchQuery(api.businessSettings.getAll),
     fetchQuery(api.guidosProducts.count),
-    fetchQuery(api.guidosOrders.list, { adminSecret: process.env.ADMIN_PASSWORD! }),
-    fetchQuery(api.files.list, {}),
+    fetchQuery(api.guidosOrders.counts, { adminSecret }),
   ]);
 
-  const nonArchived = allInquiries.filter((i) => i.status !== 'archived');
-  const inquiries = nonArchived.slice(0, 8);
-  const totalInquiries = nonArchived.length;
-  const newInquiriesCount = allInquiries.filter((i) => i.status === 'new').length;
-  const bookedCount = allInquiries.filter((i) => i.status === 'booked').length;
   const bannerEnabled = settings['banner_enabled'] === 'true';
-  const newGuidosOrders = allGuidosOrders.filter((o: { status: string }) => o.status === 'received').length;
-  const activeGuidosOrders = allGuidosOrders.filter((o: { status: string }) => !['delivered', 'picked_up'].includes(o.status)).length;
 
   return (
     <div>
@@ -61,22 +79,23 @@ export default async function AdminDashboard() {
         </div>
       )}
 
-      {/* KPI Cards */}
+      {/* KPI Cards — captions are static context, styled neutral on purpose
+          (the --up/--down trend colors are reserved for real computed deltas). */}
       <div className="admin-kpi-grid">
         <div className="admin-kpi-card">
           <div className="admin-kpi-card__label">Pending Inquiries</div>
-          <div className="admin-kpi-card__value">{newInquiriesCount}</div>
-          <div className="admin-kpi-card__trend admin-kpi-card__trend--up">New leads to review</div>
+          <div className="admin-kpi-card__value">{inquiryCounts.new}</div>
+          <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">Awaiting first contact</div>
         </div>
         <div className="admin-kpi-card">
-          <div className="admin-kpi-card__label">Total Inquiries</div>
-          <div className="admin-kpi-card__value">{totalInquiries}</div>
-          <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">All time submissions</div>
+          <div className="admin-kpi-card__label">Active Inquiries</div>
+          <div className="admin-kpi-card__value">{inquiryCounts.active}</div>
+          <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">Excludes archived</div>
         </div>
         <div className="admin-kpi-card">
           <div className="admin-kpi-card__label">Booked Events</div>
-          <div className="admin-kpi-card__value">{bookedCount}</div>
-          <div className="admin-kpi-card__trend admin-kpi-card__trend--up">Confirmed bookings</div>
+          <div className="admin-kpi-card__value">{inquiryCounts.booked}</div>
+          <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">Confirmed bookings</div>
         </div>
         <div className="admin-kpi-card">
           <div className="admin-kpi-card__label">Menu Items</div>
@@ -90,17 +109,17 @@ export default async function AdminDashboard() {
       <div className="admin-kpi-grid" style={{ marginBottom: '2rem' }}>
         <div className="admin-kpi-card">
           <div className="admin-kpi-card__label">New Orders</div>
-          <div className="admin-kpi-card__value">{newGuidosOrders}</div>
-          <div className="admin-kpi-card__trend admin-kpi-card__trend--up">Awaiting confirmation</div>
+          <div className="admin-kpi-card__value">{guidosOrderCounts.received}</div>
+          <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">Awaiting confirmation</div>
         </div>
         <div className="admin-kpi-card">
           <div className="admin-kpi-card__label">Active Orders</div>
-          <div className="admin-kpi-card__value">{activeGuidosOrders}</div>
+          <div className="admin-kpi-card__value">{guidosOrderCounts.active}</div>
           <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">In progress</div>
         </div>
         <div className="admin-kpi-card">
           <div className="admin-kpi-card__label">Total Orders</div>
-          <div className="admin-kpi-card__value">{allGuidosOrders.length}</div>
+          <div className="admin-kpi-card__value">{guidosOrderCounts.total}</div>
           <div className="admin-kpi-card__trend admin-kpi-card__trend--neutral">All time</div>
         </div>
         <div className="admin-kpi-card">
@@ -116,12 +135,11 @@ export default async function AdminDashboard() {
           { href: '/admin/banner', label: 'Announcement', sub: bannerEnabled ? 'Banner live' : 'Banner off', dotColor: bannerEnabled ? '#059669' : 'rgba(0,0,0,0.15)' },
           { href: '/admin/content', label: 'Site Content', sub: 'Headers & descriptions' },
           { href: '/admin/menus', label: 'Menu Editor', sub: `${totalMenuItems} items` },
-          { href: '/admin/faq', label: 'FAQ', sub: `${faqCount.length} questions` },
-          { href: '/admin/testimonials', label: 'Testimonials', sub: `${testimonialCount.length} reviews` },
-          { href: '/admin/inquiries', label: 'Inquiries', sub: `${newInquiriesCount} new` },
+          { href: '/admin/faq', label: 'FAQ', sub: `${faqs.length} questions` },
+          { href: '/admin/testimonials', label: 'Testimonials', sub: `${testimonials.length} reviews` },
+          { href: '/admin/inquiries', label: 'Inquiries', sub: `${inquiryCounts.new} new` },
           { href: '/admin/guidos-products', label: 'Guido\'s Products', sub: `${guidosProductCount} items` },
-          { href: '/admin/guidos-orders', label: 'Guido\'s Orders', sub: `${newGuidosOrders} new` },
-          { href: '/admin/media', label: 'Media Library', sub: `${allSiteImages.length} images` },
+          { href: '/admin/guidos-orders', label: 'Guido\'s Orders', sub: `${guidosOrderCounts.received} new` },
           { href: '/admin/settings', label: 'Settings', sub: 'Business info' },
         ].map(({ href, label, sub, dotColor }) => (
           <Link
@@ -147,25 +165,26 @@ export default async function AdminDashboard() {
             <h3>Recent Inquiries</h3>
             <Link href="/admin/inquiries" className="admin-btn admin-btn--sm">View All</Link>
           </div>
-          <div className="admin-table-overflow">
+          <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
                 <tr>
                   <th>Name</th>
                   <th>Event</th>
                   <th>Date</th>
+                  <th>Submitted</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {inquiries.length === 0 && (
+                {recentInquiries.length === 0 && (
                   <tr>
-                    <td colSpan={4} style={{ textAlign: 'center', padding: '3rem', color: 'var(--clr-charcoal)' }}>
+                    <td colSpan={5} style={{ textAlign: 'center', padding: '3rem', color: 'var(--clr-charcoal)' }}>
                       No inquiries yet.
                     </td>
                   </tr>
                 )}
-                {inquiries.map((inq) => (
+                {recentInquiries.map((inq) => (
                   <tr key={inq._id}>
                     <td>
                       <div className="admin-table__name">{inq.name}</div>
@@ -176,8 +195,14 @@ export default async function AdminDashboard() {
                       <div style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.1rem' }}>{inq.guestCount} guests</div>
                     </td>
                     <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '–'}</td>
+                    <td style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.45)', whiteSpace: 'nowrap' }} title={formatAbsolute(inq.submittedAt)}>
+                      {formatRelativeTime(inq.submittedAt)}
+                    </td>
                     <td>
-                      <span className={`admin-badge admin-badge--${inq.status}`}>
+                      <span
+                        className={`admin-badge admin-badge--${inq.status}`}
+                        style={inq.status === 'archived' ? ARCHIVED_BADGE_STYLE : undefined}
+                      >
                         <span className="admin-badge__dot" />
                         {inq.status}
                       </span>
@@ -211,7 +236,7 @@ export default async function AdminDashboard() {
                     </div>
                   )}
                 </div>
-                <div style={{ fontSize: '0.68rem', color: 'rgba(0,0,0,0.3)', flexShrink: 0, paddingTop: '0.15rem' }}>
+                <div style={{ fontSize: '0.68rem', color: 'rgba(0,0,0,0.3)', flexShrink: 0, paddingTop: '0.15rem' }} title={formatAbsolute(entry.performedAt)}>
                   {formatRelativeTime(entry.performedAt)}
                 </div>
               </div>

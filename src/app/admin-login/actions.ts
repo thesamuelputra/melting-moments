@@ -1,8 +1,9 @@
 'use server';
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import crypto from 'crypto';
+import { createSessionToken, SESSION_COOKIE_NAME, SESSION_DURATION_MS } from '@/lib/auth';
 
 // Constant-time string comparison. Hashing both sides first normalizes
 // lengths so crypto.timingSafeEqual can be used without leaking length info.
@@ -12,40 +13,57 @@ function safeEqual(a: string, b: string): boolean {
   return crypto.timingSafeEqual(digestA, digestB);
 }
 
-// Generate a signed token from the password to prevent cookie guessing
-function generateToken(): string {
-  const secret = process.env.ADMIN_PASSWORD;
-  if (!secret) throw new Error('ADMIN_PASSWORD is not configured.');
-  return crypto.createHmac('sha256', secret).update('melting-moments-admin-session').digest('hex');
-}
-
 // In-memory rate limiter for login attempts.
-// Tracks failed attempts and enforces exponential backoff.
-// Resets on successful login. Cleared on server restart (acceptable for single-instance).
+// Per-IP exponential backoff after MAX_ATTEMPTS failures, plus a global cap
+// so distributed guessing across many IPs is still throttled. In-memory and
+// per-instance: resets on cold start (acceptable for a single-admin site).
 const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
-const MAX_ATTEMPTS = 5;
-const BASE_LOCKOUT_MS = 30_000; // 30 seconds
+const MAX_ATTEMPTS = 5;             // per-IP failures before backoff kicks in
+const BASE_LOCKOUT_MS = 30_000;     // 30 seconds, doubling per extra failure
+const GLOBAL_KEY = '__global__';
+// The per-IP limiter is the primary defense (x-forwarded-for is platform-set
+// on Vercel). The global cap is a coarse backstop against distributed
+// guessing — set well above ambient bot noise so accumulated stray failures
+// can never lock out the real admin, and cleared on every successful login.
+const GLOBAL_MAX_ATTEMPTS = 100;
+const STALE_ENTRY_MS = 60 * 60 * 1000; // prune records idle for 1h
+let lastPruneAt = 0;
 
-function getClientKey(): string {
-  // For a single-admin site, a global key is the correct defense.
-  // Server actions don't expose request headers (no IP available),
-  // and keying by password hash allows unlimited attempts with
-  // different passwords. A single bucket rate-limits ALL attempts.
-  return 'global_login';
+// Evict stale records so the map cannot grow without bound on a long-lived
+// instance (one entry per attacking IP otherwise lives forever).
+function pruneLoginAttempts(now: number) {
+  if (now - lastPruneAt < 60_000) return;
+  lastPruneAt = now;
+  for (const [key, record] of loginAttempts) {
+    if (now - record.lastAttempt > STALE_ENTRY_MS) {
+      loginAttempts.delete(key);
+    }
+  }
 }
 
-function checkRateLimit(key: string): { blocked: boolean; retryAfterSeconds?: number } {
+async function getClientKey(): Promise<string> {
+  // Key by IP so one guesser cannot lock out the real admin, while the
+  // GLOBAL_KEY bucket still caps distributed attempts across IPs.
+  const headerStore = await headers();
+  return headerStore.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || headerStore.get('x-real-ip')
+    || 'unknown';
+}
+
+function checkRateLimit(key: string, maxAttempts: number): { blocked: boolean; retryAfterSeconds?: number } {
+  pruneLoginAttempts(Date.now());
   const record = loginAttempts.get(key);
-  if (!record || record.count < MAX_ATTEMPTS) return { blocked: false };
-  
-  // Exponential backoff: 30s, 60s, 120s, 240s...
-  const lockoutMs = BASE_LOCKOUT_MS * Math.pow(2, record.count - MAX_ATTEMPTS);
+  if (!record || record.count < maxAttempts) return { blocked: false };
+
+  // Exponential backoff: 30s, 60s, 120s... capped at 32min so an active
+  // lockout always stays shorter than the 1h stale-entry prune window.
+  const lockoutMs = BASE_LOCKOUT_MS * Math.pow(2, Math.min(record.count - maxAttempts, 6));
   const elapsed = Date.now() - record.lastAttempt;
-  
+
   if (elapsed < lockoutMs) {
     return { blocked: true, retryAfterSeconds: Math.ceil((lockoutMs - elapsed) / 1000) };
   }
-  
+
   return { blocked: false };
 }
 
@@ -54,9 +72,9 @@ function recordFailedAttempt(key: string) {
   record.count += 1;
   record.lastAttempt = Date.now();
   loginAttempts.set(key, record);
-  
+
   // Log for intrusion detection
-  console.warn(`[Auth] Failed login attempt #${record.count} at ${new Date().toISOString()}`);
+  console.warn(`[Auth] Failed login attempt #${record.count} (key: ${key}) at ${new Date().toISOString()}`);
 }
 
 function clearAttempts(key: string) {
@@ -64,38 +82,42 @@ function clearAttempts(key: string) {
 }
 
 export async function login(formData: FormData) {
-  const key = getClientKey();
-  
-  // Check rate limit
-  const rateCheck = checkRateLimit(key);
+  const key = await getClientKey();
+
+  // Check per-IP limit, then the global cap.
+  let rateCheck = checkRateLimit(key, MAX_ATTEMPTS);
+  if (!rateCheck.blocked) rateCheck = checkRateLimit(GLOBAL_KEY, GLOBAL_MAX_ATTEMPTS);
   if (rateCheck.blocked) {
     console.warn(`[Auth] Rate-limited login attempt blocked. Retry after ${rateCheck.retryAfterSeconds}s`);
     return { error: `Too many attempts. Try again in ${rateCheck.retryAfterSeconds} seconds.` };
   }
-  
+
   const password = formData.get('password');
   const adminPassword = process.env.ADMIN_PASSWORD;
   const cookieStore = await cookies();
 
   if (typeof password === 'string' && adminPassword && safeEqual(password, adminPassword)) {
     clearAttempts(key);
-    const token = generateToken();
-    cookieStore.set('admin_token', token, { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'lax',
+    clearAttempts(GLOBAL_KEY); // a successful login proves the admin is not locked out — reset the backstop
+    // v2 expiring token — see src/lib/auth.ts / src/proxy.ts for the format.
+    const token = createSessionToken(Date.now() + SESSION_DURATION_MS);
+    cookieStore.set(SESSION_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7 // 1 week
+      maxAge: SESSION_DURATION_MS / 1000, // 1 week
     });
     redirect('/admin');
   }
-  
+
   recordFailedAttempt(key);
+  recordFailedAttempt(GLOBAL_KEY);
   return { error: 'Invalid password' };
 }
 
 export async function logout() {
   const cookieStore = await cookies();
-  cookieStore.delete('admin_token');
+  cookieStore.delete(SESSION_COOKIE_NAME);
   redirect('/admin-login');
 }
