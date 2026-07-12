@@ -118,7 +118,7 @@ export interface CatererOptions {
 
 /**
  * The site-wide business entity. 'Caterer' is not a core schema.org type but
- * is widely used by LLM/GEO extractors; 'FoodEstablishment' (a valid
+ * answer engines extract it reliably; 'FoodEstablishment' (a valid
  * LocalBusiness subtype) carries validation for Google's parsers.
  */
 export function catererNode(opts: CatererOptions = {}): Record<string, unknown> {

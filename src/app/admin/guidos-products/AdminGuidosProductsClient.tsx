@@ -764,7 +764,16 @@ export default function AdminGuidosProductsClient({
                     }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 6, display: 'block' }} />
+                    <img
+                      src={src}
+                      alt=""
+                      style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 6, display: 'block' }}
+                      onError={(e) => {
+                        // A picker option that no longer exists on disk is useless; hide it.
+                        const tile = e.currentTarget.closest('button');
+                        if (tile) tile.style.display = 'none';
+                      }}
+                    />
                   </button>
                 );
               })}

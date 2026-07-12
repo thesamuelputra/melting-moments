@@ -1,10 +1,10 @@
 import { getMenuItems, getGuidosProducts, getFaqs, getSettings } from '@/lib/cms';
 import { SITE, SERVICE_COMMUNITIES } from '@/lib/seo';
 
-// /llms.txt: curated business summary for answer engines (Perplexity,
-// ChatGPT browsing, Claude, etc). Composed from live CMS content with the
-// same 300s ISR window as the public pages; each CMS getter degrades to a
-// pointer at the live page if Convex is unavailable.
+// /llms.txt: curated business summary for answer engines and assistant
+// crawlers. Composed from live CMS content with the same 300s ISR window as
+// the public pages; each CMS getter degrades to a pointer at the live page
+// if Convex is unavailable.
 export const revalidate = 300;
 
 /** Collapse CMS text to a single markdown-safe line. */
