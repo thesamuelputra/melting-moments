@@ -63,6 +63,13 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
   const tempCounter = useRef(0);
 
   const [faqs, setFaqs] = useState<Faq[]>(initialFaqs ?? []);
+  // Re-sync from the server payload when router.refresh() delivers new props
+  // (e.g. after the create action auto-imports the starter FAQs).
+  const [prevInitialFaqs, setPrevInitialFaqs] = useState(initialFaqs);
+  if (initialFaqs !== prevInitialFaqs) {
+    setPrevInitialFaqs(initialFaqs);
+    setFaqs(initialFaqs ?? []);
+  }
   const [panel, setPanel] = useState<PanelState>(null);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const [saving, setSaving] = useState(false);
@@ -138,9 +145,18 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
         // delete/reorder on the new row hit a real document.
         const realId = res.id;
         setFaqs((prev) => prev.map((f) => (f.id === tempId ? { ...f, id: realId } : f)));
+        if (res.seeded) {
+          // First-ever CMS FAQ: the action also imported the starter set so the
+          // public page keeps its existing questions — pull them into this view.
+          toast.info('Starter FAQs were imported alongside your question so the public page keeps them.');
+          router.refresh();
+        }
         toast.success('FAQ added');
       } else {
         setFaqs((prev) => prev.filter((f) => f.id !== tempId));
+        // Reopen the create panel (draft state is untouched) so the admin's
+        // typed content survives the failure instead of being discarded.
+        setPanel((current) => current ?? { mode: 'create' });
         fail(res.success ? REQUEST_FAILED : res, 'Failed to add FAQ');
       }
       setSaving(false);
@@ -434,6 +450,10 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
           getId={(f) => f.id}
           getLabel={(f) => f.question}
           onReorder={handleReorder}
+          /* Reordering while an optimistic temp-id row exists would persist an
+             id list the server does not know yet — lock dragging until the
+             create settles and the real id is swapped in. */
+          disabled={faqs.some((f) => f.id.startsWith('temp-'))}
           renderItem={(faq, { handleProps }) => {
             const rowPending = pendingIds.has(faq.id) || faq.id.startsWith('temp-');
             return (

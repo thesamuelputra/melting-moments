@@ -131,6 +131,9 @@ export default function SortableList<T>({
   }
 
   const [activeId, setActiveId] = useState<string | null>(null);
+  // While a reorder persists, further drags are locked so a slow failure can
+  // never revert past a newer successful drop.
+  const [reorderPending, setReorderPending] = useState(false);
 
   // Announcements read from refs so they always see the current order without
   // re-binding the DndContext accessibility config. Announcements only fire from
@@ -190,7 +193,7 @@ export default function SortableList<T>({
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveId(null);
     const { active, over } = event;
-    if (disabled || !over || active.id === over.id) return;
+    if (disabled || reorderPending || !over || active.id === over.id) return;
     const oldIndex = list.findIndex((i) => getId(i) === String(active.id));
     const newIndex = list.findIndex((i) => getId(i) === String(over.id));
     if (oldIndex < 0 || newIndex < 0) return;
@@ -198,6 +201,7 @@ export default function SortableList<T>({
     const snapshot = list;
     const next = arrayMove(list, oldIndex, newIndex);
     setList(next); // optimistic
+    setReorderPending(true);
     void (async () => {
       let ok = false;
       try {
@@ -205,7 +209,11 @@ export default function SortableList<T>({
       } catch {
         ok = false;
       }
-      if (!ok) setList(snapshot); // revert — caller surfaces the error toast
+      // Revert only if this drop's optimistic order is still what is shown —
+      // a props re-sync or newer state must never be clobbered by a stale
+      // failure. Caller surfaces the error toast either way.
+      if (!ok) setList((curr) => (curr === next ? snapshot : curr));
+      setReorderPending(false);
     })();
   };
 
@@ -229,7 +237,7 @@ export default function SortableList<T>({
               item={item}
               id={getId(item)}
               label={getLabel ? getLabel(item) : getId(item)}
-              disabled={disabled}
+              disabled={disabled || reorderPending}
               renderItem={renderItem}
             />
           ))}

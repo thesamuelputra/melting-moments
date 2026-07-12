@@ -148,6 +148,21 @@ export const update = mutation({
     if (args.isActive !== undefined) patch.isActive = args.isActive;
     if (args.isFeatured !== undefined) patch.isFeatured = args.isFeatured;
 
+    // Moving to a different category with no explicit position: append to the
+    // destination (max+1), mirroring add() — keeping the source-category index
+    // would collide with the destination's existing indexes.
+    if (
+      patch.category !== undefined &&
+      patch.category !== existing.category &&
+      patch.orderIndex === undefined
+    ) {
+      const destination = await ctx.db
+        .query("menuItems")
+        .withIndex("by_category", (q) => q.eq("category", patch.category!))
+        .collect();
+      patch.orderIndex = destination.reduce((max, d) => Math.max(max, d.orderIndex), 0) + 1;
+    }
+
     await ctx.db.patch(args.id, patch);
     await logActivity(ctx, {
       action: "Updated menu item",

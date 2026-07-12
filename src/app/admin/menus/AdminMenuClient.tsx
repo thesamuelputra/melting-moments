@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { DEFAULT_CATEGORY_ORDER } from '@/lib/menu-category-order';
 import {
   ConfirmDialog,
   DragHandle,
@@ -90,14 +91,25 @@ function formSignature(f: FormState): string {
   ]);
 }
 
-/** Saved order first (kept even when a category is currently empty), then unknown categories alphabetically. */
+/**
+ * Saved order first (kept even when a category is currently empty); when the
+ * setting is unset, fall back to the same curated DEFAULT_CATEGORY_ORDER the
+ * public /menus page uses — never a bare alphabetical list, or the first
+ * "Order categories" save would silently reorder the live site. Unknown
+ * categories are appended alphabetically either way.
+ */
 function resolveCategoryOrder(saved: string[], items: { category: string }[]): string[] {
   const savedClean = Array.from(new Set(saved.map((s) => s.trim()).filter(Boolean)));
-  const known = new Set(savedClean);
-  const extras = Array.from(new Set(items.map((i) => i.category)))
+  const base = savedClean.length > 0 ? savedClean : DEFAULT_CATEGORY_ORDER;
+  const known = new Set(base);
+  const dataCategories = new Set(items.map((i) => i.category));
+  const extras = Array.from(dataCategories)
     .filter((c) => !known.has(c))
     .sort((a, b) => a.localeCompare(b));
-  return [...savedClean, ...extras];
+  // Curated defaults only count if items actually exist in them (a saved
+  // order is kept verbatim so temporarily-empty categories keep their slot).
+  const baseKept = savedClean.length > 0 ? base : base.filter((c) => dataCategories.has(c));
+  return [...baseKept, ...extras];
 }
 
 /** Re-insert rows at (an approximation of) their original positions, ascending. */

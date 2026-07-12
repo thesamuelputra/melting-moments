@@ -1,15 +1,16 @@
 'use server';
 
-import { fetchMutation } from 'convex/nextjs';
+import { fetchMutation, fetchQuery } from 'convex/nextjs';
 import { revalidatePath, updateTag } from 'next/cache';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
 import { AdminAuthError, requireAdmin } from '@/lib/auth';
+import { FALLBACK_FAQS } from '@/lib/fallback-faqs';
 
 export type FaqCategory = 'catering' | 'guidos';
 
 export type ActionResult =
-  | { success: true; id?: string }
+  | { success: true; id?: string; seeded?: boolean }
   | { success: false; error: 'unauthorized' | 'invalid' | 'failed'; message?: string };
 
 const MAX_QUESTION = 300;
@@ -62,6 +63,26 @@ export async function createFaq(data: {
   if (data.category !== undefined && !isCategory(data.category)) return invalid('Unknown category');
 
   try {
+    // First write into an empty table auto-imports the starter FAQs: the
+    // public /faq fallback is all-or-nothing (any CMS row replaces ALL
+    // built-in questions), so without this a single new FAQ would silently
+    // drop the other section's content from the live site and its JSON-LD.
+    let seeded = false;
+    const existing = await fetchQuery(api.faqs.list, {
+      adminSecret: process.env.ADMIN_PASSWORD!,
+    });
+    if (existing.length === 0) {
+      for (const fallback of FALLBACK_FAQS) {
+        await fetchMutation(api.faqs.create, {
+          adminSecret: process.env.ADMIN_PASSWORD!,
+          question: fallback.question,
+          answer: fallback.answer,
+          category: fallback.category,
+        });
+      }
+      seeded = true;
+    }
+
     const id = await fetchMutation(api.faqs.create, {
       adminSecret: process.env.ADMIN_PASSWORD!,
       question,
@@ -69,7 +90,7 @@ export async function createFaq(data: {
       ...(data.category !== undefined ? { category: data.category } : {}),
     });
     invalidateFaqCaches();
-    return { success: true, id: id as string };
+    return { success: true, id: id as string, seeded };
   } catch {
     return failed('Could not save the FAQ');
   }

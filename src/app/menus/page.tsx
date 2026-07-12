@@ -1,32 +1,24 @@
 import Image from 'next/image';
 import { Metadata } from 'next';
 import { getCmsValue, getMenuItems, getSettings } from '@/lib/cms';
+import { resolveCategoryOrder } from '@/lib/menu-category-order';
 import { JsonLd, menuNode } from '@/lib/seo';
 import MenuClient from './MenuClient';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Catering Menus | Melting Moments Victoria BC',
+  title: 'Catering Menus',
   description: 'Browse our catering menus, from Italian family-style dinners to corporate luncheons and BBQ packages. Acclaimed cuisine in Victoria, BC.',
   openGraph: {
     url: '/menus',
     siteName: 'Melting Moments Catering',
     locale: 'en_CA',
     type: 'website',
-    title: 'Catering Menus | Melting Moments Victoria BC',
     description: 'Browse our catering menus. Italian family-style, corporate, BBQ, and more.',
-    images: ['/catering_menu_hero.webp'],
+    images: [{ url: '/og/og-menus.jpg', width: 1200, height: 630, alt: 'Assorted catering dishes by Melting Moments Catering' }],
   },
 };
-
-// Fallback section order when the menu_category_order setting is unset —
-// mirrors the original hardcoded order in MenuClient.tsx.
-const DEFAULT_CATEGORY_ORDER = [
-  'BREADS', 'ANTIPASTO', 'SALADS', 'STARCHES', 'VEGETABLES',
-  'SEAFOOD', 'ENTREES', 'PACKAGES', 'SOIREE', 'PEASANO',
-  'MEXICAN', 'BBQ', 'LUNCH', 'BREAKFAST', 'BEVERAGES',
-];
 
 // Public display names for JSON-LD MenuSection nodes.
 // Keep in sync with formatCategoryName in MenuClient.tsx.
@@ -78,8 +70,7 @@ export default async function MenusPage() {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
-  const baseOrder = savedOrder.length > 0 ? savedOrder : DEFAULT_CATEGORY_ORDER;
-  const categoryOrder = Array.from(new Set([...baseOrder, ...menuItems.map((m) => m.category)]));
+  const categoryOrder = resolveCategoryOrder(savedOrder, menuItems.map((m) => m.category));
 
   // schema.org Menu JSON-LD fed from the SAME server-fetched items.
   // menuNode emits an Offer only when price is a number (null prices skipped).

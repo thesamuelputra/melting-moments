@@ -158,6 +158,9 @@ export const restore = mutation({
     assertAdmin(args.adminSecret);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Inquiry not found");
+    // Only archived inquiries can be restored — restoring a live inquiry
+    // would silently reset its pipeline status.
+    if (existing.status !== "archived") return existing.status;
 
     const previous = existing.archivedFromStatus;
     const target =

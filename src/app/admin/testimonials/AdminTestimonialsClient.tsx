@@ -275,6 +275,9 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
         toast.success('Testimonial added');
       } else {
         setItems((prev) => prev.filter((t) => t.id !== tempId));
+        // Reopen the create panel (draft state is untouched) so the admin's
+        // typed content survives the failure instead of being discarded.
+        setPanel((current) => current ?? { mode: 'create' });
         fail(res.success ? REQUEST_FAILED : res, 'Failed to add testimonial');
       }
       setSaving(false);
@@ -465,6 +468,10 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
           getId={(t) => t.id}
           getLabel={(t) => `Testimonial from ${t.author}`}
           onReorder={handleReorder}
+          /* Reordering while an optimistic temp-id row exists would persist an
+             id list the server does not know yet — lock dragging until the
+             create settles and the real id is swapped in. */
+          disabled={items.some((t) => t.id.startsWith('temp-'))}
           renderItem={(item, { handleProps }) => {
             const rowPending = pendingIds.has(item.id) || item.id.startsWith('temp-');
             return (

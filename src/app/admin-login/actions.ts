@@ -21,8 +21,12 @@ const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_ATTEMPTS = 5;             // per-IP failures before backoff kicks in
 const BASE_LOCKOUT_MS = 30_000;     // 30 seconds, doubling per extra failure
 const GLOBAL_KEY = '__global__';
-const GLOBAL_MAX_ATTEMPTS = 20;     // total failures across all IPs before global backoff
-const STALE_ENTRY_MS = 60 * 60 * 1000; // prune records idle for 1h (longest lockout tier is < 1h)
+// The per-IP limiter is the primary defense (x-forwarded-for is platform-set
+// on Vercel). The global cap is a coarse backstop against distributed
+// guessing — set well above ambient bot noise so accumulated stray failures
+// can never lock out the real admin, and cleared on every successful login.
+const GLOBAL_MAX_ATTEMPTS = 100;
+const STALE_ENTRY_MS = 60 * 60 * 1000; // prune records idle for 1h
 let lastPruneAt = 0;
 
 // Evict stale records so the map cannot grow without bound on a long-lived
@@ -51,8 +55,9 @@ function checkRateLimit(key: string, maxAttempts: number): { blocked: boolean; r
   const record = loginAttempts.get(key);
   if (!record || record.count < maxAttempts) return { blocked: false };
 
-  // Exponential backoff: 30s, 60s, 120s, 240s...
-  const lockoutMs = BASE_LOCKOUT_MS * Math.pow(2, record.count - maxAttempts);
+  // Exponential backoff: 30s, 60s, 120s... capped at 32min so an active
+  // lockout always stays shorter than the 1h stale-entry prune window.
+  const lockoutMs = BASE_LOCKOUT_MS * Math.pow(2, Math.min(record.count - maxAttempts, 6));
   const elapsed = Date.now() - record.lastAttempt;
 
   if (elapsed < lockoutMs) {
@@ -93,6 +98,7 @@ export async function login(formData: FormData) {
 
   if (typeof password === 'string' && adminPassword && safeEqual(password, adminPassword)) {
     clearAttempts(key);
+    clearAttempts(GLOBAL_KEY); // a successful login proves the admin is not locked out — reset the backstop
     // v2 expiring token — see src/lib/auth.ts / src/proxy.ts for the format.
     const token = createSessionToken(Date.now() + SESSION_DURATION_MS);
     cookieStore.set(SESSION_COOKIE_NAME, token, {

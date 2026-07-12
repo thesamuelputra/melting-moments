@@ -81,6 +81,9 @@ function normalizeItemInput(
   const category = typeof input.category === 'string' ? input.category.trim() : '';
   if (!name) return { ok: false, message: 'Name is required' };
   if (!category) return { ok: false, message: 'Category is required' };
+  // menu_category_order is stored comma-joined — a comma in a category name
+  // would make that category impossible to reorder later.
+  if (category.includes(',')) return { ok: false, message: 'Category names cannot contain commas' };
   if (input.price !== null && (!Number.isFinite(input.price) || input.price < 0)) {
     return { ok: false, message: 'Price must be a non-negative number' };
   }
