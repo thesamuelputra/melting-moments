@@ -18,7 +18,7 @@ export type ActionResult = { success: true; id?: string } | ActionFailure;
 export type BulkDeleteResult = { success: true } | (ActionFailure & { failedIds?: string[] });
 
 /**
- * Full editable field set for create/edit. NEVER carries orderIndex:
+ * Full editable field set for create/edit. Never carries orderIndex:
  * - add: the Convex mutation appends (max(orderIndex) + 1 within the category);
  * - update: the Convex partial patch leaves orderIndex untouched when omitted.
  */
@@ -81,7 +81,7 @@ function normalizeItemInput(
   const category = typeof input.category === 'string' ? input.category.trim() : '';
   if (!name) return { ok: false, message: 'Name is required' };
   if (!category) return { ok: false, message: 'Category is required' };
-  // menu_category_order is stored comma-joined — a comma in a category name
+  // menu_category_order is stored comma-joined; a comma in a category name
   // would make that category impossible to reorder later.
   if (category.includes(',')) return { ok: false, message: 'Category names cannot contain commas' };
   if (input.price !== null && (!Number.isFinite(input.price) || input.price < 0)) {
@@ -120,7 +120,7 @@ export async function addMenuItem(input: MenuItemInput): Promise<ActionResult> {
       priceLabel: value.priceLabel,
       isActive: value.isActive,
       isFeatured: value.isFeatured,
-      // orderIndex intentionally omitted — backend appends within the category.
+      // orderIndex intentionally omitted; the backend appends within the category.
     });
     invalidateMenus();
     return { success: true, id: id as string };
@@ -149,7 +149,7 @@ export async function updateMenuItem(id: string, input: MenuItemInput): Promise<
       priceLabel: value.priceLabel,
       isActive: value.isActive,
       isFeatured: value.isFeatured,
-      // orderIndex intentionally omitted — the partial patch keeps the stored value.
+      // orderIndex intentionally omitted; the partial patch keeps the stored value.
     });
     invalidateMenus();
     return { success: true };
@@ -158,7 +158,7 @@ export async function updateMenuItem(id: string, input: MenuItemInput): Promise<
   }
 }
 
-/** Single-field toggle — sends ONLY the changed flag (partial-patch semantics). */
+/** Single-field toggle: sends only the changed flag (partial-patch semantics). */
 export async function setMenuItemFlag(
   id: string,
   flag: 'isActive' | 'isFeatured',
@@ -199,7 +199,7 @@ export async function deleteMenuItem(id: string): Promise<ActionResult> {
 }
 
 /**
- * ONE server action for bulk delete. No bulk mutation exists in the Convex API,
+ * One server action for bulk delete. No bulk mutation exists in the Convex API,
  * so it fans out remove calls with Promise.allSettled and reports which ids
  * failed so the client can restore exactly those rows.
  */
@@ -278,7 +278,7 @@ export async function saveCategoryOrder(categories: string[]): Promise<ActionRes
     return { success: false, error: 'invalid', message: 'Category list is empty' };
   }
   if (cleaned.some((c) => c.includes(','))) {
-    // The setting is comma-separated — a comma inside a name would corrupt it.
+    // The setting is comma-separated; a comma inside a name would corrupt it.
     return { success: false, error: 'invalid', message: 'Category names cannot contain commas' };
   }
 

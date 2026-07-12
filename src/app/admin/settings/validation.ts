@@ -1,6 +1,6 @@
 /**
  * Business-settings validation shared by the admin client (inline errors)
- * and the server action (authoritative check). Plain module — importable
+ * and the server action (authoritative check). Plain module, importable
  * from both 'use client' and 'use server' files.
  */
 
@@ -64,7 +64,7 @@ export function validateSettingsEntries(entries: Record<string, string>): Record
     } else if (key === 'emailOnNewInquiry') {
       if (value !== 'true' && value !== 'false') errors[key] = 'Invalid value';
     }
-    // owner, address, business_hours_note: free text — no format rules
+    // owner, address, business_hours_note: free text, no format rules
   }
   return errors;
 }

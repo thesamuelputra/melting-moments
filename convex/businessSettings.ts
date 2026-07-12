@@ -16,7 +16,7 @@ export const getAll = query({
   },
 });
 
-// Atomic multi-key save (upsert by key) — this is the "setMany".
+// Atomic multi-key save (upsert by key); this is the "setMany".
 // Optional `activity` overrides the default activity-log entry so callers
 // (Site Content vs Settings) can label the change appropriately.
 export const save = mutation({

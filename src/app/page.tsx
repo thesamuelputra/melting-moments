@@ -32,7 +32,7 @@ export default async function Home() {
   return (
     <div>
       {/* ================================================
-          HERO — Split brand names with vertical separator
+          HERO: Split brand names with vertical separator
           ================================================ */}
       <header className="hero-dark" style={{ width: '100%', minHeight: '100dvh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <Image src="/hero-main.webp" alt="Editorial Italian cuisine plating" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
@@ -51,7 +51,7 @@ export default async function Home() {
             </span>
           </div>
           <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 'var(--text-body)', maxWidth: '46ch', margin: '2rem auto 0 auto', lineHeight: 1.6 }}>
-            Catering for weddings, events and private dining across Vancouver Island — plus Guido&apos;s ready-made Italian, at home.
+            Catering for weddings, events and private dining across Vancouver Island, plus Guido&apos;s ready-made Italian, at home.
           </p>
           <Link href="/contact" className="btn-bone" style={{ marginTop: '2.25rem' }}>
             Get a Quote
@@ -60,7 +60,7 @@ export default async function Home() {
       </header>
 
       {/* ================================================
-          CHOOSER — Two editorial cards
+          CHOOSER: Two editorial cards
           ================================================ */}
       <section className="container" style={{ paddingTop: 'clamp(4rem, 8vw, 8rem)', paddingBottom: 'clamp(3rem, 6vw, 6rem)' }}>
         <div className="chooser-grid">
@@ -127,7 +127,7 @@ export default async function Home() {
                     <div role="img" aria-label={`${rev.rating} out of 5 stars`} style={{ color: '#E2C992', fontSize: '1.1rem', marginBottom: '1rem', letterSpacing: '0.1em' }}>{'★'.repeat(rev.rating)}</div>
                   ) : null}
                   <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontStyle: 'italic', color: 'var(--clr-oat)', lineHeight: 1.4, marginBottom: '1.5rem' }}>&ldquo;{rev.text}&rdquo;</p>
-                  <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>— {rev.author}</div>
+                  <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>{rev.author}</div>
                   {rev.role ? <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)', marginTop: '0.25rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{rev.role}</div> : null}
                 </div>
               ))}

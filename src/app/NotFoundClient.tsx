@@ -8,7 +8,7 @@ export default function NotFoundClient() {
   const pathname = usePathname();
   const isGuidosPath = pathname?.startsWith('/guidos');
 
-  // Log 404 hits for detecting broken external links (#30)
+  // Log 404 hits to help spot broken external links
   useEffect(() => {
     console.warn(`[404] Page not found: ${pathname}`);
   }, [pathname]);

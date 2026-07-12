@@ -5,7 +5,7 @@ import AdminTestimonialsClient, { type Testimonial } from './AdminTestimonialsCl
 export default async function AdminTestimonialsPage() {
   // null = Convex unreachable (client renders a "CMS unreachable" state
   // instead of crashing to the error boundary). An empty array is the real
-  // empty state — there are NO fallback testimonials anywhere: the public
+  // empty state; there are no fallback testimonials anywhere: the public
   // page shows a "get in touch" invitation until real quotes are added.
   let testimonials: Testimonial[] | null;
   try {
@@ -18,7 +18,7 @@ export default async function AdminTestimonialsPage() {
       role: t.role,
       text: t.text,
       rating: t.rating,
-      // Schema stores brand as a plain string (legacy rows) — narrow to the
+      // Schema stores brand as a plain string (legacy rows). Narrow to the
       // enum the client understands; anything else means "both".
       brand: t.brand === 'catering' || t.brand === 'guidos' ? t.brand : undefined,
       isActive: t.isActive,

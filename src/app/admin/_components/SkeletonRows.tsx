@@ -5,7 +5,7 @@ export type SkeletonRowsProps = {
   cols: number;
 };
 
-// Deterministic width sequence (no Math.random — SSR/hydration safe).
+// Deterministic width sequence (no Math.random; SSR/hydration safe).
 const WIDTHS = [82, 58, 91, 66, 74, 48];
 
 export default function SkeletonRows({ rows, cols }: SkeletonRowsProps) {

@@ -9,10 +9,10 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: 'Catering Services',
   description:
-    'Catering for weddings, corporate events and private dining across Vancouver Island. Chef Paul Silletta — 17 years, family recipes, in your kitchen on the day.',
+    'Catering for weddings, corporate events and private dining across Vancouver Island. Chef Paul Silletta: 17 years, family recipes, in your kitchen on the day.',
   openGraph: {
     description:
-      'Weddings, corporate, private & yacht dining, family style and chocolate fountains — catered across Vancouver Island by Chef Paul Silletta.',
+      'Weddings, corporate, private & yacht dining, family style and chocolate fountains, catered across Vancouver Island by Chef Paul Silletta.',
     images: [{ url: '/og/og-default.jpg', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
     url: '/catering',
     siteName: 'Melting Moments Catering',
@@ -32,7 +32,7 @@ const offerings = [
     name: 'Corporate',
     href: '/corporate',
     image: '/hero-main.webp',
-    line: 'Galas, launches and lunches — punctual, polished and easy to hand off.',
+    line: 'Galas, launches and lunches: punctual, polished and easy to hand off.',
   },
   {
     name: 'Private & Yacht Dining',
@@ -50,7 +50,7 @@ const offerings = [
     name: 'Chocolate Fountains',
     href: '/fountains',
     image: '/copper_pots.webp',
-    line: 'A warm, flowing centrepiece — premium chocolate, set up and tended for you.',
+    line: 'A warm, flowing centrepiece: premium chocolate, set up and tended for you.',
   },
 ];
 
@@ -86,7 +86,7 @@ export default async function Catering() {
               Catering, made by hand.
             </h2>
             <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, marginBottom: '1.5rem', lineHeight: 1.7 }}>
-              We cater weddings, corporate events and private dining across Vancouver Island — built
+              We cater weddings, corporate events and private dining across Vancouver Island, built
               around real food, real recipes, and the people at the table. Chef Paul Silletta has
               been cooking in Victoria for 17 years, and he is the one who shows up in your kitchen
               on the day.
@@ -201,7 +201,7 @@ export default async function Catering() {
                 </p>
                 <div>
                   <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>
-                    — {rev.author}
+                    {rev.author}
                   </div>
                   {rev.role && (
                     <div

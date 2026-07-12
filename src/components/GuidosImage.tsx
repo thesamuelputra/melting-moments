@@ -20,7 +20,7 @@ type GuidosImageProps = {
  *
  * The "Coming Soon" placeholder is always rendered behind the image; the real
  * photo fades in only once it has successfully loaded (onLoad). If the source
- * asset is missing — the optimizer 400/404s — onLoad never fires and the
+ * asset is missing (the optimizer 400/404s), onLoad never fires and the
  * placeholder simply stays, so there is never a broken/black box, regardless of
  * lazy-loading timing. Real product photography appears automatically once the
  * files are added to /public/guidos. The placeholder is a CSS background so the

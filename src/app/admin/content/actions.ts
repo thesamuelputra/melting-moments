@@ -20,7 +20,7 @@ const MAX_CONTENT_KEYS = 200;
 const MAX_CONTENT_VALUE_LENGTH = 5000;
 
 /**
- * Persists ONLY the entries it receives — the client sends a dirty-key diff,
+ * Persists only the entries it receives: the client sends a dirty-key diff,
  * never the full schema, so untouched keys are never blanket-published.
  */
 export async function saveSiteContent(entries: Record<string, string>): Promise<ActionResult> {
@@ -28,7 +28,7 @@ export async function saveSiteContent(entries: Record<string, string>): Promise<
     await requireAdmin();
   } catch (err) {
     if (err instanceof AdminAuthError) return { success: false, error: 'unauthorized' };
-    throw err; // ADMIN_PASSWORD unset — real server misconfig, let it surface
+    throw err; // ADMIN_PASSWORD unset: real server misconfig, let it surface
   }
 
   const pairs = Object.entries(entries ?? {});

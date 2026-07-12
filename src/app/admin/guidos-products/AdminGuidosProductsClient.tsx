@@ -39,7 +39,7 @@ type Product = {
   orderIndex: number;
 };
 
-/** Canonical Guido's categories — always offered, even when currently empty. */
+/** Canonical Guido's categories; always offered, even when currently empty. */
 const CANONICAL_CATEGORIES = ['Lasagnes', 'Pot Pies', 'Soups', 'Pasta', 'Desserts', 'Holiday'];
 
 const NEW_CATEGORY = '__new_category__';
@@ -96,9 +96,7 @@ function draftFromProduct(product: Product | null, defaultCategory: string): Dra
   };
 }
 
-/* ------------------------------------------------------------------ */
-/* Thumbnails                                                          */
-/* ------------------------------------------------------------------ */
+/* ===== Thumbnails ===== */
 
 function Thumb({ image, size = 44 }: { image: string; size?: number }) {
   const [broken, setBroken] = useState(false);
@@ -135,9 +133,7 @@ function Thumb({ image, size = 44 }: { image: string; size?: number }) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Main client                                                         */
-/* ------------------------------------------------------------------ */
+/* ===== Main client ===== */
 
 export default function AdminGuidosProductsClient({
   initialProducts,
@@ -172,7 +168,7 @@ export default function AdminGuidosProductsClient({
   const [confirmingDelete, setConfirmingDelete] = useState<Product | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
 
-  /* ---------------- categories (data ∪ canonical) ---------------- */
+  /* ===== categories (data ∪ canonical) ===== */
 
   const categories = useMemo(() => {
     const known = new Set(CANONICAL_CATEGORIES);
@@ -198,7 +194,7 @@ export default function AdminGuidosProductsClient({
     return [...set].sort();
   }, [libraryImages, products]);
 
-  /* ---------------- shared failure handling ---------------- */
+  /* ===== shared failure handling ===== */
 
   const surfaceFailure = (res: Extract<ActionResult, { success: false }>, fallback: string) => {
     if (res.error === 'unauthorized') setSessionExpired(true);
@@ -214,7 +210,7 @@ export default function AdminGuidosProductsClient({
     });
   };
 
-  /* ---------------- row mutations (optimistic) ---------------- */
+  /* ===== row mutations (optimistic) ===== */
 
   const toggleField = async (product: Product, field: 'isAvailable' | 'isLimitedEdition') => {
     if (pendingIds.has(product.id)) return;
@@ -237,7 +233,7 @@ export default function AdminGuidosProductsClient({
     } else {
       // Rollback to the snapshot value (row never moved, so index is unchanged).
       setProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, [field]: previous } : p)));
-      surfaceFailure(res, 'Could not save — change reverted');
+      surfaceFailure(res, 'Could not save. Change reverted');
     }
     markPending(product.id, false);
   };
@@ -254,7 +250,7 @@ export default function AdminGuidosProductsClient({
       toast.success('Order saved');
       return true;
     }
-    surfaceFailure(res, 'Could not save the new order — reverted');
+    surfaceFailure(res, 'Could not save the new order. Reverted');
     return false; // SortableList reverts to the pre-drag order
   };
 
@@ -271,18 +267,18 @@ export default function AdminGuidosProductsClient({
     if (res.success) {
       toast.success(`"${product.name}" deleted`);
     } else {
-      // …restored at its ORIGINAL index on failure.
+      // …restored at its original index on failure.
       setProducts((prev) => {
         if (prev.some((p) => p.id === product.id)) return prev;
         const next = [...prev];
         next.splice(Math.min(Math.max(originalIndex, 0), next.length), 0, product);
         return next;
       });
-      surfaceFailure(res, 'Could not delete — product restored');
+      surfaceFailure(res, 'Could not delete. Product restored');
     }
   };
 
-  /* ---------------- panel open/close ---------------- */
+  /* ===== panel open/close ===== */
 
   const openCreate = (category: string) => {
     const d = draftFromProduct(null, category === NEW_CATEGORY ? categories[0] : category);
@@ -310,7 +306,7 @@ export default function AdminGuidosProductsClient({
   const isDirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(initialDraft), [draft, initialDraft]);
   useDirtyGuard(panelOpen && isDirty);
 
-  /* ---------------- draft helpers ---------------- */
+  /* ===== draft helpers ===== */
 
   const patchDraft = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
 
@@ -341,7 +337,7 @@ export default function AdminGuidosProductsClient({
     ? Math.min(...(parsedSizePrices as number[]))
     : null;
 
-  /* ---------------- save ---------------- */
+  /* ===== save ===== */
 
   const validateDraft = (): { name: string; category: string; priceFrom: number; sizes: Size[]; image: string } | null => {
     const nextErrors: Record<string, string> = {};
@@ -428,7 +424,7 @@ export default function AdminGuidosProductsClient({
       return;
     }
 
-    // Edit: send ONLY changed fields — the backend is partial-patch.
+    // Edit: send only the changed fields; the backend is partial-patch.
     const original = editingProduct;
     const patch: ProductPatchInput = {};
     if (valid.name !== original.name) patch.name = valid.name;
@@ -475,7 +471,7 @@ export default function AdminGuidosProductsClient({
     }
   };
 
-  /* ---------------- render ---------------- */
+  /* ===== render ===== */
 
   const categorySelectOptions = [
     ...categories.map((c) => ({ value: c, label: c })),
@@ -638,7 +634,7 @@ export default function AdminGuidosProductsClient({
           />
         )}
 
-        {/* Price — derived from sizes when they exist */}
+        {/* Price: derived from sizes when they exist */}
         {draft.sizes.length > 0 ? (
           <div className="admin-field">
             <span className="admin-field__label">From price</span>
@@ -646,7 +642,7 @@ export default function AdminGuidosProductsClient({
               {derivedPriceFrom !== null ? (
                 <>
                   <strong>{formatPrice(derivedPriceFrom)}</strong>
-                  <span style={{ color: '#6B7280' }}> — derived automatically from the lowest size price.</span>
+                  <span style={{ color: '#6B7280' }}>, derived automatically from the lowest size price.</span>
                 </>
               ) : (
                 <span style={{ color: '#6B7280' }}>
@@ -676,7 +672,7 @@ export default function AdminGuidosProductsClient({
           </div>
           {draft.sizes.length === 0 && (
             <p style={{ fontSize: '0.75rem', color: '#6B7280', margin: '0.5rem 0 0' }}>
-              No sizes — the product is sold at the single “from” price above.
+              No sizes: the product is sold at the single “from” price above.
             </p>
           )}
           {draft.sizes.map((size, i) => (
@@ -742,7 +738,7 @@ export default function AdminGuidosProductsClient({
                 ? isRenderableImage(draft.image.trim())
                   ? draft.image.trim()
                   : 'Not a usable image reference'
-                : 'No image selected — the site shows a neutral placeholder.'}
+                : 'No image selected. The site shows a neutral placeholder.'}
             </p>
           </div>
           {imageOptions.length > 0 && (

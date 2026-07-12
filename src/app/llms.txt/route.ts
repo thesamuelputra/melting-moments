@@ -1,7 +1,7 @@
 import { getMenuItems, getGuidosProducts, getFaqs, getSettings } from '@/lib/cms';
 import { SITE, SERVICE_COMMUNITIES } from '@/lib/seo';
 
-// /llms.txt — curated business summary for answer engines (Perplexity,
+// /llms.txt: curated business summary for answer engines (Perplexity,
 // ChatGPT browsing, Claude, etc). Composed from live CMS content with the
 // same 300s ISR window as the public pages; each CMS getter degrades to a
 // pointer at the live page if Convex is unavailable.
@@ -37,11 +37,11 @@ export async function GET(): Promise<Response> {
   lines.push('');
 
   lines.push('## Services');
-  lines.push(`- Wedding catering — ${SITE.url}/weddings`);
-  lines.push(`- Corporate catering & office luncheons — ${SITE.url}/corporate`);
-  lines.push(`- Private events & dinner parties — ${SITE.url}/private-events`);
-  lines.push(`- Family-style dining — ${SITE.url}/family-style`);
-  lines.push(`- Chocolate & beverage fountains — ${SITE.url}/fountains`);
+  lines.push(`- Wedding catering: ${SITE.url}/weddings`);
+  lines.push(`- Corporate catering & office luncheons: ${SITE.url}/corporate`);
+  lines.push(`- Private events & dinner parties: ${SITE.url}/private-events`);
+  lines.push(`- Family-style dining: ${SITE.url}/family-style`);
+  lines.push(`- Chocolate & beverage fountains: ${SITE.url}/fountains`);
   lines.push('');
 
   lines.push('## Catering Menu');
@@ -55,7 +55,7 @@ export async function GET(): Promise<Response> {
         lines.push('');
         lines.push(`### ${oneLine(item.category)}`);
       }
-      const price = item.priceLabel ? ` — ${oneLine(item.priceLabel)}` : '';
+      const price = item.priceLabel ? `: ${oneLine(item.priceLabel)}` : '';
       lines.push(`- ${oneLine(item.name)}${price}`);
     }
   }
@@ -76,8 +76,8 @@ export async function GET(): Promise<Response> {
         product.sizes && product.sizes.length > 0
           ? ` (${product.sizes.map((s) => `${oneLine(s.label)} ${money(s.price)}`).join(', ')})`
           : '';
-      const limited = product.isLimitedEdition ? ' — limited edition' : '';
-      lines.push(`- ${oneLine(product.name)} — From ${money(product.priceFrom)}${sizes}${limited}`);
+      const limited = product.isLimitedEdition ? ', limited edition' : '';
+      lines.push(`- ${oneLine(product.name)}: From ${money(product.priceFrom)}${sizes}${limited}`);
     }
   }
   lines.push('');

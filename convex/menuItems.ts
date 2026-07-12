@@ -10,7 +10,7 @@ function byCategoryThenOrder(a: MenuItemSortable, b: MenuItemSortable): number {
   return a.orderIndex - b.orderIndex;
 }
 
-// Get all menu items (admin view — includes inactive)
+// Get all menu items (admin view, includes inactive)
 export const list = query({
   args: { adminSecret: v.string() },
   handler: async (ctx, args) => {
@@ -29,7 +29,7 @@ export const listActive = query({
   },
 });
 
-// Count items (non-PII — used by the admin dashboard)
+// Count items (non-PII, used by the admin dashboard)
 export const count = query({
   args: {},
   handler: async (ctx) => {
@@ -38,7 +38,7 @@ export const count = query({
   },
 });
 
-// Count unique categories (non-PII — used by the admin dashboard)
+// Count unique categories (non-PII, used by the admin dashboard)
 export const categoryCount = query({
   args: {},
   handler: async (ctx) => {
@@ -99,7 +99,7 @@ export const add = mutation({
   },
 });
 
-// Update a menu item — partial patch: only provided fields are written,
+// Update a menu item. Partial patch: only provided fields are written,
 // omitted fields are left untouched. Pass price: null to clear the price.
 export const update = mutation({
   args: {
@@ -149,7 +149,7 @@ export const update = mutation({
     if (args.isFeatured !== undefined) patch.isFeatured = args.isFeatured;
 
     // Moving to a different category with no explicit position: append to the
-    // destination (max+1), mirroring add() — keeping the source-category index
+    // destination (max+1), mirroring add(). Keeping the source-category index
     // would collide with the destination's existing indexes.
     if (
       patch.category !== undefined &&
@@ -189,8 +189,8 @@ export const remove = mutation({
 });
 
 // Atomically reorder a category: patches orderIndex = array position for
-// every id, in ONE transaction. Throws (rolling everything back) if any id
-// is missing or belongs to a different category.
+// every id, in a single transaction. Throws (rolling everything back) if any
+// id is missing or belongs to a different category.
 export const reorder = mutation({
   args: {
     adminSecret: v.string(),
@@ -201,10 +201,10 @@ export const reorder = mutation({
     assertAdmin(args.adminSecret);
     for (let i = 0; i < args.ids.length; i++) {
       const doc = await ctx.db.get(args.ids[i]);
-      if (!doc) throw new Error("Menu item not found — reorder aborted");
+      if (!doc) throw new Error("Menu item not found; reorder aborted");
       if (doc.category !== args.category) {
         throw new Error(
-          `"${doc.name}" is not in category "${args.category}" — reorder aborted`
+          `"${doc.name}" is not in category "${args.category}"; reorder aborted`
         );
       }
       await ctx.db.patch(args.ids[i], { orderIndex: i });

@@ -43,7 +43,7 @@ export default async function FAQ() {
 
   // CMS-first: sections are built from the live faqs by category. Only when
   // the CMS is completely empty (or unreachable) do the shared fallbacks
-  // render — the same ones the admin module offers to import.
+  // render, the same ones the admin module offers to import.
   const source: PublicFaq[] = cmsFaqs.length > 0 ? cmsFaqs : FALLBACK_FAQS;
   const cateringFaqs = source.filter((f) => f.category !== 'guidos'); // 'catering' + uncategorized
   const guidosFaqs = source.filter((f) => f.category === 'guidos');

@@ -7,7 +7,7 @@ export default function Preloader() {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    // Brand moment only on the first hard load per session — deep-link
+    // Brand moment only on the first hard load per session; deep-link
     // landings (ads, search) and returning visitors shouldn't pay it twice.
     let seen = false;
     try { seen = sessionStorage.getItem('mm-preloader') === '1'; } catch { /* private mode */ }
@@ -76,7 +76,7 @@ export default function Preloader() {
         color: 'var(--clr-bone)',
       }}
     >
-      {/* Brand Mark — Dual brand lockup */}
+      {/* Brand mark: dual brand lockup */}
       <div className={`preloader__brand ${loaded ? 'preloader__brand--exit' : ''}`}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(1rem, 3vw, 2rem)' }} className="preloader-lockup">
           <div style={{ textAlign: 'center' }}>

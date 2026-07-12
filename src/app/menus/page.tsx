@@ -72,7 +72,7 @@ export default async function MenusPage() {
     .filter(Boolean);
   const categoryOrder = resolveCategoryOrder(savedOrder, menuItems.map((m) => m.category));
 
-  // schema.org Menu JSON-LD fed from the SAME server-fetched items.
+  // schema.org Menu JSON-LD fed from the same server-fetched items.
   // menuNode emits an Offer only when price is a number (null prices skipped).
   const sections = categoryOrder
     .map((cat) => ({

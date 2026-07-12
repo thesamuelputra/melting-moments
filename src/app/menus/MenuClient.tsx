@@ -15,7 +15,7 @@ type MenuItem = {
   isFeatured: boolean;
 };
 
-// Items priced this way carry no distinct figure — they are bundled into the
+// Items priced this way carry no distinct figure; they are bundled into the
 // package/per-person rate. We surface this once per section as a quiet note
 // instead of repeating the same bold word on every row.
 const INCLUDED_LABEL = 'Included';
@@ -26,7 +26,6 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
   const [isDesktop, setIsDesktop] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
-  // Show/hide scroll-to-top button (#22)
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 600);
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -111,7 +110,7 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
     }
   };
 
-  // Scroll-spy: the active section is the LAST header at or above the reading
+  // Scroll-spy: the active section is the last header at or above the reading
   // line (140px under the fixed nav), so exactly one chip/index entry is lit
   // even mid-section. Drives the sticky index (desktop) and the rail (mobile).
   // rAF-throttled; setState with an unchanged value is a no-op re-render-wise.
@@ -125,7 +124,7 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
         const el = document.getElementById(id);
         if (!el) continue;
         if (el.getBoundingClientRect().top <= 140) current = id;
-        else break; // sections are in DOM order — the rest are below the line
+        else break; // sections are in DOM order; the rest are below the line
       }
       setActiveSection(current ?? ids[0] ?? null);
     };
@@ -157,8 +156,8 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
   return (
     <section className="container" style={{ paddingTop: 'clamp(1rem, 2vw, 2rem)', paddingBottom: '8rem' }}>
 
-      {/* MOBILE SECTION RAIL — sticky anchors under the nav (hidden on
-          desktop via CSS, where the sticky left index takes over) */}
+      {/* Mobile section rail: sticky anchors under the nav (hidden on
+          desktop via CSS, where the sticky left index takes over). */}
       <nav ref={railRef} aria-label="Menu sections" className="menu-rail">
         {availableCategories.map(cat => (
           <a
@@ -239,9 +238,8 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
                   const included = !item.priceLabel || isIncluded(item.priceLabel);
                   return (
                     <div key={item.id} className="menu-grid-constraint">
-                      {/* Per-row section numbering removed — the section header
-                          carries the single index marker. Spacer keeps the
-                          existing 3-column reading grid aligned. */}
+                      {/* The empty first cell keeps the 3-column reading grid
+                          aligned; the section header carries the index marker. */}
                       <div aria-hidden="true" />
                       <div>
                         <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
@@ -276,7 +274,7 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
         </div>
       </div>
 
-      {/* ── SERVICES NOTICE ── */}
+      {/* ===== Services notice ===== */}
       <div style={{ marginTop: '4rem', borderTop: '1px solid var(--clr-charcoal)', paddingTop: '3rem' }}>
         <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.8, maxWidth: '65ch' }}>
           {disclaimer}
@@ -286,9 +284,8 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
         </div>
       </div>
 
-      {/* STICKY "GET A QUOTE" CTA — converts intent mid-scroll, not only at the
-          page bottom. Sits above the scroll-to-top control so they never
-          collide. */}
+      {/* Sticky "Get a Quote" CTA, offset so it never collides with the
+          scroll-to-top control. */}
       <Link
         href="/contact"
         className="btn-solid btn-solid--stay"
@@ -313,8 +310,8 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
         Get a Quote
       </Link>
 
-      {/* Scroll to Top Button (#22) — stays mounted so it can fade out
-          instead of popping */}
+      {/* Scroll-to-top button stays mounted so it can fade out instead of
+          popping. */}
       <button
         onClick={() => {
           const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

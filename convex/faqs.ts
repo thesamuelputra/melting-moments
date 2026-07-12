@@ -2,7 +2,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { assertAdmin, logActivity, requireText, truncateDetail } from "./lib";
 
-// All FAQs (admin view — includes inactive), sorted by orderIndex
+// All FAQs (admin view, includes inactive), sorted by orderIndex
 export const list = query({
   args: { adminSecret: v.string() },
   handler: async (ctx, args) => {
@@ -12,7 +12,7 @@ export const list = query({
   },
 });
 
-// Active FAQs (public view), sorted by orderIndex — includes `category`
+// Active FAQs (public view), sorted by orderIndex; includes `category`
 export const listActive = query({
   args: {},
   handler: async (ctx) => {
@@ -64,7 +64,7 @@ export const create = mutation({
   },
 });
 
-// Update an FAQ — partial patch: only provided fields are written, omitted
+// Update an FAQ. Partial patch: only provided fields are written, omitted
 // fields are left untouched. Pass category: null to clear it (general FAQ).
 export const update = mutation({
   args: {
@@ -127,14 +127,15 @@ export const remove = mutation({
 });
 
 // Atomically reorder all FAQs: patches orderIndex = array position for every
-// id, in ONE transaction. Throws (rolling everything back) on any unknown id.
+// id, in a single transaction. Throws (rolling everything back) on any
+// unknown id.
 export const reorder = mutation({
   args: { adminSecret: v.string(), ids: v.array(v.id("faqs")) },
   handler: async (ctx, args) => {
     assertAdmin(args.adminSecret);
     for (let i = 0; i < args.ids.length; i++) {
       const doc = await ctx.db.get(args.ids[i]);
-      if (!doc) throw new Error("FAQ not found — reorder aborted");
+      if (!doc) throw new Error("FAQ not found; reorder aborted");
       await ctx.db.patch(args.ids[i], { orderIndex: i });
     }
     await logActivity(ctx, { action: "Reordered FAQs", section: "FAQ" });

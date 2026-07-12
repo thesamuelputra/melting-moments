@@ -38,8 +38,7 @@ export default function CorporateMenuClient({ menuItems }: { menuItems: MenuItem
   return (
     <section className="container" style={{ paddingTop: 'clamp(2rem, 4vw, 4rem)', paddingBottom: '8rem' }}>
       
-      {/* Category Tabs — quiet underline filters (mirrors Guido's menu),
-          not CTA-weight buttons */}
+      {/* Category tabs */}
       <div className="category-tabs">
         <button
           className={`category-tab ${filter === 'ALL' ? 'category-tab--active' : ''}`}
@@ -74,8 +73,7 @@ export default function CorporateMenuClient({ menuItems }: { menuItems: MenuItem
 
             {items.map((item) => (
               <div key={item.id} className="menu-grid-constraint">
-                {/* Per-row numbering removed — the section header carries the
-                    single index marker. Spacer keeps the 3-column grid aligned. */}
+                {/* Spacer keeps the 3-column grid aligned */}
                 <div aria-hidden="true" />
                 <div>
                   <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{item.name}</h3>

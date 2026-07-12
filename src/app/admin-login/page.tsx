@@ -15,14 +15,13 @@ export default function AdminLogin() {
 
     const formData = new FormData(e.currentTarget);
     try {
-      const result = await login(formData); // Will redirect on success
-      // Only hit this if login failed
+      const result = await login(formData); // redirects on success
       if (result?.error) {
         setError(result.error);
       }
     } catch (err) {
       // redirect() rejects with an internal NEXT_REDIRECT error that Next
-      // must handle — rethrow it; only real failures reach the fallback.
+      // must handle; rethrow it so only real failures reach the fallback.
       unstable_rethrow(err);
       setError('Something went wrong. Please try again.');
     } finally {

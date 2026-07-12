@@ -1,10 +1,8 @@
-/* ============================================================
-   MELTING MOMENTS — ADMIN DASHBOARD STYLES
+/* ===== Melting Moments admin dashboard styles =====
    Bespoke dark-sidebar admin that shares brand DNA.
-   All classes prefixed with .admin- to avoid leaking.
-   ============================================================ */
+   All classes prefixed with .admin- to avoid leaking. */
 
-/* ── Layout Shell ────────────────────────────────────────── */
+/* ===== Layout Shell ===== */
 .admin-layout {
   display: block;
   min-height: 100dvh;
@@ -117,7 +115,7 @@
   color: rgba(255,255,255,0.7);
 }
 
-/* ── Main Content ────────────────────────────────────────── */
+/* ===== Main Content ===== */
 .admin-main {
   margin-left: var(--admin-sidebar-width, 240px);
   min-height: 100dvh;
@@ -179,7 +177,7 @@
   max-width: 1200px;
 }
 
-/* ── KPI Cards ───────────────────────────────────────────── */
+/* ===== KPI Cards ===== */
 .admin-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -227,7 +225,7 @@
 .admin-kpi-card__trend--down { color: #B91C1C; }
 .admin-kpi-card__trend--neutral { color: rgba(0,0,0,0.3); }
 
-/* ── Data Tables ─────────────────────────────────────────── */
+/* ===== Data Tables ===== */
 .admin-table-container {
   background: white;
   border: 1px solid rgba(0,0,0,0.06);
@@ -301,7 +299,7 @@
   color: rgba(0,0,0,0.4);
 }
 
-/* ── Status Badges ───────────────────────────────────────── */
+/* ===== Status Badges ===== */
 .admin-badge {
   display: inline-flex;
   align-items: center;
@@ -354,7 +352,7 @@
   background: currentColor;
 }
 
-/* ── Action Buttons ──────────────────────────────────────── */
+/* ===== Action Buttons ===== */
 .admin-btn {
   display: inline-flex;
   align-items: center;
@@ -392,7 +390,7 @@
   font-size: 0.7rem;
 }
 
-/* ── Section Cards ───────────────────────────────────────── */
+/* ===== Section Cards ===== */
 .admin-section {
   background: white;
   border: 1px solid rgba(0,0,0,0.06);
@@ -419,13 +417,13 @@
   padding: 1.5rem;
 }
 
-/* ── Sparkline ───────────────────────────────────────────── */
+/* ===== Sparkline ===== */
 .admin-sparkline {
   height: 60px;
   width: 100%;
 }
 
-/* ── Calendar ────────────────────────────────────────────── */
+/* ===== Calendar ===== */
 .admin-calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -475,7 +473,7 @@
   bottom: 4px;
 }
 
-/* ── Modal / Slide Panel ─────────────────────────────────── */
+/* ===== Modal / Slide Panel ===== */
 .admin-modal-overlay {
   position: fixed;
   inset: 0;
@@ -548,7 +546,7 @@
   line-height: 1.5;
 }
 
-/* ── Inline Edit ─────────────────────────────────────────── */
+/* ===== Inline Edit ===== */
 .admin-inline-input {
   width: 100%;
   padding: 0.5rem 0.6rem;
@@ -566,7 +564,7 @@
   background: white;
 }
 
-/* ── Tabs ────────────────────────────────────────────────── */
+/* ===== Tabs ===== */
 .admin-tabs {
   display: flex;
   gap: 0;
@@ -603,7 +601,7 @@
   border-bottom-color: var(--clr-ink);
 }
 
-/* ── Grid Layouts ────────────────────────────────────────── */
+/* ===== Grid Layouts ===== */
 .admin-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -616,7 +614,7 @@
   gap: 1.25rem;
 }
 
-/* ── Animations ──────────────────────────────────────────── */
+/* ===== Animations ===== */
 @keyframes adminFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -627,7 +625,7 @@
   to { transform: translateX(0); }
 }
 
-/* ── Mobile ──────────────────────────────────────────────── */
+/* ===== Mobile ===== */
 @media (max-width: 1024px) {
   .admin-kpi-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -701,7 +699,7 @@
   background: rgba(0,0,0,0.02);
 }
 
-/* CSS custom property for sidebar width — used by sticky save bar */
+/* CSS custom property for sidebar width, used by the sticky save bar */
 :root {
   --admin-sidebar-width: 240px;
 }
@@ -726,7 +724,7 @@
   50% { opacity: 0.4; }
 }
 
-/* Disabled buttons must read as disabled — no hover inversion, no pointer */
+/* Disabled buttons must read as disabled: no hover inversion, no pointer */
 .admin-btn:disabled {
   opacity: 0.45;
   cursor: default;
@@ -741,15 +739,12 @@
   color: white;
 }
 
-/* ============================================================
-   ── UI Kit ──
+/* ===== UI kit =====
    Shared admin components (src/app/admin/_components/):
    toasts, dialogs, slide panel, sortable rows, fields, switch,
-   empty state, skeletons. Appended — do not fold into blocks
-   above.
-   ============================================================ */
+   empty state, skeletons. */
 
-/* Sidebar width token — 0 on mobile (sidebar is off-canvas) so sticky
+/* Sidebar width token: 0 on mobile (sidebar is off-canvas) so sticky
    bars using left: var(--admin-sidebar-width) span the full viewport.
    The drawer itself keeps its physical 240px width. */
 @media (max-width: 768px) {
@@ -761,7 +756,7 @@
   }
 }
 
-/* ── Toasts ──────────────────────────────────────────────── */
+/* ===== Toasts ===== */
 .admin-toast-stack {
   position: fixed;
   right: 1.25rem;
@@ -837,7 +832,7 @@
   to   { opacity: 1; transform: none; }
 }
 
-/* ── Confirm Dialog ──────────────────────────────────────── */
+/* ===== Confirm Dialog ===== */
 .admin-dialog-overlay {
   position: fixed;
   inset: 0;
@@ -887,7 +882,7 @@
   to   { opacity: 1; transform: none; }
 }
 
-/* Destructive confirm — #B91C1C family, consistent w/ .admin-badge--declined */
+/* Destructive confirm: #B91C1C family, consistent with .admin-badge--declined */
 .admin-btn--danger {
   background: #B91C1C;
   color: white;
@@ -904,7 +899,7 @@
   color: white;
 }
 
-/* ── Slide Panel (extends .admin-modal) ──────────────────── */
+/* ===== Slide Panel (extends .admin-modal) ===== */
 .admin-modal--panel {
   padding: 0;
   display: flex;
@@ -956,7 +951,7 @@
   }
 }
 
-/* ── Fields ──────────────────────────────────────────────── */
+/* ===== Fields ===== */
 .admin-field {
   margin-bottom: 1.25rem;
 }
@@ -1072,7 +1067,7 @@ select.admin-field__input--select {
   margin-bottom: 0.15rem;
 }
 
-/* ── Toggle Switch ───────────────────────────────────────── */
+/* ===== Toggle Switch ===== */
 .admin-switch {
   position: relative;
   flex-shrink: 0;
@@ -1112,7 +1107,7 @@ select.admin-field__input--select {
   transform: translateX(18px);
 }
 
-/* ── Sortable List ───────────────────────────────────────── */
+/* ===== Sortable List ===== */
 .admin-sortable-list {
   list-style: none;
   margin: 0;
@@ -1175,7 +1170,7 @@ select.admin-field__input--select {
   background: none;
 }
 
-/* ── Empty State ─────────────────────────────────────────── */
+/* ===== Empty State ===== */
 .admin-empty {
   text-align: center;
   padding: 3rem 1.5rem;
@@ -1201,7 +1196,7 @@ select.admin-field__input--select {
   margin-top: 1.25rem;
 }
 
-/* ── Skeletons ───────────────────────────────────────────── */
+/* ===== Skeletons ===== */
 .admin-skeleton-rows {
   display: flex;
   flex-direction: column;
@@ -1240,7 +1235,7 @@ select.admin-field__input--select {
   100% { transform: translateX(100%); }
 }
 
-/* ── Focus-visible parity (new + existing interactive) ───── */
+/* ===== Focus-visible parity (new + existing interactive) ===== */
 .admin-btn:focus-visible,
 .admin-tab:focus-visible,
 .admin-drag-handle:focus-visible,
@@ -1257,7 +1252,7 @@ select.admin-field__input--select {
   outline-offset: -2px;
 }
 
-/* ── Reduced motion guards ───────────────────────────────── */
+/* ===== Reduced motion guards ===== */
 @media (prefers-reduced-motion: reduce) {
   .admin-toast,
   .admin-dialog,

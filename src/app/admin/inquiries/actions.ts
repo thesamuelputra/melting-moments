@@ -37,7 +37,7 @@ async function ensureAdmin(): Promise<AuthFailure | null> {
     if (err instanceof AdminAuthError) {
       return { success: false, error: 'unauthorized' };
     }
-    throw err; // ADMIN_PASSWORD unset — real server misconfig, let it surface
+    throw err; // ADMIN_PASSWORD unset: real server misconfig, let it surface
   }
 }
 

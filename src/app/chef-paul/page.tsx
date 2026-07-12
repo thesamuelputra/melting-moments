@@ -5,7 +5,7 @@ import { JsonLd, breadcrumbList, personChefPaul } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Chef Paul Silletta',
-  description: "Meet Chef Paul Silletta — 17 years of culinary craft behind Melting Moments Catering and Guido's Gourmet in Victoria, BC.",
+  description: "Meet Chef Paul Silletta: 17 years of culinary craft behind Melting Moments Catering and Guido's Gourmet in Victoria, BC.",
   openGraph: {
     url: '/chef-paul',
     siteName: 'Melting Moments Catering',

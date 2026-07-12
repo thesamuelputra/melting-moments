@@ -75,7 +75,7 @@ export default async function PrivateEvents() {
             </div>
         </header>
 
-        {/* Why Choose Private Catering (#24) */}
+        {/* Why choose private catering */}
         <section className="container" style={{ paddingTop: '2rem', paddingBottom: '6rem' }}>
           <div className="noire-divider" style={{ marginBottom: '3rem' }} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem' }}>

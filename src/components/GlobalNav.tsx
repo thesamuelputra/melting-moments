@@ -138,7 +138,7 @@ export default function GlobalNav() {
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
-  // Focus trap + Escape handler + focus management + body scroll lock for mobile nav (#6)
+  // Focus trap, Escape handling, focus return, and body scroll lock for the mobile nav
   useEffect(() => {
     if (!isOpen) return;
 
@@ -202,7 +202,7 @@ export default function GlobalNav() {
   // visibility:hidden removes the invisible nav's controls from the tab order (it still animates)
   const navVisibility = visible ? 'visible' as const : 'hidden' as const;
 
-  // Context-aware CTA — consistent verbs: "Get a Quote" for catering, "Order Now" for Guido's
+  // Context-aware CTA: "Get a Quote" for catering, "Order Now" for Guido's
   const ctaLabel = isGuidosPage ? 'Order Now' : 'Get a Quote';
   const ctaHref = isGuidosPage ? '/guidos/order' : '/contact';
 
@@ -272,7 +272,7 @@ export default function GlobalNav() {
           </button>
       </nav>
 
-      {/* Mobile Navigation Panel — always mounted so close eases like open
+      {/* Mobile navigation panel: always mounted so close eases like open
           (visibility keeps it out of the tab order while closed) */}
       {(
         <div

@@ -43,7 +43,7 @@ function SessionExpiredNotice() {
         display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap',
       }}
     >
-      <span>Session expired — log in again to keep editing.</span>
+      <span>Session expired. Log in again to keep editing.</span>
       <Link href="/admin-login" className="admin-btn admin-btn--sm" style={{ textDecoration: 'none' }}>
         Log in
       </Link>
@@ -88,12 +88,12 @@ export default function AdminBannerClient({ initial }: { initial: BannerFormData
         setBaseline(data);
         setSaveError('');
         setSessionExpired(false);
-        toast.success('Banner saved — live site updated');
+        toast.success('Banner saved. Live site updated');
       } else if (res.error === 'unauthorized') {
         setSessionExpired(true);
-        toast.error('Session expired — log in again');
+        toast.error('Session expired. Log in again');
       } else {
-        const message = ('message' in res && res.message) || 'Failed to save the banner — please try again';
+        const message = ('message' in res && res.message) || 'Failed to save the banner. Please try again';
         setSaveError(message);
         toast.error(message);
       }

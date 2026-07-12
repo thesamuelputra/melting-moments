@@ -1,7 +1,7 @@
 /**
  * Banner validation shared by the admin client (inline errors) and the
- * server action (authoritative check). Plain module — no 'use client' /
- * 'use server' so both sides can import it.
+ * server action (authoritative check). Plain module: no 'use client' /
+ * 'use server', so both sides can import it.
  */
 
 export const BANNER_STYLES = ['dark', 'accent', 'light'] as const;
@@ -20,8 +20,8 @@ export function isBannerShowOn(value: string): value is BannerShowOn {
 
 /**
  * The banner link is optional. When present it must be either a same-site
- * relative path ('/contact') or an absolute https:// URL. Everything else —
- * javascript:, data:, http:, protocol-relative '//evil.com' — is rejected,
+ * relative path ('/contact') or an absolute https:// URL. Everything else
+ * (javascript:, data:, http:, protocol-relative '//evil.com') is rejected,
  * because the value is rendered as a <Link href> on every public page.
  */
 export function isValidBannerLink(link: string): boolean {

@@ -2,15 +2,14 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import crypto from 'crypto';
 
-// ---------------------------------------------------------------------------
-// Admin session tokens — v2 format: `v2.<expiresAtMs>.<hmacHex>`
+// ===== Admin session tokens =====
+// v2 format: `v2.<expiresAtMs>.<hmacHex>`
 //   hmacHex = HMAC-SHA256(key = ADMIN_PASSWORD,
 //                         message = 'melting-moments-admin-session.' + expiresAtMs)
 //
-// KEEP IN LOCKSTEP with src/proxy.ts (WebCrypto implementation for the
+// Keep in lockstep with src/proxy.ts (the WebCrypto implementation for the
 // middleware runtime). Any change to the format, message prefix, or expiry
 // semantics must be mirrored there.
-// ---------------------------------------------------------------------------
 
 const TOKEN_MESSAGE_PREFIX = 'melting-moments-admin-session.';
 
@@ -60,8 +59,8 @@ export function createSessionToken(expiresAtMs: number): string {
 
 /**
  * Verifies a v2 session token: format, expiry, and HMAC (constant-time).
- * Old-format (v1, non-expiring) tokens fail here by design — holders simply
- * re-login.
+ * Old-format (v1, non-expiring) tokens fail here by design; holders simply
+ * log in again.
  */
 export function verifySessionToken(token: string | undefined): boolean {
   const secret = process.env.ADMIN_PASSWORD;
@@ -73,7 +72,7 @@ export function verifySessionToken(token: string | undefined): boolean {
   const expiresAt = Number(parts[1]);
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return false;
 
-  // HMAC over the *string as it appears in the token* — no re-serialization.
+  // HMAC over the string exactly as it appears in the token; no re-serialization.
   const expected = hmacHex(secret, TOKEN_MESSAGE_PREFIX + parts[1]);
   return safeEqual(parts[2], expected);
 }

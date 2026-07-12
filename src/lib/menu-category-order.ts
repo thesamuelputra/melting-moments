@@ -1,5 +1,5 @@
 /**
- * Curated default order of catering menu sections — the single source of
+ * Curated default order of catering menu sections, and the single source of
  * truth shared by the public /menus page and the admin Menu Editor's
  * "Order categories" panel, so both sides agree on what "unset" means.
  * Persisted overrides live in the businessSettings key `menu_category_order`.

@@ -3,7 +3,7 @@
  *
  * These render on the public /faq page whenever the CMS `faqs` table is
  * empty, and seed the CMS via the admin FAQ module's "Import starter FAQs"
- * button. Both surfaces import from here — never duplicate these strings
+ * button. Both surfaces import from here; never duplicate these strings
  * (a copy in the admin module previously drifted from the public page).
  *
  * Categories map to the public page sections:
@@ -19,7 +19,7 @@ export type FallbackFaq = {
 };
 
 export const FALLBACK_FAQS: FallbackFaq[] = [
-  // ── Catering ─────────────────────────────────────────────────────────
+  // ===== Catering =====
   {
     question: 'How far in advance should I book?',
     answer:
@@ -44,7 +44,7 @@ export const FALLBACK_FAQS: FallbackFaq[] = [
       'Absolutely. We are highly experienced in creating exceptional vegan, gluten-free, and allergy-safe menus that meet our exacting standards.',
     category: 'catering',
   },
-  // ── Guido's Gourmet (ready-made meals) ───────────────────────────────
+  // ===== Guido's Gourmet (ready-made meals) =====
   {
     question: 'How do I place an order for ready-made meals?',
     answer:

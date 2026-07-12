@@ -10,7 +10,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
   const isNavigating = useRef(false);
   const prevPathname = useRef(pathname);
 
-  // Intercept ALL internal link clicks BEFORE Next.js handles them
+  // Intercept internal link clicks before Next.js handles them
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest('a');
@@ -26,8 +26,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
       if (href === pathname || isNavigating.current) return;
 
       // Respect reduced motion: skip the shutter entirely and let Next.js
-      // navigate instantly (no preventDefault, no artificial delay). Previously
-      // these users got the JS delay with no visual — the opposite of intent.
+      // navigate instantly (no preventDefault, no artificial delay).
       if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
       // Prevent Next.js Link from navigating immediately
@@ -35,7 +34,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
       e.preventDefault();
       isNavigating.current = true;
 
-      // Step 1: Fire shutter — covers the current page
+      // Step 1: Fire the shutter to cover the current page
       setShutterActive(true);
 
       // Step 2: Navigate once the shutter is mostly covering (fully at 500ms)
@@ -44,7 +43,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
         router.push(href);
       }, 300);
 
-      // Step 3: Clean up only after the reveal fully completes — the last
+      // Step 3: Clean up only after the reveal fully completes. The last
       // panel finishes at ~1.2s (see .page-shutter--active in globals.css);
       // removing the class earlier snaps the panels mid-animation.
       setTimeout(() => {
@@ -53,7 +52,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
       }, 1250);
     };
 
-    // Capture phase fires BEFORE React's synthetic event handlers
+    // Capture phase fires before React's synthetic event handlers
     document.addEventListener('click', handleClick, true);
     return () => document.removeEventListener('click', handleClick, true);
   }, [pathname, router]);
@@ -68,7 +67,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
 
   return (
     <>
-      {/* Shutter overlay — closes first, then opens to reveal new page */}
+      {/* Shutter overlay: closes first, then opens to reveal the new page */}
       <div
         className={`page-shutter ${shutterActive ? 'page-shutter--active' : ''}`}
         aria-hidden="true"

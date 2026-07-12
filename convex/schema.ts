@@ -21,8 +21,8 @@ export default defineSchema({
     guestCount: v.string(),
     date: v.string(),
     venue: v.string(),
-    // "new" | "contacted" | "booked" | "declined" | "archived" — enum enforced
-    // at mutation args (INQUIRY_STATUSES in convex/lib.ts); schema stays
+    // "new" | "contacted" | "booked" | "declined" | "archived"; enforced at
+    // mutation args (INQUIRY_STATUSES in convex/lib.ts). The schema stays
     // v.string() so existing rows remain valid.
     status: v.string(),
     notes: v.string(), // customer-submitted, immutable after create
@@ -38,7 +38,7 @@ export default defineSchema({
     value: v.string(),
   }).index("by_key", ["key"]),
 
-  // FAQs — CMS-managed
+  // FAQs (CMS-managed)
   faqs: defineTable({
     question: v.string(),
     answer: v.string(),
@@ -48,20 +48,20 @@ export default defineSchema({
     isActive: v.boolean(),
   }),
 
-  // Testimonials — CMS-managed
+  // Testimonials (CMS-managed)
   testimonials: defineTable({
     author: v.string(),
     role: v.optional(v.string()),    // e.g. "Wedding Client" or "CEO, Victoria Tech Group"
     text: v.string(),
-    rating: v.optional(v.float64()), // 1-5 integer — enforced at mutation args
-    // "catering" | "guidos" | undefined (shows on both) — enum enforced at
-    // mutation args; schema stays v.string() so existing rows remain valid.
+    rating: v.optional(v.float64()), // 1-5 integer, enforced at mutation args
+    // "catering" | "guidos" | undefined (shows on both); enforced at mutation
+    // args. The schema stays v.string() so existing rows remain valid.
     brand: v.optional(v.string()),
     orderIndex: v.float64(),
     isActive: v.boolean(),
   }),
 
-  // Activity log — tracks CMS changes
+  // Activity log: tracks CMS changes
   activityLog: defineTable({
     action: v.string(),        // e.g. "Updated site content", "Added FAQ", "Toggled banner"
     section: v.string(),       // e.g. "Site Content", "FAQ", "Banner"
@@ -69,7 +69,7 @@ export default defineSchema({
     performedAt: v.float64(),  // timestamp ms
   }).index("by_performedAt", ["performedAt"]),
 
-  // Guido's Gourmet — Products (CMS-managed)
+  // Guido's Gourmet products (CMS-managed)
   guidosProducts: defineTable({
     name: v.string(),
     category: v.string(),
@@ -84,7 +84,7 @@ export default defineSchema({
     orderIndex: v.float64(),
   }).index("by_category", ["category"]),
 
-  // dormant — media module removed; table retained so existing rows stay valid
+  // Dormant: the media module was removed; table retained so existing rows stay valid
   siteImages: defineTable({
     storageId: v.id("_storage"),
     title: v.string(),
@@ -95,18 +95,18 @@ export default defineSchema({
   }).index("by_section", ["section"])
     .index("by_uploadedAt", ["uploadedAt"]),
 
-  // Guido's Gourmet — Orders
+  // Guido's Gourmet orders
   guidosOrders: defineTable({
     customerName: v.string(),
     customerEmail: v.string(),
     customerPhone: v.string(),
     items: v.string(),
-    // "delivery" | "pickup" — enum enforced at guidosOrders.create args;
+    // "delivery" | "pickup"; enforced at guidosOrders.create args. The
     // schema stays v.string() so existing rows remain valid.
     deliveryMethod: v.string(),
     deliveryAddress: v.optional(v.string()),
     notes: v.optional(v.string()),
-    // "received" | "preparing" | "ready" | "delivered" | "picked_up" — enum
+    // "received" | "preparing" | "ready" | "delivered" | "picked_up";
     // enforced at mutation args (ORDER_STATUSES in convex/lib.ts).
     status: v.string(),
     submittedAt: v.float64(), // timestamp ms

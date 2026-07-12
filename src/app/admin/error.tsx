@@ -38,7 +38,7 @@ export default function AdminError({
               Something went wrong
             </h2>
             <p style={{ fontSize: '0.85rem', color: 'rgba(0,0,0,0.5)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-              An unexpected error occurred while loading this page. Your data is safe — try again, and if the problem persists, refresh the browser.
+              An unexpected error occurred while loading this page. Your data is safe. Try again, and if the problem persists, refresh the browser.
               {error.digest && (
                 <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.7rem', color: 'rgba(0,0,0,0.35)' }}>
                   Error reference: {error.digest}

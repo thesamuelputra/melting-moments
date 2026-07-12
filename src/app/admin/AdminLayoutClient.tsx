@@ -7,7 +7,7 @@ type NavLink = { href: string; label: string; icon: React.ReactNode; liveTag?: b
 type NavDivider = { divider: string };
 type NavItem = NavLink | NavDivider;
 
-// Breadcrumb config — maps pathname prefixes to human-readable label chains
+// Breadcrumb config: maps pathname prefixes to human-readable label chains
 const BREADCRUMBS: Array<{ match: (p: string) => boolean; crumbs: Array<{ label: string; href?: string }> }> = [
   { match: p => p === '/admin', crumbs: [{ label: 'Dashboard' }] },
   { match: p => p.startsWith('/admin/inquiries'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Inquiries' }] },
@@ -91,7 +91,7 @@ function buildNavItems(bannerEnabled: boolean): NavItem[] {
   ];
 }
 
-// Shared dirty-state registry — forms can register/unregister themselves
+// Shared dirty-state registry. Forms register/unregister themselves
 // so the layout can intercept navigation if there are unsaved changes.
 type DirtyListener = () => boolean;
 const _listeners = new Set<DirtyListener>();
@@ -113,7 +113,7 @@ export default function AdminLayoutClient({ children, bannerEnabled, displayName
 
   useEffect(() => { setIsSidebarOpen(false); }, [pathname]);
 
-  // Warn on refresh / tab close / back-forward while any form is dirty —
+  // Warn on refresh / tab close / back-forward while any form is dirty;
   // the in-app nav guard below only covers link clicks.
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -170,7 +170,7 @@ export default function AdminLayoutClient({ children, bannerEnabled, displayName
   }, [navConfirm]);
 
   const handleNavClick = useCallback((href: string, e: React.MouseEvent) => {
-    // Modifier clicks open a new tab/window — nothing is lost, let them through.
+    // Modifier clicks open a new tab or window; nothing is lost, so let them through.
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     if (href === pathname) return;
     if (isAnyFormDirty()) {
@@ -194,12 +194,12 @@ export default function AdminLayoutClient({ children, bannerEnabled, displayName
     }
   }, [navConfirm, router, performLogout]);
 
-  // Page title for the document <h1> — the last breadcrumb names the current page.
+  // Page title for the document <h1>: the last breadcrumb names the current page.
   const pageTitle = breadcrumbs[breadcrumbs.length - 1]?.label ?? 'Admin';
 
   return (
     <div className="admin-layout">
-      {/* Skip-to-content link — mirrors the public shell's .skip-nav */}
+      {/* Skip-to-content link, mirrors the public shell's .skip-nav */}
       <a href="#admin-main" className="skip-nav">Skip to content</a>
       {/* Dirty-nav confirmation modal */}
       {navConfirm && (
@@ -331,7 +331,7 @@ export default function AdminLayoutClient({ children, bannerEnabled, displayName
           </div>
         </header>
         <main id="admin-main" className="admin-content">
-          {/* Document heading for the page — visually hidden because the page name
+          {/* Document heading for the page, visually hidden because the page name
               is already shown in the breadcrumb above; keeps a single, named <h1>
               per admin page for screen readers and the heading outline. */}
           <h1 style={{

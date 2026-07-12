@@ -40,8 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-
-# audit working artifacts (not for commit)
+# local tooling artifacts
 audit-artifacts/
 .playwright-mcp/
-.playwright-mcp/
+.claude/

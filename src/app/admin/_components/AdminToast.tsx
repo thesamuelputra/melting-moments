@@ -54,7 +54,7 @@ function ToastIcon({ kind }: { kind: ToastKind }) {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastEntry[]>([]);
   const idCounter = useRef(0);
-  // One timer PER toast — a new toast must never cancel/steal an older toast's timer.
+  // One timer per toast; a new toast must never cancel an older toast's timer.
   const timers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
 
   const clearTimer = useCallback((id: number) => {
@@ -78,7 +78,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       const id = ++idCounter.current;
       setToasts((prev) => {
         const next = [...prev, { id, kind, message }];
-        // Evict oldest beyond the cap — and clear their timers so they can't fire later.
+        // Evict the oldest beyond the cap and clear their timers so they can't fire later.
         while (next.length > MAX_TOASTS) {
           const evicted = next.shift();
           if (evicted) clearTimer(evicted.id);

@@ -2,7 +2,7 @@
 
 /**
  * Persistent (non-expiring) error toast shown when a server action reports
- * 'unauthorized' — the admin session is gone, so every further save will fail.
+ * 'unauthorized': the admin session is gone, so every further save will fail.
  * Rendered with the UI-kit toast classes; the action link goes to /admin-login.
  * A full <a> navigation (not <Link>) is intentional: the session is dead, so a
  * hard navigation with a fresh server render is the safest path.
@@ -28,7 +28,7 @@ export default function SessionExpiredToast({ open }: { open: boolean }) {
             <line x1="12" y1="16.5" x2="12.01" y2="16.5" />
           </svg>
         </span>
-        <p className="admin-toast__message">Session expired — log in again</p>
+        <p className="admin-toast__message">Session expired. Log in again</p>
         <a href="/admin-login" className="admin-btn admin-btn--sm" style={{ flexShrink: 0 }}>
           Log in
         </a>

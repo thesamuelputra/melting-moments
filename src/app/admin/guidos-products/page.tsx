@@ -17,7 +17,7 @@ async function listGuidosImages(): Promise<string[]> {
       .sort()
       .map((file) => `/guidos/${file}`);
   } catch {
-    return []; // directory missing — the picker just shows the URL field
+    return []; // directory missing: the picker just shows the URL field
   }
 }
 

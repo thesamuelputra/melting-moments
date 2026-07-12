@@ -44,7 +44,7 @@ export default async function Weddings() {
   const steps = [
     { step: '01', title: cms('weddings_step1_title', 'Consultation'), desc: cms('weddings_step1_desc', 'We discuss your vision, dietary needs, venue logistics, and budget to craft a personalized proposal.') },
     { step: '02', title: cms('weddings_step2_title', 'Private Tasting'), desc: cms('weddings_step2_desc', 'You and your partner experience the proposed menu firsthand with Chef Paul for final refinements.') },
-    { step: '03', title: cms('weddings_step3_title', 'Your Day'), desc: cms('weddings_step3_desc', 'Our team arrives hours early for seamless setup. You focus on the celebration. We handle everything else.') },
+    { step: '03', title: cms('weddings_step3_title', 'Your Day'), desc: cms('weddings_step3_desc', 'Our team arrives hours early and sets everything up quietly. You focus on the celebration. We handle everything else.') },
   ];
 
   return (
@@ -75,7 +75,7 @@ export default async function Weddings() {
             </div>
         </header>
 
-        {/* How It Works — Process Section (#24) */}
+        {/* Process section */}
         <section className="haus-block-container" style={{ marginTop: 'clamp(2rem, 4vw, 4rem)' }}>
           <div className="container">
             <div className="menu-index" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2rem' }}>The Process</div>

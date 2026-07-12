@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     'Read what our clients say about their experience with Melting Moments Catering in Victoria, BC.',
 };
 
-/** Only whole-number 1–5 ratings render stars / structured data. */
+/** Only whole-number 1-5 ratings render stars / structured data. */
 const isValidRating = (r: unknown): r is number =>
   typeof r === 'number' && Number.isInteger(r) && r >= 1 && r <= 5;
 
@@ -56,7 +56,7 @@ export default async function Testimonials() {
                 )}
                 <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', lineHeight: 1.4, marginBottom: '2rem', fontStyle: 'italic' }}>&ldquo;{rev.text}&rdquo;</p>
                 <div>
-                  <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>— {rev.author}</div>
+                  <div className="menu-index" style={{ color: 'var(--clr-bone)', opacity: 0.8 }}>{rev.author}</div>
                   {rev.role && <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)', marginTop: '0.25rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{rev.role}</div>}
                 </div>
               </div>

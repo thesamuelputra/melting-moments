@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  // Don't cache — banner status must be live (connection() replaces the
-  // legacy unstable_noStore per this Next version's docs).
+  // Don't cache: banner status must be live. connection() replaces the
+  // legacy unstable_noStore in this Next version.
   await connection();
   // Defense in depth over the proxy middleware: re-verify the session cookie
   // on every admin render; bounce to login on failure.

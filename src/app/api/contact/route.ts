@@ -52,7 +52,6 @@ export async function POST(request: Request) {
       notes: details,
     });
     
-    // Dispatch Email Notification to Owner
     if (process.env.RESEND_API_KEY) {
       // Admin notification preference: only 'false' suppresses the owner
       // email (missing/any other value = notify). A settings outage must
@@ -75,14 +74,14 @@ export async function POST(request: Request) {
       const eVenue = escapeHtml(venue);
       const eDetails = escapeHtml(details);
 
-      // Email to Chef Paul / business owner — skipped when the admin turned
+      // Email to Chef Paul / business owner; skipped when the admin turned
       // off "Email on new inquiry" (customer confirmation is unaffected).
       if (notifyOwner) {
         const { error: ownerEmailError } = await resend!.emails.send({
           from: `Melting Moments Catering <${FROM_ADDRESS}>`,
           to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
           replyTo: email,
-          subject: `New Catering Inquiry: ${clean(eventType)} - ${clean(name)}`,
+          subject: `New Catering Inquiry: ${clean(eventType)} from ${clean(name)}`,
           html: `
             <h2>New Booking Inquiry</h2>
             <p><strong>Name:</strong> ${eName}</p>
@@ -108,7 +107,7 @@ export async function POST(request: Request) {
       const { error: confirmationEmailError } = await resend!.emails.send({
         from: `Melting Moments Catering <${FROM_ADDRESS}>`,
         to: email,
-        subject: 'Thank you for your inquiry. Melting Moments Catering',
+        subject: 'Melting Moments Catering: Thank you for your inquiry',
         html: `
           <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #070707;">
             <div style="text-align: center; padding: 3rem 2rem; border-bottom: 1px solid #eee;">

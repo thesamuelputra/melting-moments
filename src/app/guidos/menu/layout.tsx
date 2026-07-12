@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  // Guido's carries its own brand — bypass the Melting Moments title template.
+  // Guido's carries its own brand, so bypass the Melting Moments title template.
   title: { absolute: "Menu | Guido's Gourmet Ready-Made Meals, Victoria BC" },
   description: 'Lasagnes, pot pies, soups, pasta, and desserts. Order online or visit by appointment. Delivery available in Victoria, BC.',
   openGraph: {

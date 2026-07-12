@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { JsonLd, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  // Guido's carries its own brand — bypass the Melting Moments title template.
+  // Guido's carries its own brand, so bypass the Melting Moments title template.
   title: { absolute: "Order | Guido's Gourmet Ready-Made Meals, Victoria BC" },
   description: 'Order ready-made Italian meals for delivery or pickup in Victoria, BC. Flat rate delivery $12.50.',
   openGraph: {

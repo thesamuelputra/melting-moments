@@ -94,7 +94,7 @@ function formSignature(f: FormState): string {
 /**
  * Saved order first (kept even when a category is currently empty); when the
  * setting is unset, fall back to the same curated DEFAULT_CATEGORY_ORDER the
- * public /menus page uses — never a bare alphabetical list, or the first
+ * public /menus page uses; never a bare alphabetical list, or the first
  * "Order categories" save would silently reorder the live site. Unknown
  * categories are appended alphabetically either way.
  */
@@ -121,9 +121,7 @@ function restoreMany(prev: MenuItem[], entries: { item: MenuItem; index: number 
   return next;
 }
 
-/* ------------------------------------------------------------------ */
-/* Row content — shared by the sortable view and the search results    */
-/* ------------------------------------------------------------------ */
+/* ===== Row content (shared by the sortable view and the search results) ===== */
 
 function ItemRowContent({
   item,
@@ -236,7 +234,7 @@ function ItemRowContent({
             ? `Remove Chef's Pick from ${item.name}`
             : `Mark ${item.name} as Chef's Pick`
         }
-        title={item.isFeatured ? "Chef's Pick — click to remove" : "Mark as Chef's Pick"}
+        title={item.isFeatured ? "Chef's Pick. Click to remove" : "Mark as Chef's Pick"}
         style={{ paddingLeft: '0.45rem', paddingRight: '0.45rem', flexShrink: 0, lineHeight: 0 }}
       >
         <svg
@@ -280,9 +278,7 @@ function ItemRowContent({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Main manager                                                        */
-/* ------------------------------------------------------------------ */
+/* ===== Main manager ===== */
 
 function MenuManager({ initialItems, savedCategoryOrder }: Props) {
   const toast = useToast();
@@ -337,7 +333,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
     setCategoryOrder(resolveCategoryOrder(savedCategoryOrder, initialItems));
   }
 
-  /* ---------------- derived data ---------------- */
+  /* ===== Derived data ===== */
 
   const categories = useMemo(() => {
     const known = new Set(categoryOrder);
@@ -364,7 +360,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
     [items, activeCategory]
   );
 
-  // Search spans ALL categories, grouped by category in display order.
+  // Search spans all categories, grouped by category in display order.
   const searchGroups = useMemo(() => {
     if (!searchActive) return [];
     const matches = items.filter(
@@ -385,7 +381,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
     [searchActive, searchGroups, categoryItems]
   );
 
-  // Bulk selection respects VISIBLE rows only — prune whenever the view changes
+  // Bulk selection respects visible rows only; prune whenever the view changes
   // (render-phase adjustment keyed on the visible id list).
   const visibleIdsKey = visibleRows.map((r) => r.id).join('|');
   const [prevVisibleKey, setPrevVisibleKey] = useState(visibleIdsKey);
@@ -410,7 +406,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
   const isDirty = panel !== null && formSignature(form) !== initialSig;
   useDirtyGuard(isDirty);
 
-  /* ---------------- helpers ---------------- */
+  /* ===== Helpers ===== */
 
   const markPending = (id: string, on: boolean) => {
     setPendingIds((prev) => {
@@ -438,13 +434,13 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
   ) => {
     if (failure.error === 'unauthorized') {
       setSessionExpired(true);
-      toast.error('Session expired — log in again');
+      toast.error('Session expired, log in again');
       return;
     }
     toast.error(failure.message ?? fallback);
   };
 
-  /* ---------------- selection ---------------- */
+  /* ===== Selection ===== */
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -464,7 +460,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
     });
   };
 
-  /* ---------------- toggles (optimistic, per-row pending) ---------------- */
+  /* ===== Toggles (optimistic, per-row pending) ===== */
 
   const toggleFlag = (item: MenuItem, flag: 'isActive' | 'isFeatured') => {
     if (pendingIds.has(item.id)) return;
@@ -485,12 +481,12 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
         setItems((prev) =>
           prev.map((i) => (i.id === item.id ? { ...i, [flag]: !nextValue } : i))
         );
-        handleFailure(res, 'Failed to update — reverted');
+        handleFailure(res, 'Failed to update, reverted');
       }
     })();
   };
 
-  /* ---------------- create / edit panel ---------------- */
+  /* ===== Create / edit panel ===== */
 
   const openCreate = () => {
     const defaultCat =
@@ -640,7 +636,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
         if (res.success) {
           toast.success(`Updated "${payload.name}"`);
         } else {
-          // Rollback to the snapshot (same index — replaced in place).
+          // Rollback to the snapshot (same index, replaced in place).
           setItems((prev) => prev.map((i) => (i.id === original.id ? original : i)));
           setPanel((current) => (current === null ? { mode: 'edit', item: original } : current));
           handleFailure(res, 'Failed to save changes');
@@ -649,7 +645,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
     }
   };
 
-  /* ---------------- delete ---------------- */
+  /* ===== Delete ===== */
 
   const performDelete = () => {
     const item = confirmDelete;
@@ -664,9 +660,9 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
       if (res.success) {
         toast.success(`Deleted "${item.name}"`);
       } else {
-        // Restore at the ORIGINAL index, not appended at the end.
+        // Restore at the original index, not appended at the end.
         setItems((prev) => restoreMany(prev, [{ item, index: Math.max(index, 0) }]));
-        handleFailure(res, `Failed to delete "${item.name}" — restored`);
+        handleFailure(res, `Failed to delete "${item.name}", restored`);
       }
     })();
   };
@@ -700,13 +696,13 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
       const deletedCount = ids.length - toRestore.length;
       toast.error(
         deletedCount > 0
-          ? `Deleted ${deletedCount} of ${ids.length} — ${toRestore.length} failed and ${toRestore.length === 1 ? 'was' : 'were'} restored`
-          : 'Failed to delete the selected items — restored'
+          ? `Deleted ${deletedCount} of ${ids.length}; ${toRestore.length} failed and ${toRestore.length === 1 ? 'was' : 'were'} restored`
+          : 'Failed to delete the selected items; they were restored'
       );
     })();
   };
 
-  /* ---------------- render ---------------- */
+  /* ===== Render ===== */
 
   const rowProps = (item: MenuItem, handleProps?: SortableHandleProps) => ({
     item,
@@ -744,7 +740,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
             flexWrap: 'wrap',
           }}
         >
-          <span>Session expired — recent changes were not saved. Log in again to continue.</span>
+          <span>Session expired. Recent changes were not saved. Log in again to continue.</span>
           <Link href="/admin-login" className="admin-btn admin-btn--sm" style={{ color: '#B91C1C', flexShrink: 0 }}>
             Log in again
           </Link>
@@ -819,7 +815,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
             type="button"
             className="admin-btn admin-btn--sm"
             onClick={() => setSearch('')}
-            title="Drag-to-reorder works per category — clear the search to drag items"
+            title="Drag-to-reorder works per category. Clear the search to drag items"
             style={{ borderStyle: 'dashed', color: 'rgba(0,0,0,0.55)', flexShrink: 0 }}
           >
             Clear search to reorder
@@ -1004,7 +1000,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
                   toast.success('Order saved');
                   return true;
                 }
-                handleFailure(res, 'Failed to save order — reverted');
+                handleFailure(res, 'Failed to save order, reverted');
                 return false; // SortableList reverts to the pre-drag order
               }}
               renderItem={(item, { handleProps }) => (
@@ -1085,7 +1081,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
             onChange={onLabelChange}
             help={
               form.labelTouched
-                ? `Custom label — suggestion from price: ${labelSuggestion}`
+                ? `Custom label. Suggestion from price: ${labelSuggestion}`
                 : 'Follows the price automatically until you edit it.'
             }
           />
@@ -1104,7 +1100,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
         </form>
       </SlidePanel>
 
-      {/* Category order panel — each drop persists immediately */}
+      {/* Category order panel; each drop persists immediately */}
       <SlidePanel
         open={catPanelOpen}
         title="Order categories"
@@ -1132,7 +1128,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
               toast.success('Category order saved');
               return true;
             }
-            handleFailure(res, 'Failed to save category order — reverted');
+            handleFailure(res, 'Failed to save category order, reverted');
             return false;
           }}
           renderItem={(cat, { handleProps }) => (
@@ -1159,7 +1155,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
         />
       </SlidePanel>
 
-      {/* Single delete confirmation — names the item */}
+      {/* Single delete confirmation */}
       <ConfirmDialog
         open={confirmDelete !== null}
         title={confirmDelete ? `Delete "${confirmDelete.name}"?` : 'Delete item?'}
@@ -1185,7 +1181,7 @@ function MenuManager({ initialItems, savedCategoryOrder }: Props) {
 }
 
 export default function AdminMenuClient(props: Props) {
-  // ToastProvider is not mounted globally — wrap this module's client tree.
+  // ToastProvider is not mounted globally, so wrap this module's client tree.
   return (
     <ToastProvider>
       <MenuManager {...props} />

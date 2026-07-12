@@ -13,7 +13,7 @@ import { TextAreaField, TextField, useDirtyGuard, useToast } from '../_component
  *
  * IMPORTANT: every `default` below is an exact copy of the hardcoded fallback
  * in the consuming public page (grep the key in src/app to verify). If a page
- * fallback changes, update it here too — the editor treats `default` as the
+ * fallback changes, update it here too; the editor treats `default` as the
  * "built-in site copy" for the Reset control.
  */
 const CONTENT_SCHEMA = [
@@ -41,7 +41,7 @@ const CONTENT_SCHEMA = [
         hint: 'Top of the About page, "01 · The Studio"',
         fields: [
           { key: 'about_header_index', label: 'Section Index', hint: 'Small label (e.g. 01 · The Studio)', type: 'text' as const, default: '01 · The Studio' },
-          { key: 'about_header_title', label: 'Title', hint: 'Large stacked display title — each line of text is one line on the page', type: 'text' as const, default: 'COOKED\nWITH CARE' },
+          { key: 'about_header_title', label: 'Title', hint: 'Large stacked display title: each line of text is one line on the page', type: 'text' as const, default: 'COOKED\nWITH CARE' },
           { key: 'about_header_tagline', label: 'Tagline', hint: 'Serif tagline to the right of the image', type: 'text' as const, default: 'We believe good food should make an occasion feel like one.' },
           { key: 'about_header_body', label: 'Body Text', hint: 'Paragraph below the tagline', type: 'textarea' as const, default: 'We started in a family kitchen in Victoria, BC, and we still cook that way: from scratch, by hand, with menus built around your event rather than a set list.' },
         ],
@@ -51,7 +51,7 @@ const CONTENT_SCHEMA = [
         hint: 'Dark block, "02 · Our Philosophy"',
         fields: [
           { key: 'about_philosophy_index', label: 'Section Index', hint: 'Small label', type: 'text' as const, default: '02 · Our Philosophy' },
-          { key: 'about_philosophy_title', label: 'Title', hint: 'Large stacked display title — each line of text is one line on the page', type: 'text' as const, default: 'SOURCED FROM\nTHE EARTH' },
+          { key: 'about_philosophy_title', label: 'Title', hint: 'Large stacked display title: each line of text is one line on the page', type: 'text' as const, default: 'SOURCED FROM\nTHE EARTH' },
           { key: 'about_philosophy_tagline', label: 'Tagline', hint: 'Serif paragraph', type: 'text' as const, default: 'We buy from Vancouver Island farms and independent purveyors we know by name.' },
           { key: 'about_philosophy_body', label: 'Body Text', hint: 'Paragraph below the tagline', type: 'textarea' as const, default: 'Good food starts with good ingredients, so we cook with what the Island is growing right now. That means your menu tastes like the season your celebration lands in.' },
         ],
@@ -67,7 +67,7 @@ const CONTENT_SCHEMA = [
         hint: 'Top of the Menus page',
         fields: [
           { key: 'menus_header_index', label: 'Subtitle', hint: 'Small label above the title', type: 'text' as const, default: 'Explore Our Offerings' },
-          { key: 'menus_header_title', label: 'Title', hint: 'Large stacked display title — each line of text is one line on the page', type: 'text' as const, default: 'CATERING\nMENUS' },
+          { key: 'menus_header_title', label: 'Title', hint: 'Large stacked display title: each line of text is one line on the page', type: 'text' as const, default: 'CATERING\nMENUS' },
         ],
       },
       {
@@ -105,7 +105,7 @@ const CONTENT_SCHEMA = [
           { key: 'weddings_step2_title', label: 'Step 2 Title', hint: 'e.g. Private Tasting', type: 'text' as const, default: 'Private Tasting' },
           { key: 'weddings_step2_desc', label: 'Step 2 Description', hint: 'Body text for step 2', type: 'textarea' as const, default: 'You and your partner experience the proposed menu firsthand with Chef Paul for final refinements.' },
           { key: 'weddings_step3_title', label: 'Step 3 Title', hint: 'e.g. Your Day', type: 'text' as const, default: 'Your Day' },
-          { key: 'weddings_step3_desc', label: 'Step 3 Description', hint: 'Body text for step 3', type: 'textarea' as const, default: 'Our team arrives hours early for seamless setup. You focus on the celebration. We handle everything else.' },
+          { key: 'weddings_step3_desc', label: 'Step 3 Description', hint: 'Body text for step 3', type: 'textarea' as const, default: 'Our team arrives hours early and sets everything up quietly. You focus on the celebration. We handle everything else.' },
         ],
       },
     ],
@@ -149,7 +149,7 @@ const CONTENT_SCHEMA = [
         hint: 'Top of the Corporate page',
         fields: [
           { key: 'corporate_header_index', label: 'Section Label', hint: 'Small label above the title', type: 'text' as const, default: 'Corporate Functions' },
-          { key: 'corporate_header_title', label: 'Title', hint: 'Large stacked display title — each line of text is one line on the page', type: 'text' as const, default: 'BOARDROOM\nTO BANQUET' },
+          { key: 'corporate_header_title', label: 'Title', hint: 'Large stacked display title: each line of text is one line on the page', type: 'text' as const, default: 'BOARDROOM\nTO BANQUET' },
           { key: 'corporate_body_1', label: 'Paragraph 1', hint: 'First body paragraph', type: 'textarea' as const, default: "You've got less than 24 hours to plan a continental breakfast or a lunch. It has to be good. It has to be quick. It has to be now. Why bother trying to get reservations somewhere, or trying to find something that will please everyone, when we can bring it all right to you?" },
           { key: 'corporate_body_2', label: 'Paragraph 2', hint: 'Second body paragraph', type: 'textarea' as const, default: "Whether it's that breakfast for 300 in your lobby or a formal boardroom luncheon for 20, a simple brown-bag lunch or a full china and crystal setting we've got it covered." },
         ],
@@ -191,7 +191,7 @@ function SessionExpiredNotice() {
         display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap',
       }}
     >
-      <span>Session expired — log in again to keep editing.</span>
+      <span>Session expired. Log in again to keep editing.</span>
       <Link href="/admin-login" className="admin-btn admin-btn--sm" style={{ textDecoration: 'none' }}>
         Log in
       </Link>
@@ -234,8 +234,8 @@ export default function AdminContentClient({ initialContent }: { initialContent:
       toast.info('Nothing to publish');
       return;
     }
-    // Dirty-key diff: persist ONLY fields the admin actually changed — never
-    // blanket-publish untouched keys (that silently overwrote live copy before).
+    // Dirty-key diff: persist only the fields the admin actually changed, so
+    // untouched keys are never blanket-published over live copy.
     const payload: Record<string, string> = {};
     for (const key of dirtyKeys) payload[key] = content[key];
     const count = dirtyKeys.length;
@@ -248,12 +248,12 @@ export default function AdminContentClient({ initialContent }: { initialContent:
         setBaseline((prev) => ({ ...prev, ...payload }));
         setLastSavedAt(new Date());
         setSessionExpired(false);
-        toast.success(`Published ${count} change${count === 1 ? '' : 's'} — live site updated`);
+        toast.success(`Published ${count} change${count === 1 ? '' : 's'}. Live site updated`);
       } else if (res.error === 'unauthorized') {
         setSessionExpired(true);
-        toast.error('Session expired — log in again');
+        toast.error('Session expired. Log in again');
       } else {
-        toast.error(('message' in res && res.message) || 'Failed to save content — please try again');
+        toast.error(('message' in res && res.message) || 'Failed to save content. Please try again');
       }
     });
   };
@@ -336,7 +336,7 @@ export default function AdminContentClient({ initialContent }: { initialContent:
                 const value = content[field.key] ?? field.default;
                 const isEdited = value !== baseline[field.key];
                 const isCustomized = value !== field.default;
-                // Multi-line copy (stacked display titles etc.) needs a textarea —
+                // Multi-line copy (stacked display titles etc.) needs a textarea;
                 // a single-line input can't enter the newline the page splits on.
                 const multiline = field.type === 'textarea' || field.default.includes('\n');
                 return (

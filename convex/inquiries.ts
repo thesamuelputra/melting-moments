@@ -69,7 +69,7 @@ export const counts = query({
 });
 
 // Create a new inquiry (from the public contact form).
-// Customer-submitted fields are immutable after create — admin edits go to
+// Customer-submitted fields are immutable after create; admin edits go to
 // adminNotes via updateAdminNotes.
 export const create = mutation({
   args: {
@@ -158,7 +158,7 @@ export const restore = mutation({
     assertAdmin(args.adminSecret);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Inquiry not found");
-    // Only archived inquiries can be restored — restoring a live inquiry
+    // Only archived inquiries can be restored; restoring a live inquiry
     // would silently reset its pipeline status.
     if (existing.status !== "archived") return existing.status;
 

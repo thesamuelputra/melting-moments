@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
  
 export default function sitemap(): MetadataRoute.Sitemap {
-  // Tiered priorities: conversion pages highest, utility lowest (#11)
+  // Tiered priorities: conversion pages highest, utility lowest.
   const routes: { path: string; priority: number; changeFrequency: 'weekly' | 'monthly' | 'yearly' }[] = [
     { path: '', priority: 1, changeFrequency: 'monthly' },
     // High-value conversion pages
@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Utility pages
     { path: '/faq', priority: 0.6, changeFrequency: 'monthly' },
     { path: '/service-area', priority: 0.6, changeFrequency: 'yearly' },
-    // (/quote intentionally omitted — it 308-redirects to /contact)
+    // (/quote intentionally omitted; it 308-redirects to /contact)
     // Legal pages
     { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
     { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },

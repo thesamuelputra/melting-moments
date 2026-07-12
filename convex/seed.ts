@@ -95,7 +95,7 @@ const allItems = [
 ];
 
 // Run via CLI: npx convex run seed:seedMenuItems '{"adminSecret":"..."}'
-// Refuses to touch a non-empty table unless { force: true } is passed —
+// Refuses to touch a non-empty table unless { force: true } is passed;
 // force wipes the table before re-inserting the hardcoded data.
 export const seedMenuItems = mutation({
   args: { adminSecret: v.string(), force: v.optional(v.boolean()) },
@@ -106,7 +106,7 @@ export const seedMenuItems = mutation({
       return {
         seeded: 0,
         skipped: true,
-        reason: `menuItems already has ${existing.length} rows — pass { force: true } to wipe and reseed`,
+        reason: `menuItems already has ${existing.length} rows; pass { force: true } to wipe and reseed`,
       };
     }
 
@@ -115,7 +115,6 @@ export const seedMenuItems = mutation({
       await ctx.db.delete(item._id);
     }
 
-    // Insert all
     for (const item of allItems) {
       await ctx.db.insert("menuItems", {
         category: item.category,
@@ -163,7 +162,7 @@ const guidosProducts = [
 ];
 
 // Run via CLI: npx convex run seed:seedGuidosProducts '{"adminSecret":"..."}'
-// Refuses to touch a non-empty table unless { force: true } is passed —
+// Refuses to touch a non-empty table unless { force: true } is passed;
 // force wipes the table before re-inserting the hardcoded data.
 export const seedGuidosProducts = mutation({
   args: { adminSecret: v.string(), force: v.optional(v.boolean()) },
@@ -174,7 +173,7 @@ export const seedGuidosProducts = mutation({
       return {
         seeded: 0,
         skipped: true,
-        reason: `guidosProducts already has ${existing.length} rows — pass { force: true } to wipe and reseed`,
+        reason: `guidosProducts already has ${existing.length} rows; pass { force: true } to wipe and reseed`,
       };
     }
 
@@ -183,7 +182,6 @@ export const seedGuidosProducts = mutation({
       await ctx.db.delete(item._id);
     }
 
-    // Insert all
     for (const item of guidosProducts) {
       await ctx.db.insert("guidosProducts", {
         name: item.name,

@@ -33,7 +33,7 @@ async function guard(): Promise<typeof unauthorized | null> {
 }
 
 // Public pages cache CMS reads under the 'cms' tag (src/lib/cms.ts);
-// updateTag expires it immediately (read-your-own-writes — the deprecated
+// updateTag expires it immediately (read-your-own-writes; the deprecated
 // one-arg revalidateTag is intentionally not used). revalidatePath('/',
 // 'layout') covers every public route; /admin/faq re-fetches its server data.
 function invalidateFaqCaches() {
@@ -64,7 +64,7 @@ export async function createFaq(data: {
 
   try {
     // First write into an empty table auto-imports the starter FAQs: the
-    // public /faq fallback is all-or-nothing (any CMS row replaces ALL
+    // public /faq fallback is all-or-nothing (any CMS row replaces all the
     // built-in questions), so without this a single new FAQ would silently
     // drop the other section's content from the live site and its JSON-LD.
     let seeded = false;
@@ -166,7 +166,7 @@ export async function deleteFaq(id: string): Promise<ActionResult> {
   }
 }
 
-/** Atomic whole-table reorder: pass the COMPLETE ordered id list. */
+/** Atomic whole-table reorder: the id list must be complete and in order. */
 export async function reorderFaqs(ids: string[]): Promise<ActionResult> {
   const denied = await guard();
   if (denied) return denied;

@@ -1,17 +1,17 @@
 /* ========================================================
-   THE GEOMETRIC AWARD-WINNING CONSTRAINT ENGINE
-   Synthesis: Haus (Scale) + Noiré (Shape) + Menu (Space)
+   GLOBAL STYLESHEET
+   Three registers: Haus (scale), Noiré (shape), Menu (space)
 ======================================================== */
 
 :root {
-  /* Color Compass - Award Winning Absolute Monochrome */
+  /* Palette */
   --clr-bone: #F7F6F0; /* Clean gallery white */
-  --clr-ink: #070707; /* Ultimate contrast vantablack */
+  --clr-ink: #070707; /* Near-black */
   --clr-charcoal: #111111; /* Utility dark */
   --clr-oat: #F3EAE1; /* Soft oatmeal */
   --clr-pine: #1F3323; /* Deep forest green */
 
-  /* Typographic Scales (Clamp for structural integrity) */
+  /* Type scale (clamped) */
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   
@@ -37,7 +37,7 @@ body {
 }
 
 /* ========================================================
-   1. TYPOGRAPHY ENGINE
+   1. TYPOGRAPHY
 ======================================================== */
 
 /* Haus Massive Display (Hero Text that acts as structure) */
@@ -100,10 +100,10 @@ body {
 }
 
 /* ========================================================
-   2. SHAPE & GRID CONSTRAINT ENGINE
+   2. SHAPE & GRID
 ======================================================== */
 
-/* BANNED RECTANGLES: Every prominent image must use these shapes */
+/* Every prominent image uses one of these shapes; no plain rectangles */
 .shape-oval {
   clip-path: ellipse(40% 50% at 50% 50%);
   overflow: hidden;
@@ -123,7 +123,7 @@ body {
   transform: translateY(-30%);
 }
 
-/* Haus Extreme Terracotta Overlap Block */
+/* Haus overlap block (dark full-bleed) */
 .haus-block-container {
   background-color: var(--clr-ink);
   padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
@@ -132,8 +132,7 @@ body {
   color: white; /* Contrast shift */
 }
 
-/* Menu Constrained Reading Grid */
-/* Focuses structural pressure into a narrow column, leaving generous lateral whitespace */
+/* Menu reading grid: a narrow column with generous whitespace either side */
 .menu-grid-constraint {
   display: grid;
   grid-template-columns: 40px minmax(200px, 500px) 60px;
@@ -181,7 +180,7 @@ body {
 }
 
 /* Inverse variant for outline buttons on dark backgrounds.
-   The base state lives HERE — never set color/border inline on these
+   The base state lives here; never set color or border inline on these
    buttons, or the inline style will override the hover state and the
    label disappears against the filled pill. */
 .btn-outline--inverse {
@@ -215,7 +214,7 @@ body {
   border-color: var(--clr-ink);
 }
 
-/* Inverse variant for solid buttons on dark backgrounds — the default
+/* Inverse variant for solid buttons on dark backgrounds; the default
    hover would ghost to ink-on-dark and disappear. */
 .btn-solid--inverse {
   border-color: rgba(255, 255, 255, 0.25);
@@ -226,7 +225,7 @@ body {
   border-color: var(--clr-bone);
 }
 
-/* Floating/sticky pills keep a solid fill on hover — ghosting a floating
+/* Floating/sticky pills keep a solid fill on hover; ghosting a floating
    element over arbitrary scrolling content is unreadable. */
 .btn-solid--stay:hover, .btn-solid--stay:focus-visible {
   background-color: var(--clr-charcoal);
@@ -313,7 +312,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   border-radius: 2px;
 }
 
-/* Ink outlines are invisible on dark surfaces — flip to bone wherever the
+/* Ink outlines are invisible on dark surfaces; flip to bone wherever the
    background is charcoal/ink (footer, dark sections, nav dropdown panels,
    the hero over the photo). */
 footer :focus-visible,
@@ -473,7 +472,7 @@ footer :focus-visible,
 }
 .category-tabs::-webkit-scrollbar { display: none; }
 
-/* Mobile: keep the filter rail reachable while browsing — full-bleed,
+/* Mobile: keep the filter rail reachable while browsing. Full-bleed,
    pinned just under the fixed nav, frosted so content scrolls beneath */
 @media (max-width: 900px) {
   .category-tabs {
@@ -494,7 +493,7 @@ footer :focus-visible,
   }
 }
 
-/* Sticky section rail for the catering menu on mobile — anchors, not
+/* Sticky section rail for the catering menu on mobile: anchors, not
    filters; mirrors the desktop sticky index. */
 .menu-rail {
   display: none;
@@ -604,43 +603,43 @@ footer :focus-visible,
   .nav-hamburger { display: flex; }
   #mobile-menu-btn { display: flex !important; }
 
-  /* M-1: Stack contact page 2-col layout on mobile */
+  /* Stack the contact page 2-col layout on mobile */
   .contact-grid {
     grid-template-columns: 1fr !important;
     gap: 3rem !important;
   }
 
-  /* M-2: Stack menus/corporate/fountains header 2-col layout on mobile */
+  /* Stack the menus/corporate/fountains header 2-col layout on mobile */
   .page-header-grid {
     grid-template-columns: 1fr !important;
     gap: 2rem !important;
   }
 
-  /* M-3: Stack about page 2-col grids on mobile */
+  /* Stack the about page 2-col grids on mobile */
   .about-header-grid {
     grid-template-columns: 1fr !important;
     gap: 2rem !important;
     margin-top: 0 !important;
   }
-  /* The editorial oval overlap is a desktop device — stacked, it rides up
+  /* The editorial oval overlap is a desktop device; stacked, it rides up
      over the philosophy copy */
   .about-oval {
     transform: none !important;
   }
 
 
-  /* M-5: Prevent serif text overflow on mobile */
+  /* Prevent serif text overflow on mobile */
   .noire-serif {
     overflow-wrap: break-word;
     word-wrap: break-word;
   }
 
-  /* M-6: Center footer on mobile */
+  /* Center the footer on mobile */
   .footer-nav {
     text-align: center !important;
   }
 
-  /* M-7: Hero brand lockup stacks vertically on mobile */
+  /* Hero brand lockup stacks vertically on mobile */
   .hero-brand-lockup {
     flex-direction: column;
     gap: 1.5rem;
@@ -653,7 +652,7 @@ footer :focus-visible,
     height: 1px;
   }
 
-  /* M-8: Chooser cards stack on mobile */
+  /* Chooser cards stack on mobile */
   .chooser-grid {
     grid-template-columns: 1fr;
   }
@@ -662,7 +661,7 @@ footer :focus-visible,
     min-height: 70vh;
   }
 
-  /* M-9: Product grid 2 columns on mobile for better browsing */
+  /* Product grid drops to 2 columns on mobile for easier browsing */
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
@@ -829,9 +828,9 @@ footer :focus-visible,
    8. PAGE CONTENT TRANSITIONS
 ======================================================== */
 
-/* NOTE: .page-content must never carry will-change or a retained transform —
+/* .page-content must never carry will-change or a retained transform:
    either one makes it the containing block for position:fixed descendants
-   (sticky CTAs, the gallery lightbox), anchoring them to the page instead of
+   (the fixed navbar, sticky CTAs), anchoring them to the page instead of
    the viewport. Entrance is opacity-only for the same reason. */
 .page-content--enter {
   animation: pageEnter 0.5s cubic-bezier(0.33, 1, 0.68, 1) 0.1s both;
@@ -867,7 +866,7 @@ footer :focus-visible,
   color: #fff;
 }
 
-/* Giant footer CTA — hover/focus dim lives here so keyboard users get it too */
+/* Giant footer CTA: the hover/focus dim lives here so keyboard users get it too */
 .footer-cta h2 {
   transition: opacity 0.3s ease;
 }
@@ -891,7 +890,7 @@ footer :focus-visible,
   opacity: 0.75;
 }
 
-/* Menus sticky index links — CSS-owned states so the scroll-spy class and
+/* Menus sticky index links: CSS-owned states so the scroll-spy class and
    pointer hover can't fight (inline mouseenter/leave used to clobber this) */
 .menu-index-link {
   font-size: var(--text-body);

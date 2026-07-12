@@ -2,9 +2,7 @@
 
 import { useEffect, useId, useRef } from 'react';
 
-/* ------------------------------------------------------------------ */
-/* Shared plumbing                                                     */
-/* ------------------------------------------------------------------ */
+/* ===== Shared plumbing ===== */
 
 type FieldBaseProps = {
   label: string;
@@ -74,9 +72,7 @@ function FieldMeta({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* TextField                                                           */
-/* ------------------------------------------------------------------ */
+/* ===== TextField ===== */
 
 export type TextFieldProps = FieldBaseProps & {
   value: string;
@@ -130,9 +126,7 @@ export function TextField({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* TextAreaField                                                       */
-/* ------------------------------------------------------------------ */
+/* ===== TextAreaField ===== */
 
 export type TextAreaFieldProps = FieldBaseProps & {
   value: string;
@@ -204,9 +198,7 @@ export function TextAreaField({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* SelectField                                                         */
-/* ------------------------------------------------------------------ */
+/* ===== SelectField ===== */
 
 export type SelectOption = { value: string; label: string; disabled?: boolean };
 
@@ -263,18 +255,16 @@ export function SelectField({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* NumberField — STRING-backed so the input can be cleared while       */
-/* editing (no parseFloat(...) || 0 snap-to-zero). Parse at submit     */
-/* with parseNumberField().                                            */
-/* ------------------------------------------------------------------ */
+/* ===== NumberField ===== */
+/* String-backed so the input can be cleared while editing (no
+   parseFloat(...) || 0 snap-to-zero). Parse at submit with parseNumberField(). */
 
 export type NumberFieldProps = FieldBaseProps & {
-  /** Raw string state — '' is a valid in-progress value. */
+  /** Raw string state; '' is a valid in-progress value. */
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  /** Allow a leading minus sign (default false — admin values are non-negative). */
+  /** Allow a leading minus sign (default false; admin values are non-negative). */
   allowNegative?: boolean;
   /** Allow decimals (default true). */
   allowDecimal?: boolean;
@@ -340,9 +330,7 @@ export function NumberField({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* ToggleSwitch                                                        */
-/* ------------------------------------------------------------------ */
+/* ===== ToggleSwitch ===== */
 
 export type ToggleSwitchProps = FieldBaseProps & {
   checked: boolean;

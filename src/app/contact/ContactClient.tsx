@@ -140,7 +140,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
       <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
         <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(min(300px, 100%), 1fr) minmax(min(400px, 100%), 1.5fr)', gap: 'clamp(4rem, 10vw, 8rem)' }}>
 
-          {/* LEFT COLUMN — dynamic from Settings */}
+          {/* LEFT COLUMN: dynamic from Settings */}
           <div>
             <div className="menu-index" style={{ marginBottom: '2rem' }}>{"Let's Talk"}</div>
             <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 6vw, 6rem)', marginBottom: '3rem' }}>CONTACT</h1>
@@ -171,7 +171,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
             </div>
           </div>
 
-          {/* RIGHT COLUMN — multi-step form */}
+          {/* RIGHT COLUMN: multi-step form */}
           <div style={{ backgroundColor: 'white', padding: 'clamp(2rem, 5vw, 4rem)', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 20px 40px rgba(0,0,0,0.02)' }}>
             {step < 4 && <ProgressBar currentStep={step} totalSteps={3} />}
 

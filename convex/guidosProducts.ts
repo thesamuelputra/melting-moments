@@ -26,7 +26,7 @@ export const list = query({
   },
 });
 
-// Count products (non-PII — used by the admin dashboard)
+// Count products (non-PII, used by the admin dashboard)
 export const count = query({
   args: {},
   handler: async (ctx) => {
@@ -91,7 +91,7 @@ export const add = mutation({
   },
 });
 
-// Update a product — partial patch: only provided fields are written; omitted
+// Update a product. Partial patch: only provided fields are written; omitted
 // fields (including isAvailable, orderIndex, sizes, image) are left untouched.
 // Pass sizes: null or image: null to clear those fields.
 export const update = mutation({
@@ -145,7 +145,7 @@ export const update = mutation({
     }
 
     // Moving to a different category with no explicit position: append to the
-    // destination (max+1), mirroring add() — keeping the source-category index
+    // destination (max+1), mirroring add(). Keeping the source-category index
     // would collide with the destination's existing indexes.
     if (
       patch.category !== undefined &&
@@ -185,8 +185,8 @@ export const remove = mutation({
 });
 
 // Atomically reorder a category: patches orderIndex = array position for
-// every id, in ONE transaction. Throws (rolling everything back) if any id
-// is missing or belongs to a different category.
+// every id, in a single transaction. Throws (rolling everything back) if any
+// id is missing or belongs to a different category.
 export const reorder = mutation({
   args: {
     adminSecret: v.string(),
@@ -197,10 +197,10 @@ export const reorder = mutation({
     assertAdmin(args.adminSecret);
     for (let i = 0; i < args.ids.length; i++) {
       const doc = await ctx.db.get(args.ids[i]);
-      if (!doc) throw new Error("Product not found — reorder aborted");
+      if (!doc) throw new Error("Product not found; reorder aborted");
       if (doc.category !== args.category) {
         throw new Error(
-          `"${doc.name}" is not in category "${args.category}" — reorder aborted`
+          `"${doc.name}" is not in category "${args.category}"; reorder aborted`
         );
       }
       await ctx.db.patch(args.ids[i], { orderIndex: i });

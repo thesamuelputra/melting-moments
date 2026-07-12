@@ -176,7 +176,7 @@ export async function deleteTestimonial(id: string): Promise<ActionResult> {
   }
 }
 
-/** Atomic whole-table reorder: pass the COMPLETE ordered id list. */
+/** Atomic whole-table reorder: the id list must be complete and in order. */
 export async function reorderTestimonials(ids: string[]): Promise<ActionResult> {
   const denied = await guard();
   if (denied) return denied;

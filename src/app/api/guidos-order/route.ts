@@ -66,9 +66,7 @@ export async function POST(request: Request) {
       notes: notes || undefined,
     });
     
-    // Dispatch Email Notification to Owner
     if (process.env.RESEND_API_KEY) {
-      // Email to Chef Paul
       const { error: ownerEmailError } = await resend!.emails.send({
         from: `Guido's Gourmet <${FROM_ADDRESS}>`,
         to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
@@ -98,7 +96,7 @@ export async function POST(request: Request) {
       const { error: confirmationEmailError } = await resend!.emails.send({
         from: `Guido's Gourmet <${FROM_ADDRESS}>`,
         to: email,
-        subject: 'Order Received - Guido\'s Gourmet',
+        subject: 'Guido\'s Gourmet: Order Received',
         html: `
           <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #070707;">
             <div style="text-align: center; padding: 3rem 2rem; border-bottom: 1px solid #eee;">

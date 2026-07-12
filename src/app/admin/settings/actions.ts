@@ -12,14 +12,14 @@ type ActionResult =
 
 /**
  * Persists only the entries it receives (the client sends a dirty-key diff).
- * Validation mirrors the client-side checks — bad values never reach Convex.
+ * Validation mirrors the client-side checks, so bad values never reach Convex.
  */
 export async function saveBusinessSettings(settings: Record<string, string>): Promise<ActionResult> {
   try {
     await requireAdmin();
   } catch (err) {
     if (err instanceof AdminAuthError) return { success: false, error: 'unauthorized' };
-    throw err; // ADMIN_PASSWORD unset — real server misconfig, let it surface
+    throw err; // ADMIN_PASSWORD unset: real server misconfig, let it surface
   }
 
   const pairs = Object.entries(settings ?? {});

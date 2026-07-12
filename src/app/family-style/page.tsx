@@ -51,8 +51,7 @@ export default function FamilyStyle() {
         </div>
         <p style={{ marginBottom: '3rem', opacity: 0.6, maxWidth: '50ch', lineHeight: 1.6 }}>A Traditional Italian Meal. This is commonly served in any Italian home.</p>
 
-        {/* Per-row numbering removed — the section header carries the single
-            index marker. Spacers keep the 3-column grid aligned. */}
+        {/* Spacers keep the 3-column grid aligned */}
         <div className="menu-grid-constraint">
           <div aria-hidden="true" />
           <div>

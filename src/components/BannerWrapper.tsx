@@ -11,8 +11,8 @@ export type BannerData = {
   showOn: string;
 };
 
-// Banner content arrives as props from the server layout (cached Convex read)
-// — this component only handles the client-side path targeting.
+// Banner content arrives as props from the server layout (cached Convex read);
+// this component only handles the client-side path targeting.
 //
 // Targeting semantics:
 //   'all'      → every public page

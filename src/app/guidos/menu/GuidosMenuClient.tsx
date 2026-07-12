@@ -107,7 +107,7 @@ export default function GuidosMenuClient({ products }: { products: Product[] }) 
               </span>
               </button>
 
-              {/* Expanded detail — always in the DOM (CSS-collapsed, not
+              {/* Expanded detail stays in the DOM (CSS-collapsed, not
                   conditionally mounted) so every per-size price ships in the
                   server HTML for crawlers and answer engines. */}
               <div

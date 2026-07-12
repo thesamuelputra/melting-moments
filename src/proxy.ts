@@ -1,20 +1,19 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// ---------------------------------------------------------------------------
-// Admin session tokens — v2 format: `v2.<expiresAtMs>.<hmacHex>`
+// ===== Admin session tokens =====
+// v2 format: `v2.<expiresAtMs>.<hmacHex>`
 //   hmacHex = HMAC-SHA256(key = ADMIN_PASSWORD,
 //                         message = 'melting-moments-admin-session.' + expiresAtMs)
 //
-// KEEP IN LOCKSTEP with src/lib/auth.ts (Node crypto implementation used by
-// server actions). This file uses WebCrypto because the proxy (middleware)
+// Keep in lockstep with src/lib/auth.ts (the Node crypto implementation used
+// by server actions). This file uses WebCrypto because the proxy (middleware)
 // runtime has no Node `crypto` module. Any change to the format, message
 // prefix, or expiry semantics must be mirrored there.
-// ---------------------------------------------------------------------------
 
 const TOKEN_MESSAGE_PREFIX = 'melting-moments-admin-session.';
 const SESSION_COOKIE_NAME = 'admin_token';
-const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — mirror of src/lib/auth.ts
+const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days, mirrored in src/lib/auth.ts
 // Sliding renewal: mint a fresh token when less than half the lifetime remains.
 const RENEWAL_THRESHOLD_MS = 3.5 * 24 * 60 * 60 * 1000;
 
@@ -40,9 +39,10 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 /**
- * Verifies a v2 session token (format, expiry, HMAC — constant-time).
+ * Verifies a v2 session token: format, expiry, and HMAC (constant-time).
  * Returns the token's expiry (epoch ms) when valid, or null when invalid.
- * Old-format (v1, non-expiring) tokens fail here by design → re-login.
+ * Old-format (v1, non-expiring) tokens fail here by design; holders simply
+ * log in again.
  */
 async function verifySessionToken(token: string | undefined): Promise<number | null> {
   const secret = process.env.ADMIN_PASSWORD;
@@ -54,7 +54,7 @@ async function verifySessionToken(token: string | undefined): Promise<number | n
   const expiresAt = Number(parts[1]);
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return null;
 
-  // HMAC over the *string as it appears in the token* — no re-serialization.
+  // HMAC over the string exactly as it appears in the token; no re-serialization.
   const expected = await hmacHex(secret, TOKEN_MESSAGE_PREFIX + parts[1]);
   return timingSafeEqual(parts[2], expected) ? expiresAt : null;
 }
@@ -63,14 +63,14 @@ async function createSessionToken(expiresAtMs: number, secret: string): Promise<
   return `v2.${expiresAtMs}.${await hmacHex(secret, TOKEN_MESSAGE_PREFIX + expiresAtMs)}`;
 }
 
-// ---------- Contact API Rate Limiter ----------
+// ===== Contact API rate limiter =====
 // Sliding window: max 10 requests per minute per IP
 const contactRateMap = new Map<string, number[]>();
 const CONTACT_RATE_LIMIT = 10;
 const CONTACT_WINDOW_MS = 60_000;
 let lastContactPruneAt = 0;
 
-// Evict IPs whose every timestamp fell out of the window — otherwise the map
+// Evict IPs whose every timestamp fell out of the window; otherwise the map
 // grows without bound on long-lived instances (stale keys were previously
 // filtered per-lookup but never removed).
 function pruneContactRateMap(now: number) {
@@ -98,9 +98,8 @@ function isContactRateLimited(ip: string): boolean {
   return false;
 }
 
-// ---------- Security Headers ----------
+// ===== Security headers =====
 function addSecurityHeaders(response: NextResponse): NextResponse {
-  // Content Security Policy — restrict script/style sources
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   // HSTS: force HTTPS for 2 years incl. subdomains (browsers ignore it over http://localhost)
@@ -133,7 +132,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 }
 
 export async function proxy(request: NextRequest) {
-  // --- guidosgourmet.ca domain redirect (path-preserving) ---
+  // guidosgourmet.ca domain redirect (path-preserving)
   const host = request.headers.get('host') || '';
   if (host.includes('guidosgourmet')) {
     const path = request.nextUrl.pathname === '/'
@@ -145,7 +144,7 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  // --- Contact & Order API Rate Limiting ---
+  // Contact and order API rate limiting
   const rateLimitedPaths = ['/api/contact', '/api/guidos-order'];
   if (rateLimitedPaths.includes(request.nextUrl.pathname) && request.method === 'POST') {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
@@ -160,7 +159,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // --- Already authenticated? /admin-login → /admin ---
+  // Already authenticated: send /admin-login to /admin
   if (request.nextUrl.pathname === '/admin-login') {
     const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     if (await verifySessionToken(token) !== null) {
@@ -170,7 +169,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // --- Admin Route Protection (exclude login page itself) ---
+  // Admin route protection (excludes the login page itself).
   // Sliding renewal: when a valid session has < RENEWAL_THRESHOLD_MS left,
   // mint a fresh 7-day token on the response.
   let renewedToken: string | null = null;

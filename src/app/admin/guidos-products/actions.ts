@@ -22,7 +22,7 @@ export type ProductCreateInput = {
   isLimitedEdition?: boolean;
 };
 
-/** Partial patch — omitted fields are left untouched server-side. */
+/** Partial patch; omitted fields are left untouched server-side. */
 export type ProductPatchInput = {
   name?: string;
   category?: string;
@@ -47,7 +47,7 @@ async function ensureAdmin(): Promise<ActionResult | null> {
     return null;
   } catch (err) {
     if (err instanceof AdminAuthError) return UNAUTHORIZED;
-    throw err; // ADMIN_PASSWORD unset — real server misconfig, let it surface
+    throw err; // ADMIN_PASSWORD unset: real server misconfig, let it surface
   }
 }
 
@@ -95,7 +95,7 @@ export async function addGuidosProduct(input: ProductCreateInput): Promise<Actio
       name: input.name,
       category: input.category,
       priceFrom: input.priceFrom,
-      // orderIndex omitted on purpose — the mutation appends to the end of the category.
+      // orderIndex omitted on purpose: the mutation appends to the end of the category.
       ...(input.sizes !== undefined && input.sizes.length > 0 ? { sizes: input.sizes } : {}),
       ...(input.image ? { image: input.image } : {}),
       ...(input.isAvailable !== undefined ? { isAvailable: input.isAvailable } : {}),
@@ -126,7 +126,7 @@ export async function updateGuidosProduct(id: string, patch: ProductPatchInput):
     return invalid('Image must be a site path (/...) or an https:// URL');
   }
 
-  // Partial-patch semantics: only send fields the caller explicitly set —
+  // Partial-patch semantics: only send fields the caller explicitly set;
   // the backend never resets omitted fields.
   const fields = {
     ...(patch.name !== undefined ? { name: patch.name } : {}),
@@ -171,7 +171,7 @@ export async function deleteGuidosProduct(id: string): Promise<ActionResult> {
   }
 }
 
-/** Atomic category-scoped reorder — pass the complete ordered id list for that category. */
+/** Atomic category-scoped reorder; pass the complete ordered id list for that category. */
 export async function reorderGuidosProducts(category: string, ids: string[]): Promise<ActionResult> {
   const auth = await ensureAdmin();
   if (auth) return auth;

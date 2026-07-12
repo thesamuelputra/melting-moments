@@ -4,9 +4,9 @@ import { jsonLdSafe } from '@/lib/sanitize';
 /**
  * Single source of truth for business identity (NAP) and schema.org JSON-LD
  * builders. Every page that emits structured data or references the business
- * name/address/phone should import from here — never hardcode NAP again.
+ * name/address/phone should import from here instead of hardcoding NAP.
  *
- * Postal code V9A 6L2 verified against src/app/contact/page.tsx and the
+ * The postal code V9A 6L2 must match src/app/contact/page.tsx and the
  * transactional email templates in src/app/api/*.
  */
 export const SITE = {
@@ -25,7 +25,7 @@ export const SITE = {
   facebook: 'https://www.facebook.com/MeltingMomentsCatering',
 } as const;
 
-/** Canonical @id for the business entity — every node links back to this. */
+/** Canonical @id for the business entity; every node links back to this. */
 export const BUSINESS_ID = `${SITE.url}/#business`;
 
 /** The eight communities named on /service-area (keep the two in sync). */
@@ -59,9 +59,8 @@ function postalAddress(): Record<string, unknown> {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Input shapes (structural — CMS docs from src/lib/cms.ts satisfy them as-is)
-// ---------------------------------------------------------------------------
+// ===== Input shapes =====
+// Structural: the CMS docs from src/lib/cms.ts satisfy them as-is.
 
 export interface BreadcrumbItem {
   name: string;
@@ -77,7 +76,7 @@ export interface FaqInput {
 export interface MenuItemInput {
   name: string;
   description?: string;
-  /** Numeric price in CAD — omitted/null items get no Offer node. */
+  /** Numeric price in CAD; omitted/null items get no Offer node. */
   price?: number | null;
 }
 
@@ -114,9 +113,8 @@ export interface CatererOptions {
   hoursNote?: string;
 }
 
-// ---------------------------------------------------------------------------
-// Node builders — plain objects WITHOUT '@context' (JsonLd adds it)
-// ---------------------------------------------------------------------------
+// ===== Node builders =====
+// Plain objects without '@context'; JsonLd adds it.
 
 /**
  * The site-wide business entity. 'Caterer' is not a core schema.org type but
@@ -159,7 +157,7 @@ export function catererNode(opts: CatererOptions = {}): Record<string, unknown> 
   if (opts.openingHours && opts.openingHours.length > 0) {
     node.openingHoursSpecification = opts.openingHours;
   } else if (opts.hoursNote) {
-    // No fixed retail hours — an OpeningHoursSpecification with only a
+    // No fixed retail hours: an OpeningHoursSpecification with only a
     // description is the least-wrong way to say 'by appointment'.
     node.openingHoursSpecification = {
       '@type': 'OpeningHoursSpecification',
@@ -267,7 +265,7 @@ export function productNodes(
   };
 }
 
-/** Person node for /chef-paul — reciprocates catererNode's founder link. */
+/** Person node for /chef-paul; reciprocates catererNode's founder link. */
 export function personChefPaul(): Record<string, unknown> {
   return {
     '@type': 'Person',
@@ -282,7 +280,7 @@ export function personChefPaul(): Record<string, unknown> {
 
 /**
  * Business @id node carrying Review children for /testimonials.
- * Deliberately NO aggregateRating — Google treats self-serving aggregate
+ * Deliberately no aggregateRating: Google treats self-serving aggregate
  * ratings on a business's own site as a structured-data policy violation.
  */
 export function reviewNodes(testimonials: TestimonialInput[]): Record<string, unknown> {
@@ -309,9 +307,7 @@ export function reviewNodes(testimonials: TestimonialInput[]): Record<string, un
   };
 }
 
-// ---------------------------------------------------------------------------
-// Renderer
-// ---------------------------------------------------------------------------
+// ===== Renderer =====
 
 /**
  * Server component: renders a JSON-LD <script>, XSS-safe via jsonLdSafe.

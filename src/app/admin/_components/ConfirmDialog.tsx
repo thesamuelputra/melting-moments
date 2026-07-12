@@ -39,7 +39,7 @@ export default function ConfirmDialog({
   useModalBehavior({
     open,
     containerRef: dialogRef,
-    // Destructive: guard against accidental Enter — focus Cancel. Otherwise focus Confirm.
+    // Destructive: focus Cancel to guard against accidental Enter. Otherwise focus Confirm.
     initialFocusRef: destructive ? cancelRef : confirmRef,
     onEscape: () => {
       if (!busy) onCancel();

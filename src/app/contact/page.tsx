@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: 'Contact & Quotes',
   description: 'Get in touch with Melting Moments Catering to plan your wedding, corporate event, or private gathering in Victoria, BC.',
   openGraph: {
-    // Page-level openGraph replaces the root object — re-specify the shared fields.
+    // Page-level openGraph replaces the root object; re-specify the shared fields.
     type: 'website',
     locale: 'en_CA',
     url: '/contact',

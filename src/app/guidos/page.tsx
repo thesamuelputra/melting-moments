@@ -6,7 +6,7 @@ import { JsonLd, breadcrumbList } from '@/lib/seo';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  // Guido's carries its own brand — bypass the Melting Moments title template.
+  // Guido's carries its own brand, so bypass the Melting Moments title template.
   title: { absolute: "Guido's Gourmet | Ready-Made Italian Meals, Victoria BC" },
   description: 'Homemade Italian meals ready to heat and serve. Lasagnes, pot pies, soups, pasta, and desserts. Delivery available in Victoria, BC.',
   openGraph: {
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     locale: 'en_CA',
     type: 'website',
     // No real Guido's photography exists yet (public/guidos/ holds only
-    // placeholder.svg) — reuse the branded default OG crop until it lands,
+    // placeholder.svg); reuse the branded default OG crop until it lands,
     // then add og-guidos.jpg via scripts/generate-og.mjs.
     images: [{ url: '/og/og-default.jpg', width: 1200, height: 630, alt: "Guido's Gourmet by Melting Moments Catering" }],
   },

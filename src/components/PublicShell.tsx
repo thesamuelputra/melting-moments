@@ -10,7 +10,7 @@ export default function PublicShell({ children }: { children: React.ReactNode })
   const isAdmin = pathname.startsWith('/admin');
 
   if (isAdmin) {
-    // Admin pages use their own layout — skip all public chrome
+    // Admin pages use their own layout; skip all public chrome
     return <>{children}</>;
   }
 

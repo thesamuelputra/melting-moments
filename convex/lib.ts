@@ -11,7 +11,7 @@ export function assertAdmin(secret: string | undefined): void {
   }
 }
 
-// Status enums — enforced at mutation args via v.union(v.literal(...)).
+// Status enums, enforced at mutation args via v.union(v.literal(...)).
 // Schema fields stay v.string() so existing rows remain valid.
 export const INQUIRY_STATUSES = [
   "new",

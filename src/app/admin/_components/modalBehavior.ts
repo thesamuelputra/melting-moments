@@ -2,7 +2,7 @@
 
 /**
  * Shared modal plumbing for ConfirmDialog + SlidePanel:
- * - a module-level modal stack so only the TOP layer reacts to Escape / traps Tab
+ * - a module-level modal stack so only the top layer reacts to Escape / traps Tab
  *   (a ConfirmDialog stacked over a SlidePanel must win the Escape key);
  * - focus trap (Tab cycling within the container);
  * - focus restore to the element that was focused before the layer opened;
@@ -35,7 +35,7 @@ export type ModalBehaviorOptions = {
   containerRef: React.RefObject<HTMLElement | null>;
   /** Element to focus when the layer opens; falls back to first focusable in container. */
   initialFocusRef?: React.RefObject<HTMLElement | null>;
-  /** Called on Escape — only when this layer is topmost. */
+  /** Called on Escape, only while this layer is topmost. */
   onEscape?: () => void;
 };
 
@@ -68,7 +68,7 @@ export function useModalBehavior({ open, containerRef, initialFocusRef, onEscape
     target?.focus();
   }, [open, containerRef, initialFocusRef]);
 
-  // Escape + Tab trap — capture phase so we run before page-level handlers.
+  // Escape + Tab trap: capture phase so we run before page-level handlers.
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -107,7 +107,7 @@ export function useModalBehavior({ open, containerRef, initialFocusRef, onEscape
   }, [open, isTop, containerRef]);
 }
 
-/** True after first client render — gate portals so SSR never touches `document`. */
+/** True after the first client render; gates portals so SSR never touches `document`. */
 const emptySubscribe = () => () => {};
 export function useMounted(): boolean {
   return useSyncExternalStore(

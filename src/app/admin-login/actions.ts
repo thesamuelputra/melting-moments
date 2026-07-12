@@ -23,7 +23,7 @@ const BASE_LOCKOUT_MS = 30_000;     // 30 seconds, doubling per extra failure
 const GLOBAL_KEY = '__global__';
 // The per-IP limiter is the primary defense (x-forwarded-for is platform-set
 // on Vercel). The global cap is a coarse backstop against distributed
-// guessing — set well above ambient bot noise so accumulated stray failures
+// guessing; set well above ambient bot noise so accumulated stray failures
 // can never lock out the real admin, and cleared on every successful login.
 const GLOBAL_MAX_ATTEMPTS = 100;
 const STALE_ENTRY_MS = 60 * 60 * 1000; // prune records idle for 1h
@@ -98,8 +98,8 @@ export async function login(formData: FormData) {
 
   if (typeof password === 'string' && adminPassword && safeEqual(password, adminPassword)) {
     clearAttempts(key);
-    clearAttempts(GLOBAL_KEY); // a successful login proves the admin is not locked out — reset the backstop
-    // v2 expiring token — see src/lib/auth.ts / src/proxy.ts for the format.
+    clearAttempts(GLOBAL_KEY); // a successful login proves the admin is not locked out, so reset the backstop
+    // v2 expiring token; see src/lib/auth.ts and src/proxy.ts for the format.
     const token = createSessionToken(Date.now() + SESSION_DURATION_MS);
     cookieStore.set(SESSION_COOKIE_NAME, token, {
       httpOnly: true,

@@ -25,7 +25,7 @@ type Order = {
 
 const STATUS_OPTIONS: readonly OrderStatus[] = ['received', 'preparing', 'ready', 'delivered', 'picked_up'];
 
-/** Pipeline position — delivered and picked_up are both terminal. */
+/** Pipeline position; delivered and picked_up are both terminal. */
 const STATUS_RANK: Record<OrderStatus, number> = {
   received: 0,
   preparing: 1,
@@ -80,7 +80,7 @@ function formatUpdatedAgo(ms: number): string {
 
 function orderSummary(order: Order): string {
   return [
-    `Guido's Gourmet order — ${order.customerName}`,
+    `Guido's Gourmet order: ${order.customerName}`,
     `Status: ${statusLabel(order.status)}`,
     `Submitted: ${formatDate(order.submittedAt)}`,
     `Email: ${order.customerEmail}`,
@@ -107,7 +107,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
     setOrders(initialOrders);
   }
 
-  // Timestamp of the last server payload — drives "Updated Xs ago".
+  // Timestamp of the last server payload; drives "Updated Xs ago".
   // (In an effect, not render: Date.now() is impure during render.)
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
   useEffect(() => {
@@ -161,7 +161,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
     });
   };
 
-  /* ---------------- status changes ---------------- */
+  /* ===== status changes ===== */
 
   const applyStatusChange = async (order: Order, to: OrderStatus) => {
     const previous = order.status;
@@ -174,7 +174,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
     } else {
       // Rollback to the snapshot status (row position is unchanged).
       setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, status: previous } : o)));
-      surfaceFailure(res, 'Could not update status — change reverted');
+      surfaceFailure(res, 'Could not update status. Change reverted');
     }
     markPending(order.id, false);
   };
@@ -183,14 +183,14 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
     if (to === order.status || pendingIds.has(order.id)) return;
     const fromRank = isOrderStatus(order.status) ? STATUS_RANK[order.status] : -1;
     if (fromRank > STATUS_RANK[to]) {
-      // Backwards transition (e.g. delivered → received) — confirm first.
+      // Backwards transition (e.g. delivered → received): confirm first.
       setConfirmingStatus({ order, to });
       return;
     }
     void applyStatusChange(order, to);
   };
 
-  /* ---------------- delete ---------------- */
+  /* ===== delete ===== */
 
   const handleDelete = async () => {
     const order = confirmingDelete;
@@ -205,18 +205,18 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
     if (res.success) {
       toast.success(`${order.customerName}'s order deleted`);
     } else {
-      // …restored at its ORIGINAL index on failure.
+      // …restored at its original index on failure.
       setOrders((prev) => {
         if (prev.some((o) => o.id === order.id)) return prev;
         const next = [...prev];
         next.splice(Math.min(Math.max(originalIndex, 0), next.length), 0, order);
         return next;
       });
-      surfaceFailure(res, 'Could not delete — order restored');
+      surfaceFailure(res, 'Could not delete. Order restored');
     }
   };
 
-  /* ---------------- clipboard ---------------- */
+  /* ===== clipboard ===== */
 
   const copySummary = async (order: Order) => {
     try {
@@ -227,7 +227,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
     }
   };
 
-  /* ---------------- render ---------------- */
+  /* ===== render ===== */
 
   return (
     <div>
@@ -454,7 +454,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
         onCancel={() => setConfirmingStatus(null)}
       />
 
-      {/* Delete confirmation — extra warning for orders still in the pipeline */}
+      {/* Delete confirmation: extra warning for orders still in the pipeline */}
       <ConfirmDialog
         open={confirmingDelete !== null}
         title={
@@ -465,7 +465,7 @@ export default function AdminGuidosOrdersClient({ initialOrders }: { initialOrde
         body={
           confirmingDelete
             ? confirmingDelete.status && !isTerminal(confirmingDelete.status)
-              ? `${confirmingDelete.customerName}'s order is still “${statusLabel(confirmingDelete.status)}” — it has not been delivered or picked up. Deleting it permanently removes the record and cannot be undone.`
+              ? `${confirmingDelete.customerName}'s order is still “${statusLabel(confirmingDelete.status)}”. It has not been delivered or picked up. Deleting it permanently removes the record and cannot be undone.`
               : `${confirmingDelete.customerName}'s order record will be permanently removed. This cannot be undone.`
             : undefined
         }

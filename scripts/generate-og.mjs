@@ -3,7 +3,7 @@
 //
 //   node scripts/generate-og.mjs
 //
-// Plain node — no package.json script needed; `sharp` is already a project
+// Plain node; no package.json script needed, and `sharp` is already a project
 // dependency. `position: 'attention'` centers the crop on the most visually
 // salient region (matters for the portrait/square sources).
 import sharp from 'sharp';

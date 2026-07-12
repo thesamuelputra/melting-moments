@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-// The eight Greater Victoria communities + Vancouver Island as an ItemList —
+// The eight Greater Victoria communities + Vancouver Island as an ItemList;
 // mirrors the businesses' areaServed nodes emitted site-wide in layout.tsx.
 const areaServedList = {
   '@type': 'ItemList',
@@ -36,12 +36,12 @@ export default function ServiceArea() {
             <div style={{ maxWidth: '760px', margin: '3rem auto 0 auto', textAlign: 'center' }}>
                <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>Victoria &amp; Beyond</h2>
                <p style={{ fontSize: "var(--text-body)", opacity: 0.8, maxWidth: '60ch', margin: '0 auto 1.5rem auto' }}>
-                   Based in Esquimalt, we cater across Greater Victoria &mdash; from intimate dinners to weddings and corporate gatherings. Wherever you are on the south Island, there&apos;s a good chance we already know the room.
+                   Based in Esquimalt, we cater across Greater Victoria, from intimate dinners to weddings and corporate gatherings. Wherever you are on the south Island, there&apos;s a good chance we already know the room.
                </p>
             </div>
 
-            {/* Communities served — the page eyebrow already says "Where We
-                Serve", so this grid carries a distinct micro-label */}
+            {/* The page eyebrow already says "Where We Serve", so this grid
+                carries a distinct micro-label. */}
             <div style={{ maxWidth: '880px', margin: 'clamp(3rem, 6vw, 5rem) auto 0', textAlign: 'center' }}>
                <div className="menu-index" style={{ marginBottom: '2rem' }}>Greater Victoria</div>
                <ul
@@ -94,7 +94,7 @@ export default function ServiceArea() {
                <div>
                  <p className="menu-index" style={{ marginBottom: '1rem' }}>Weddings &amp; Large Events</p>
                  <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, maxWidth: '38ch' }}>
-                   For weddings and larger celebrations, Chef Paul and his team travel further up-Island &mdash; the Cowichan Valley, Nanaimo and beyond. Tell us where you&apos;re headed and we&apos;ll talk it through.
+                   For weddings and larger celebrations, Chef Paul and his team travel further up-Island: the Cowichan Valley, Nanaimo and beyond. Tell us where you&apos;re headed and we&apos;ll talk it through.
                  </p>
                </div>
                <div>

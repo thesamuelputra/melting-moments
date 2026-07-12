@@ -15,10 +15,9 @@ export const recent = query({
   },
 });
 
-// deprecated — activity is now logged INSIDE each entity mutation via
+// Deprecated: activity is now logged inside each entity mutation via
 // logActivity (convex/lib.ts) so it is atomic with the change. Kept exported
-// for back-compat with existing server actions this wave; do not add new
-// callers.
+// for the server actions that still call it; do not add new callers.
 export const log = mutation({
   args: {
     adminSecret: v.string(),

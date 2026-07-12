@@ -31,7 +31,7 @@ type Failure = Extract<ActionResult, { success: false }>;
 const REQUEST_FAILED: Failure = { success: false, error: 'failed' };
 
 const CATEGORY_OPTIONS = [
-  { value: '', label: 'General — shown under Catering' },
+  { value: '', label: 'General (shown under Catering)' },
   { value: 'catering', label: 'Catering' },
   { value: 'guidos', label: "Guido's Gourmet" },
 ];
@@ -94,13 +94,13 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
   const fail = (res: Failure, fallback: string) => {
     if (res.error === 'unauthorized') {
       setSessionExpired(true);
-      toast.error('Session expired — log in again');
+      toast.error('Session expired, log in again');
     } else {
       toast.error(res.message ?? fallback);
     }
   };
 
-  /* ── Panel (create / edit) ─────────────────────────────────────────── */
+  /* ===== Panel (create / edit) ===== */
 
   const openCreate = () => {
     setDraft(EMPTY_DRAFT);
@@ -147,7 +147,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
         setFaqs((prev) => prev.map((f) => (f.id === tempId ? { ...f, id: realId } : f)));
         if (res.seeded) {
           // First-ever CMS FAQ: the action also imported the starter set so the
-          // public page keeps its existing questions — pull them into this view.
+          // public page keeps its existing questions; pull them into this view.
           toast.info('Starter FAQs were imported alongside your question so the public page keeps them.');
           router.refresh();
         }
@@ -163,7 +163,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
       return;
     }
 
-    // Edit — partial patch: send only what changed.
+    // Edit is a partial patch: send only what changed.
     const original = panel.faq;
     const fields: Parameters<typeof updateFaq>[1] = {};
     if (question !== original.question) fields.question = question;
@@ -184,13 +184,13 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
       toast.success('FAQ updated');
     } else {
       setFaqs((prev) => prev.map((f) => (f.id === original.id ? original : f)));
-      fail(res, 'Failed to update FAQ — changes reverted');
+      fail(res, 'Failed to update FAQ, changes reverted');
     }
     setPending(original.id, false);
     setSaving(false);
   };
 
-  /* ── Row actions ───────────────────────────────────────────────────── */
+  /* ===== Row actions ===== */
 
   const handleToggle = async (faq: Faq) => {
     if (pendingIds.has(faq.id)) return;
@@ -199,7 +199,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
     const res = await updateFaq(faq.id, { isActive: !faq.isActive }).catch(() => REQUEST_FAILED);
     if (!res.success) {
       setFaqs((prev) => prev.map((f) => (f.id === faq.id ? { ...f, isActive: faq.isActive } : f)));
-      fail(res, 'Failed to update visibility — reverted');
+      fail(res, 'Failed to update visibility, reverted');
     }
     setPending(faq.id, false);
   };
@@ -219,7 +219,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
         next.splice(Math.min(index, next.length), 0, faq);
         return next;
       });
-      fail(res, 'Failed to delete FAQ — restored');
+      fail(res, 'Failed to delete FAQ, restored');
     }
   };
 
@@ -235,12 +235,12 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
       });
       toast.success('Order saved');
     } else {
-      fail(res, 'Failed to save order — reverted');
+      fail(res, 'Failed to save order, reverted');
     }
     return res.success; // false ⇒ SortableList reverts to the pre-drag order
   };
 
-  /* ── Starter import (only offered while the CMS is empty) ──────────── */
+  /* ===== Starter import (only offered while the CMS is empty) ===== */
 
   const handleImport = async () => {
     if (importing) return;
@@ -272,13 +272,13 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
     } else {
       fail(
         firstFailure,
-        `Imported ${created.length} of ${FALLBACK_FAQS.length} starter FAQs — the rest failed. Add the missing ones manually with “+ Add FAQ”.`
+        `Imported ${created.length} of ${FALLBACK_FAQS.length} starter FAQs; the rest failed. Add the missing ones manually with “+ Add FAQ”.`
       );
     }
     setImporting(false);
   };
 
-  /* ── Render ────────────────────────────────────────────────────────── */
+  /* ===== Render ===== */
 
   const panelTitle = panel?.mode === 'edit' ? 'Edit FAQ' : 'New FAQ';
 
@@ -301,7 +301,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
           }}
         >
           <span style={{ fontSize: '0.82rem', color: '#B91C1C', fontWeight: 500 }}>
-            Your admin session has expired — changes are no longer being saved.
+            Your admin session has expired. Changes are no longer being saved.
           </span>
           <a href="/admin-login" className="admin-btn admin-btn--sm" style={{ flexShrink: 0 }}>
             Log in again
@@ -329,7 +329,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
               <code style={{ background: 'rgba(0,0,0,0.04)', padding: '0.1rem 0.3rem', borderRadius: '3px' }}>
                 /faq
               </code>{' '}
-              in two sections — Catering (general FAQs land there too) and Guido&apos;s Gourmet
+              in two sections: Catering (general FAQs land there too) and Guido&apos;s Gourmet
             </p>
             <a
               href="/faq"
@@ -356,7 +356,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
       {cmsUnreachable ? (
         <EmptyState
           title="CMS temporarily unreachable"
-          body="The content database could not be reached. Your FAQs are safe — refresh to try again."
+          body="The content database could not be reached. Your FAQs are safe. Refresh to try again."
           action={
             <button className="admin-btn admin-btn--primary" onClick={() => router.refresh()}>
               Refresh
@@ -398,7 +398,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
             </button>
           </div>
 
-          {/* Read-only preview of the fallbacks — these rows are not CMS
+          {/* Read-only preview of the fallbacks. These rows are not CMS
               documents yet, so per-item actions stay disabled until import. */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {FALLBACK_FAQS.map((faq, i) => (
@@ -451,7 +451,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
           getLabel={(f) => f.question}
           onReorder={handleReorder}
           /* Reordering while an optimistic temp-id row exists would persist an
-             id list the server does not know yet — lock dragging until the
+             id list the server does not know yet; lock dragging until the
              create settles and the real id is swapped in. */
           disabled={faqs.some((f) => f.id.startsWith('temp-'))}
           renderItem={(faq, { handleProps }) => {
@@ -582,7 +582,7 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
 }
 
 export default function AdminFaqClient({ initialFaqs }: { initialFaqs: Faq[] | null }) {
-  // ToastProvider is not mounted globally — each admin module wraps its own tree.
+  // ToastProvider is not mounted globally; each admin module wraps its own tree.
   return (
     <ToastProvider>
       <FaqManager initialFaqs={initialFaqs} />

@@ -73,7 +73,7 @@ export default function GuidosOrderPage() {
           Order Request
         </h1>
         <p style={{ fontSize: 'var(--text-body)', opacity: 0.5, marginBottom: 'clamp(2rem, 4vw, 4rem)', maxWidth: '45ch' }}>
-          Tell us what you&apos;d like below. This is a request, not a confirmed order &mdash; Chef Paul will reply within 24 hours to confirm your items, total, and pickup or delivery.
+          Tell us what you&apos;d like below. This is a request, not a confirmed order. Chef Paul will reply within 24 hours to confirm your items, total, and pickup or delivery.
         </p>
 
         {!submitted ? (
@@ -82,7 +82,7 @@ export default function GuidosOrderPage() {
             <input type="text" name="website" value={formData.website} onChange={(e) => setFormData({...formData, website: e.target.value})} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
             <p style={{ fontSize: '0.85rem', opacity: 0.6, lineHeight: 1.5, marginBottom: '2rem' }}>
-              No online payment &mdash; we&apos;ll confirm your total before anything is charged.
+              No online payment; we&apos;ll confirm your total before anything is charged.
             </p>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
@@ -183,7 +183,7 @@ export default function GuidosOrderPage() {
               <p className="menu-index" style={{ marginBottom: '0.5rem' }}>Pickup Location</p>
               <p style={{ fontSize: 'var(--text-body)', opacity: 0.5 }}>
                 614 Grenville Ave, Esquimalt<br />
-                Pickup by appointment &mdash; Paul will arrange a time when he confirms your order.
+                Pickup by appointment. Paul will arrange a time when he confirms your order.
               </p>
             </div>
           </form>

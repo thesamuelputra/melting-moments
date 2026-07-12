@@ -30,9 +30,9 @@ export type Inquiry = {
   date: string;
   venue: string;
   status: InquiryStatus;
-  /** Customer-submitted message — immutable, read-only in the admin. */
+  /** Customer-submitted message: immutable, read-only in the admin. */
   notes: string;
-  /** Internal admin notes — editable. */
+  /** Internal admin notes; editable. */
   adminNotes: string;
   /** Status the inquiry had before archiving (set server-side on archive). */
   archivedFromStatus: string | null;
@@ -128,7 +128,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
   const reportFailure = useCallback(
     (res: Extract<ActionResult, { success: false }>, fallback: string) => {
       if (res.error === 'unauthorized') {
-        // Persistent SessionExpiredToast takes over — no transient duplicate.
+        // Persistent SessionExpiredToast takes over; no transient duplicate.
         setSessionExpired(true);
       } else {
         toast.error(res.message ?? fallback);
@@ -157,7 +157,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
         toast.success(`Status set to ${status}`);
       } else {
         patchInquiry(id, previous);
-        reportFailure(res, 'Failed to update status — change reverted');
+        reportFailure(res, 'Failed to update status. Change reverted');
       }
     },
     [inquiries, pendingIds, patchInquiry, markPending, unmarkPending, reportFailure, toast]
@@ -183,7 +183,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
         toast.success(`Inquiry restored to ${res.restoredStatus}`);
       } else {
         patchInquiry(id, previous);
-        reportFailure(res, 'Failed to restore inquiry — change reverted');
+        reportFailure(res, 'Failed to restore inquiry. Change reverted');
       }
     },
     [inquiries, pendingIds, patchInquiry, markPending, unmarkPending, reportFailure, toast]
@@ -211,7 +211,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
           next.splice(Math.min(index, next.length), 0, row);
           return next;
         });
-        reportFailure(res, 'Failed to delete inquiry — row restored');
+        reportFailure(res, 'Failed to delete inquiry. Row restored');
       }
     },
     [inquiries, reportFailure, toast]
@@ -236,7 +236,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
     }
   }, [selected, notesSaving, notesDraft, patchInquiry, reportFailure]);
 
-  // CSV export — includes admin notes; every cell is formula-injection safe.
+  // CSV export includes admin notes; every cell is formula-injection safe.
   const exportCSV = useCallback(() => {
     const headers = ['Name', 'Email', 'Phone', 'Event Type', 'Guest Count', 'Date', 'Venue', 'Status', 'Customer Notes', 'Admin Notes', 'Submitted'];
     const rows = inquiries.map((i) => [
@@ -351,8 +351,8 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                       <div className="admin-table__email">{inq.email}</div>
                     </td>
                     <td style={{ textTransform: 'capitalize' }}>{inq.eventType}</td>
-                    <td>{inq.guestCount || '—'}</td>
-                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+                    <td>{inq.guestCount || '-'}</td>
+                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</td>
                     <td
                       style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.45)' }}
                       title={formatAbsolute(inq.submittedAt)}
@@ -444,7 +444,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
       >
         {selected && (
           <>
-            {/* Admin controls — status */}
+            {/* Admin controls: status */}
             <div className="admin-modal__field">
               <div className="admin-modal__label">Status</div>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -480,7 +480,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
               </div>
             </div>
 
-            {/* Admin notes — editable, autosaves on blur */}
+            {/* Admin notes: editable, autosaves on blur */}
             <div style={{ marginBottom: '1.5rem' }}>
               <TextAreaField
                 label="Admin Notes"
@@ -490,7 +490,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                 maxLength={5000}
                 rows={4}
                 placeholder="Internal notes about this inquiry…"
-                help="Only visible in the admin — autosaves when you click away."
+                help="Only visible in the admin. Autosaves when you click away."
               />
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '0.35rem' }}>
                 <button
@@ -506,7 +506,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
               </div>
             </div>
 
-            {/* Customer submission — read-only, visually separated */}
+            {/* Customer submission: read-only, visually separated */}
             <div style={{ background: '#FAFAF8', border: '1px solid rgba(0,0,0,0.07)', borderRadius: '8px', padding: '1rem 1.1rem' }}>
               <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(0,0,0,0.45)', fontWeight: 600, marginBottom: '1rem' }}>
                 Customer Submission (read-only)
@@ -527,7 +527,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
               <div className="admin-modal__field">
                 <div className="admin-modal__label">Phone</div>
                 <div className="admin-modal__value">
-                  {selected.phone ? <a href={`tel:${selected.phone}`} style={{ color: '#2563EB', textDecoration: 'underline' }}>{selected.phone}</a> : '—'}
+                  {selected.phone ? <a href={`tel:${selected.phone}`} style={{ color: '#2563EB', textDecoration: 'underline' }}>{selected.phone}</a> : '-'}
                 </div>
               </div>
 
@@ -538,7 +538,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                 </div>
                 <div className="admin-modal__field">
                   <div className="admin-modal__label">Guests</div>
-                  <div className="admin-modal__value">{selected.guestCount || '—'}</div>
+                  <div className="admin-modal__value">{selected.guestCount || '-'}</div>
                 </div>
               </div>
 
@@ -546,12 +546,12 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                 <div className="admin-modal__field">
                   <div className="admin-modal__label">Event Date</div>
                   <div className="admin-modal__value">
-                    {selected.date ? new Date(selected.date).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' }) : '—'}
+                    {selected.date ? new Date(selected.date).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' }) : '-'}
                   </div>
                 </div>
                 <div className="admin-modal__field">
                   <div className="admin-modal__label">Venue</div>
-                  <div className="admin-modal__value">{selected.venue || '—'}</div>
+                  <div className="admin-modal__value">{selected.venue || '-'}</div>
                 </div>
               </div>
 

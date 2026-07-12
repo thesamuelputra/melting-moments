@@ -40,7 +40,7 @@ const REQUEST_FAILED: Failure = { success: false, error: 'failed' };
 const isValidRating = (r: unknown): r is number =>
   typeof r === 'number' && Number.isInteger(r) && r >= 1 && r <= 5;
 
-/* ── Chip radio group (roving tabindex + arrow keys) ─────────────────── */
+/* ===== Chip radio group (roving tabindex + arrow keys) ===== */
 
 type ChipOption = { value: string; label: string; ariaLabel?: string };
 
@@ -119,7 +119,7 @@ function ChipRadioGroup({
   );
 }
 
-/* ── Badges ──────────────────────────────────────────────────────────── */
+/* ===== Badges ===== */
 
 const BADGE_STYLES: Record<'catering' | 'guidos' | 'both', React.CSSProperties> = {
   catering: { background: '#EEF3FF', color: '#2563EB' },
@@ -137,7 +137,7 @@ function BrandBadge({ brand }: { brand?: TestimonialBrand }) {
   );
 }
 
-/* ── Form option sets ────────────────────────────────────────────────── */
+/* ===== Form option sets ===== */
 
 const BRAND_OPTIONS: ChipOption[] = [
   { value: '', label: 'Both', ariaLabel: 'Shown for both brands' },
@@ -175,7 +175,7 @@ function draftFrom(t: Testimonial): Draft {
   };
 }
 
-/* ── Manager ─────────────────────────────────────────────────────────── */
+/* ===== Manager ===== */
 
 function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Testimonial[] | null }) {
   const toast = useToast();
@@ -205,13 +205,13 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
   const fail = (res: Failure, fallback: string) => {
     if (res.error === 'unauthorized') {
       setSessionExpired(true);
-      toast.error('Session expired — log in again');
+      toast.error('Session expired, log in again');
     } else {
       toast.error(res.message ?? fallback);
     }
   };
 
-  /* ── Panel (create / edit) ─────────────────────────────────────────── */
+  /* ===== Panel (create / edit) ===== */
 
   const openCreate = () => {
     setDraft(EMPTY_DRAFT);
@@ -284,7 +284,7 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
       return;
     }
 
-    // Edit — partial patch: send only what changed.
+    // Edit is a partial patch: send only what changed.
     const original = panel.testimonial;
     const fields: Parameters<typeof updateTestimonial>[1] = {};
     if (author !== original.author) fields.author = author;
@@ -314,13 +314,13 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
       toast.success('Testimonial updated');
     } else {
       setItems((prev) => prev.map((t) => (t.id === original.id ? original : t)));
-      fail(res, 'Failed to update testimonial — changes reverted');
+      fail(res, 'Failed to update testimonial, changes reverted');
     }
     setPending(original.id, false);
     setSaving(false);
   };
 
-  /* ── Row actions ───────────────────────────────────────────────────── */
+  /* ===== Row actions ===== */
 
   const handleToggle = async (item: Testimonial) => {
     if (pendingIds.has(item.id)) return;
@@ -329,7 +329,7 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
     const res = await updateTestimonial(item.id, { isActive: !item.isActive }).catch(() => REQUEST_FAILED);
     if (!res.success) {
       setItems((prev) => prev.map((t) => (t.id === item.id ? { ...t, isActive: item.isActive } : t)));
-      fail(res, 'Failed to update visibility — reverted');
+      fail(res, 'Failed to update visibility, reverted');
     }
     setPending(item.id, false);
   };
@@ -349,7 +349,7 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
         next.splice(Math.min(index, next.length), 0, item);
         return next;
       });
-      fail(res, 'Failed to delete testimonial — restored');
+      fail(res, 'Failed to delete testimonial, restored');
     }
   };
 
@@ -365,12 +365,12 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
       });
       toast.success('Order saved');
     } else {
-      fail(res, 'Failed to save order — reverted');
+      fail(res, 'Failed to save order, reverted');
     }
     return res.success; // false ⇒ SortableList reverts to the pre-drag order
   };
 
-  /* ── Render ────────────────────────────────────────────────────────── */
+  /* ===== Render ===== */
 
   const panelTitle = panel?.mode === 'edit' ? 'Edit Testimonial' : 'New Testimonial';
 
@@ -393,7 +393,7 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
           }}
         >
           <span style={{ fontSize: '0.82rem', color: '#B91C1C', fontWeight: 500 }}>
-            Your admin session has expired — changes are no longer being saved.
+            Your admin session has expired. Changes are no longer being saved.
           </span>
           <a href="/admin-login" className="admin-btn admin-btn--sm" style={{ flexShrink: 0 }}>
             Log in again
@@ -445,7 +445,7 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
       {cmsUnreachable ? (
         <EmptyState
           title="CMS temporarily unreachable"
-          body="The content database could not be reached. Your testimonials are safe — refresh to try again."
+          body="The content database could not be reached. Your testimonials are safe. Refresh to try again."
           action={
             <button className="admin-btn admin-btn--primary" onClick={() => router.refresh()}>
               Refresh
@@ -455,7 +455,7 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
       ) : items.length === 0 ? (
         <EmptyState
           title="No testimonials yet"
-          body="Testimonials appear on the public site once you add them here. Until then, the public /testimonials page shows a short invitation to get in touch — there are no placeholder reviews."
+          body="Testimonials appear on the public site once you add them here. Until then, the public /testimonials page shows a short invitation to get in touch; there are no placeholder reviews."
           action={
             <button className="admin-btn admin-btn--primary" onClick={openCreate}>
               + Add Testimonial
@@ -469,7 +469,7 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
           getLabel={(t) => `Testimonial from ${t.author}`}
           onReorder={handleReorder}
           /* Reordering while an optimistic temp-id row exists would persist an
-             id list the server does not know yet — lock dragging until the
+             id list the server does not know yet; lock dragging until the
              create settles and the real id is swapped in. */
           disabled={items.some((t) => t.id.startsWith('temp-'))}
           renderItem={(item, { handleProps }) => {
@@ -607,7 +607,7 @@ function TestimonialsManager({ initialTestimonials }: { initialTestimonials: Tes
           value={draft.rating}
           options={RATING_OPTIONS}
           onChange={(v) => setDraft((d) => ({ ...d, rating: v as Draft['rating'] }))}
-          help="Optional — pick 'No rating' to show the quote without stars."
+          help="Optional. Pick 'No rating' to show the quote without stars."
         />
       </SlidePanel>
 
@@ -635,7 +635,7 @@ export default function AdminTestimonialsClient({
 }: {
   initialTestimonials: Testimonial[] | null;
 }) {
-  // ToastProvider is not mounted globally — each admin module wraps its own tree.
+  // ToastProvider is not mounted globally; each admin module wraps its own tree.
   return (
     <ToastProvider>
       <TestimonialsManager initialTestimonials={initialTestimonials} />

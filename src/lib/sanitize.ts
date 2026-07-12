@@ -22,7 +22,7 @@ export function isValidEmail(email: string): boolean {
 
 /**
  * Serializes data for safe embedding inside a <script type="application/ld+json">
- * rendered via dangerouslySetInnerHTML. JSON.stringify alone does NOT escape
+ * rendered via dangerouslySetInnerHTML. JSON.stringify alone does not escape
  * "</script>", so CMS- or user-controlled content (e.g. FAQ answers from the CMS)
  * could otherwise break out of the script element and execute (stored XSS).
  * Escaping <, > and & neutralizes the closing-tag and entity vectors while

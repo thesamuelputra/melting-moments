@@ -47,7 +47,7 @@ export async function getSettings(): Promise<Record<string, string>> {
   try {
     return await cachedSettings();
   } catch (e) {
-    console.error('[cms] Convex unavailable — serving hardcoded fallback content', e);
+    console.error('[cms] Convex unavailable; serving hardcoded fallback content', e);
     return {};
   }
 }

@@ -42,14 +42,14 @@ export type SortableListProps<T> = {
   getLabel?: (item: T) => string;
   /**
    * Persist the new order. Return true on success. Return false (or throw) to make
-   * the list revert to its pre-drag order — the CALLER is responsible for toasts.
+   * the list revert to its pre-drag order; the caller is responsible for toasts.
    */
   onReorder: (idsInNewOrder: string[]) => Promise<boolean>;
   renderItem: (item: T, state: SortableItemState) => React.ReactNode;
   disabled?: boolean;
 };
 
-/** Convenience grip-dots handle — `<DragHandle {...state.handleProps} />`. */
+/** Convenience grip-dots handle: `<DragHandle {...state.handleProps} />`. */
 export function DragHandle(props: SortableHandleProps) {
   const { className, ...rest } = props;
   return (
@@ -121,7 +121,7 @@ export default function SortableList<T>({
   renderItem,
   disabled = false,
 }: SortableListProps<T>) {
-  // Internal optimistic copy — synced from props whenever the parent's array changes
+  // Internal optimistic copy, synced from props whenever the parent's array changes
   // (CRUD elsewhere, server refresh), adjusted immediately on drop, reverted on failure.
   const [list, setList] = useState(items);
   const [prevItems, setPrevItems] = useState(items);
@@ -209,7 +209,7 @@ export default function SortableList<T>({
       } catch {
         ok = false;
       }
-      // Revert only if this drop's optimistic order is still what is shown —
+      // Revert only if this drop's optimistic order is still what is shown;
       // a props re-sync or newer state must never be clobbered by a stale
       // failure. Caller surfaces the error toast either way.
       if (!ok) setList((curr) => (curr === next ? snapshot : curr));

@@ -79,7 +79,7 @@ export default async function AdminDashboard() {
         </div>
       )}
 
-      {/* KPI Cards — captions are static context, styled neutral on purpose
+      {/* KPI Cards. Captions are static context, styled neutral on purpose
           (the --up/--down trend colors are reserved for real computed deltas). */}
       <div className="admin-kpi-grid">
         <div className="admin-kpi-card">
@@ -194,7 +194,7 @@ export default async function AdminDashboard() {
                       <span style={{ fontWeight: 500 }}>{inq.eventType}</span>
                       <div style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.1rem' }}>{inq.guestCount} guests</div>
                     </td>
-                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '–'}</td>
+                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</td>
                     <td style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.45)', whiteSpace: 'nowrap' }} title={formatAbsolute(inq.submittedAt)}>
                       {formatRelativeTime(inq.submittedAt)}
                     </td>

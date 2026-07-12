@@ -7,7 +7,7 @@ import {
   requireText,
 } from "./lib";
 
-// All testimonials (admin view — includes inactive), sorted by orderIndex
+// All testimonials (admin view, includes inactive), sorted by orderIndex
 export const list = query({
   args: { adminSecret: v.string() },
   handler: async (ctx, args) => {
@@ -74,7 +74,7 @@ export const create = mutation({
   },
 });
 
-// Update a testimonial — partial patch: only provided fields are written,
+// Update a testimonial. Partial patch: only provided fields are written,
 // omitted fields are left untouched. Pass null to clear an optional field:
 // role: null, rating: null, brand: null (brand null = shows on both).
 export const update = mutation({
@@ -148,14 +148,15 @@ export const remove = mutation({
 });
 
 // Atomically reorder all testimonials: patches orderIndex = array position
-// for every id, in ONE transaction. Throws (rolling back) on any unknown id.
+// for every id, in a single transaction. Throws (rolling back) on any
+// unknown id.
 export const reorder = mutation({
   args: { adminSecret: v.string(), ids: v.array(v.id("testimonials")) },
   handler: async (ctx, args) => {
     assertAdmin(args.adminSecret);
     for (let i = 0; i < args.ids.length; i++) {
       const doc = await ctx.db.get(args.ids[i]);
-      if (!doc) throw new Error("Testimonial not found — reorder aborted");
+      if (!doc) throw new Error("Testimonial not found; reorder aborted");
       await ctx.db.patch(args.ids[i], { orderIndex: i });
     }
     await logActivity(ctx, {

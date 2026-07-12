@@ -10,7 +10,7 @@ export type ActionResult =
   | { success: true; id?: string }
   | { success: false; error: 'unauthorized' | 'invalid' | 'failed'; message?: string };
 
-/** Mirrors ORDER_STATUSES in convex/lib.ts — the mutation arg is this literal union. */
+/** Mirrors ORDER_STATUSES in convex/lib.ts; the mutation arg is this literal union. */
 export type OrderStatus = 'received' | 'preparing' | 'ready' | 'delivered' | 'picked_up';
 
 const ORDER_STATUSES: readonly OrderStatus[] = ['received', 'preparing', 'ready', 'delivered', 'picked_up'];
@@ -23,12 +23,12 @@ async function ensureAdmin(): Promise<ActionResult | null> {
     return null;
   } catch (err) {
     if (err instanceof AdminAuthError) return UNAUTHORIZED;
-    throw err; // ADMIN_PASSWORD unset — real server misconfig, let it surface
+    throw err; // ADMIN_PASSWORD unset: real server misconfig, let it surface
   }
 }
 
-// NOTE: orders never appear on the public site, so there is no updateTag('cms')
-// here on purpose — only the admin orders page needs revalidating.
+// Orders never appear on the public site, so there is no updateTag('cms')
+// here on purpose; only the admin orders page needs revalidating.
 
 export async function updateGuidosOrderStatus(id: string, status: OrderStatus): Promise<ActionResult> {
   const auth = await ensureAdmin();
