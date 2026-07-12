@@ -2,18 +2,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getTestimonials } from '@/lib/cms';
+import { JsonLd, breadcrumbList } from '@/lib/seo';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Catering | Melting Moments — Victoria BC',
+  title: 'Catering Services',
   description:
     'Catering for weddings, corporate events and private dining across Vancouver Island. Chef Paul Silletta — 17 years, family recipes, in your kitchen on the day.',
   openGraph: {
-    title: 'Catering | Melting Moments — Victoria BC',
     description:
       'Weddings, corporate, private & yacht dining, family style and chocolate fountains — catered across Vancouver Island by Chef Paul Silletta.',
-    images: ['/catering_menu_hero.webp'],
+    images: [{ url: '/og/og-default.jpg', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
     url: '/catering',
     siteName: 'Melting Moments Catering',
     locale: 'en_CA',
@@ -60,6 +60,7 @@ export default async function Catering() {
 
   return (
     <div>
+      <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Catering Services', path: '/catering' }])} />
       {/* 1. HERO */}
       <header
         className="container"

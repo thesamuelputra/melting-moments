@@ -1,10 +1,18 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import { getCmsContent } from '@/lib/cms';
+import { JsonLd, breadcrumbList, personChefPaul } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Chef Paul | Victoria BC Catering',
+  title: 'Chef Paul Silletta',
   description: "Meet Chef Paul Silletta — 17 years of culinary craft behind Melting Moments Catering and Guido's Gourmet in Victoria, BC.",
+  openGraph: {
+    url: '/chef-paul',
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
+    images: [{ url: '/og/og-chef.jpg', width: 1200, height: 630, alt: 'Chef Paul Silletta finishing a plate with red wine reduction' }],
+  },
 }
 
 export const revalidate = 300;
@@ -18,6 +26,8 @@ export default async function ChefPaul() {
 
   return (
     <div>
+      <JsonLd data={personChefPaul()} />
+      <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Chef Paul Silletta', path: '/chef-paul' }])} />
       <header className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(4rem, 10vw, 8rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>About Us</div>
         <h1 className="haus-display" style={{ maxWidth: '900px', position: 'relative', zIndex: 2, whiteSpace: 'pre-line' }}>

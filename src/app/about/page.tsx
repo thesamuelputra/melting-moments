@@ -1,18 +1,18 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import { getCmsContent } from '@/lib/cms';
+import { JsonLd, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Our Philosophy | Melting Moments Catering Victoria',
+  title: 'About Us',
   description: 'Family recipes, Vancouver Island ingredients, and custom menus built around your event. Catering in Victoria, BC since 2009.',
   openGraph: {
     url: '/about',
     siteName: 'Melting Moments Catering',
     locale: 'en_CA',
     type: 'website',
-    title: 'Our Philosophy | Melting Moments Catering Victoria',
     description: 'Family recipes and custom catering across Vancouver Island.',
-    images: ['/chef_plating_sauce.webp'],
+    images: [{ url: '/og/og-about.jpg', width: 1200, height: 630, alt: 'Copper pots hanging above the range in the Melting Moments kitchen' }],
   },
 }
 
@@ -32,6 +32,7 @@ export default async function About() {
 
   return (
     <div>
+      <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'About Us', path: '/about' }])} />
       <header className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 3rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>{headerIndex}</div>
         <h1 className="haus-display" style={{ maxWidth: '900px', position: 'relative', zIndex: 2 }}>

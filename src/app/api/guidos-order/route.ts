@@ -36,9 +36,16 @@ export async function POST(request: Request) {
     const email = String(body.email).slice(0, 200);
     const phone = String(body.phone).slice(0, 50);
     const items = String(body.items).slice(0, 3000);
-    const deliveryMethod = String(body.deliveryMethod).slice(0, 20);
+    const rawMethod = String(body.deliveryMethod);
+    if (rawMethod !== 'delivery' && rawMethod !== 'pickup') {
+      return NextResponse.json({ error: 'Invalid delivery method' }, { status: 400 });
+    }
+    const deliveryMethod: 'delivery' | 'pickup' = rawMethod;
     const address = String(body.address || '').slice(0, 500);
     const notes = String(body.notes || '').slice(0, 2000);
+    if (deliveryMethod === 'delivery' && !address.trim()) {
+      return NextResponse.json({ error: 'Delivery address is required for delivery orders' }, { status: 400 });
+    }
 
     // Escape for HTML
     const eName = escapeHtml(name);

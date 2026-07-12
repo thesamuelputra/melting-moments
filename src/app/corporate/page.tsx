@@ -1,8 +1,21 @@
 import Image from 'next/image';
 import CorporateMenuClient from './CorporateMenuClient';
 import { getCmsValue, getMenuItems, getSettings } from '@/lib/cms';
+import { AREA_SERVED, BUSINESS_ID, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const revalidate = 300;
+
+const corporateService = {
+  '@type': 'Service',
+  '@id': `${SITE.url}/corporate#service`,
+  name: 'Corporate Catering & Office Lunches',
+  serviceType: 'Corporate catering',
+  description:
+    'From continental breakfasts to boardroom luncheons for 20 or 300. Melting Moments delivers corporate catering across Victoria, BC.',
+  url: `${SITE.url}/corporate`,
+  provider: { '@id': BUSINESS_ID },
+  areaServed: AREA_SERVED,
+};
 
 export default async function Corporate() {
   const [allItems, settings] = await Promise.all([
@@ -27,6 +40,8 @@ export default async function Corporate() {
 
   return (
     <div>
+      <JsonLd data={corporateService} />
+      <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Corporate Catering', path: '/corporate' }])} />
       <header className="container page-header-grid" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 2fr', gap: '3rem', alignItems: 'center' }}>
         <div>
           <div className="menu-index" style={{ marginBottom: '2rem' }}>

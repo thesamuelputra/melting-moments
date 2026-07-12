@@ -1,16 +1,38 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
+import { AREA_SERVED, BUSINESS_ID, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Chocolate Fountains | Victoria BC Catering',
+  title: 'Chocolate Fountain Rentals',
   description: "Vancouver Island's largest chocolate fountain supplier — premium Lindt chocolate fountains for events from 20 to 1,000 guests in Victoria, BC.",
+  openGraph: {
+    url: '/fountains',
+    siteName: 'Melting Moments Catering',
+    locale: 'en_CA',
+    type: 'website',
+    images: [{ url: '/og/og-about.jpg', width: 1200, height: 630, alt: 'Copper pots hanging above the range in the Melting Moments kitchen' }],
+  },
 }
 
 export const revalidate = 300;
 
+const fountainService = {
+  '@type': 'Service',
+  '@id': `${SITE.url}/fountains#service`,
+  name: 'Chocolate Fountain Rentals',
+  serviceType: 'Chocolate fountain rental',
+  description:
+    "Vancouver Island's largest chocolate fountain supplier — premium Lindt chocolate fountains for events from 20 to 1,000 guests in Victoria, BC.",
+  url: `${SITE.url}/fountains`,
+  provider: { '@id': BUSINESS_ID },
+  areaServed: AREA_SERVED,
+};
+
 export default function Fountains() {
   return (
     <div>
+      <JsonLd data={fountainService} />
+      <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Chocolate Fountain Rentals', path: '/fountains' }])} />
       <header className="container page-header-grid" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1.2fr', gap: '3rem', alignItems: 'center' }}>
         <div>
           <div className="menu-index" style={{ marginBottom: '2rem' }}>Fountains</div>

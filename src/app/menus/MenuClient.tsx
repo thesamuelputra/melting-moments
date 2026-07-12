@@ -21,7 +21,7 @@ type MenuItem = {
 const INCLUDED_LABEL = 'Included';
 const isIncluded = (label: string) => label.trim().toLowerCase() === INCLUDED_LABEL.toLowerCase();
 
-export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuItem[]; disclaimer: string }) {
+export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { menuItems: MenuItem[]; disclaimer: string; categoryOrder?: string[] }) {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -57,8 +57,9 @@ export default function MenuClient({ menuItems, disclaimer }: { menuItems: MenuI
     return () => mq.removeEventListener('change', update);
   }, []);
 
-  // Hardcode the category display order for visual continuity with the design
-  const order = [
+  // Category display order: CMS-managed (menu_category_order setting, threaded
+  // from the server page) with the original hardcoded order as a fallback.
+  const order = categoryOrder && categoryOrder.length > 0 ? categoryOrder : [
     'BREADS', 'ANTIPASTO', 'SALADS', 'STARCHES', 'VEGETABLES',
     'SEAFOOD', 'ENTREES', 'PACKAGES', 'SOIREE', 'PEASANO',
     'MEXICAN', 'BBQ', 'LUNCH', 'BREAKFAST', 'BEVERAGES'

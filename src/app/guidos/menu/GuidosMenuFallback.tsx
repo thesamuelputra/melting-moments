@@ -54,7 +54,7 @@ export default function GuidosMenuFallback() {
       <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(4rem, 8vw, 8rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>Guido&apos;s Gourmet</div>
         <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', marginBottom: 'clamp(2rem, 4vw, 4rem)' }}>
-          Menu
+          Ready-Made Italian Meals
         </h1>
 
         {/* Category Tabs */}
@@ -113,24 +113,32 @@ export default function GuidosMenuFallback() {
                 From ${product.priceFrom.toFixed(2)}
               </span>
 
-              {/* Expanded detail */}
-              {expandedProduct === product.name && product.isAvailable && (
-                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.08)', animation: 'fadeIn 0.3s ease' }}>
-                  {product.sizes && product.sizes.length > 0 && (
-                    <div style={{ marginBottom: '1rem' }}>
-                      {product.sizes.map((size) => (
-                        <div key={size.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: 'var(--text-body)', opacity: 0.7 }}>
-                          <span>{size.label}</span>
-                          <span>${size.price.toFixed(2)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <Link href="/guidos/order" className="btn-solid" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '0.8rem', fontSize: 'var(--text-micro)' }}>
-                    Order This
-                  </Link>
-                </div>
-              )}
+              {/* Expanded detail — always in the DOM (CSS-collapsed, not
+                  conditionally mounted) so every per-size price ships in the
+                  server HTML for crawlers and answer engines. */}
+              <div
+                style={{
+                  display: expandedProduct === product.name && product.isAvailable ? 'block' : 'none',
+                  marginTop: '1rem',
+                  paddingTop: '1rem',
+                  borderTop: '1px solid rgba(0,0,0,0.08)',
+                  animation: 'fadeIn 0.3s ease',
+                }}
+              >
+                {product.sizes && product.sizes.length > 0 && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    {product.sizes.map((size) => (
+                      <div key={size.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: 'var(--text-body)', opacity: 0.7 }}>
+                        <span>{size.label}</span>
+                        <span>${size.price.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <Link href="/guidos/order" className="btn-solid" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '0.8rem', fontSize: 'var(--text-micro)' }}>
+                  Order This
+                </Link>
+              </div>
             </div>
           ))}
         </div>

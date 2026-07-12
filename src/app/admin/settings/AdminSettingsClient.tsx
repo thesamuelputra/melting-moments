@@ -1,143 +1,233 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { saveBusinessSettings } from './actions';
+import { TextField, ToggleSwitch, useDirtyGuard, useToast } from '../_components';
+import { validateSettingsEntries } from './validation';
 
-export type SettingsMap = {
-  name: string;
-  owner: string;
-  address: string;
-  phone: string;
-  email: string;
-  website: string;
-  emailOnNewInquiry: string;
-  emailOnBooking: string;
-  weeklyDigest: string;
-};
+/**
+ * Editor defaults mirror the live-site fallbacks: every consumer reads
+ * `settings[key] || fallback`, so pre-filling the fallback shows the admin
+ * exactly what is live without forcing a save.
+ */
+const TEXT_DEFAULTS = {
+  name: 'Melting Moments Catering',
+  owner: 'Paul Silletta',
+  address: '614 Grenville Ave, Esquimalt, BC V9A 6L2',
+  phone: '250-385-2462',
+  email: 'info@meltingmoments.ca',
+  website: 'https://meltingmoments.ca',
+  social_instagram: '',
+  social_facebook: 'https://www.facebook.com/MeltingMomentsCatering',
+  social_google_business: '',
+  business_hours_note: 'Consultations & tastings by appointment',
+} as const;
 
-export default function AdminSettingsClient({ initialSettings }: { initialSettings: SettingsMap }) {
-  const [business, setBusiness] = useState({
-    name: initialSettings.name || 'Melting Moments Catering',
-    owner: initialSettings.owner || 'Paul Silletta',
-    address: initialSettings.address || '614 Grenville Ave, Esquimalt, BC V9A 6L2',
-    phone: initialSettings.phone || '250-385-2462',
-    email: initialSettings.email || 'info@meltingmoments.ca',
-    website: initialSettings.website || 'https://meltingmoments.ca',
-  });
+type TextKey = keyof typeof TEXT_DEFAULTS;
 
-  const [notifications, setNotifications] = useState({
-    emailOnNewInquiry: initialSettings.emailOnNewInquiry === 'true',
-    emailOnBooking: initialSettings.emailOnBooking === 'true',
-    weeklyDigest: initialSettings.weeklyDigest === 'true',
-  });
+type Draft = Record<TextKey, string> & { emailOnNewInquiry: boolean };
 
-  const [saved, setSaved] = useState(false);
-  const [saveError, setSaveError] = useState('');
+function buildDraft(initialSettings: Record<string, string>): Draft {
+  const draft = {} as Draft;
+  for (const key of Object.keys(TEXT_DEFAULTS) as TextKey[]) {
+    draft[key] = initialSettings[key] || TEXT_DEFAULTS[key];
+  }
+  // Missing = on: the contact route only skips the owner email when the
+  // stored value is exactly 'false'.
+  draft.emailOnNewInquiry = initialSettings['emailOnNewInquiry'] !== 'false';
+  return draft;
+}
+
+function draftToEntries(draft: Draft): Record<string, string> {
+  const entries: Record<string, string> = {};
+  for (const key of Object.keys(TEXT_DEFAULTS) as TextKey[]) {
+    entries[key] = draft[key];
+  }
+  entries.emailOnNewInquiry = draft.emailOnNewInquiry ? 'true' : 'false';
+  return entries;
+}
+
+function SessionExpiredNotice() {
+  return (
+    <div
+      role="alert"
+      style={{
+        marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)',
+        border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px',
+        display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap',
+      }}
+    >
+      <span>Session expired — log in again to keep editing.</span>
+      <Link href="/admin-login" className="admin-btn admin-btn--sm" style={{ textDecoration: 'none' }}>
+        Log in
+      </Link>
+    </div>
+  );
+}
+
+const JSONLD_HELP = "Feeds the site's structured data (JSON-LD) that search engines read.";
+
+export default function AdminSettingsClient({ initialSettings }: { initialSettings: Record<string, string> }) {
+  const [baseline, setBaseline] = useState<Draft>(() => buildDraft(initialSettings));
+  const [draft, setDraft] = useState<Draft>(() => buildDraft(initialSettings));
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const toast = useToast();
+
+  const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(baseline), [draft, baseline]);
+  useDirtyGuard(dirty);
+
+  const setField = (key: TextKey, value: string) => {
+    setDraft((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      if (!(key in prev)) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
 
   const handleSave = () => {
+    const entries = draftToEntries(draft);
+    const validationErrors = validateSettingsEntries(entries);
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      toast.error('Fix the highlighted fields before saving');
+      return;
+    }
+
+    // Dirty-key diff: persist only what changed.
+    const baseEntries = draftToEntries(baseline);
+    const payload: Record<string, string> = {};
+    for (const [key, value] of Object.entries(entries)) {
+      if (value !== baseEntries[key]) payload[key] = value;
+    }
+    if (Object.keys(payload).length === 0) {
+      toast.info('Nothing to save');
+      return;
+    }
+
     startTransition(async () => {
-      const payload = {
-        name: business.name,
-        owner: business.owner,
-        address: business.address,
-        phone: business.phone,
-        email: business.email,
-        website: business.website,
-        emailOnNewInquiry: notifications.emailOnNewInquiry ? 'true' : 'false',
-        emailOnBooking: notifications.emailOnBooking ? 'true' : 'false',
-        weeklyDigest: notifications.weeklyDigest ? 'true' : 'false',
-      };
-      const res = await saveBusinessSettings(payload);
+      const res = await saveBusinessSettings(payload).catch(
+        () => ({ success: false as const, error: 'failed' as const })
+      );
       if (res.success) {
-        setSaved(true);
-        setSaveError('');
-        setTimeout(() => setSaved(false), 2500);
+        setBaseline(draft);
+        setSessionExpired(false);
+        toast.success('Settings saved');
+      } else if (res.error === 'unauthorized') {
+        setSessionExpired(true);
+        toast.error('Session expired — log in again');
       } else {
-        setSaveError('Failed to save settings. Please try again.');
+        toast.error(('message' in res && res.message) || 'Failed to save settings — please try again');
       }
     });
   };
 
   return (
     <div style={{ maxWidth: '700px' }}>
-      {saveError && (
-        <div role="alert" style={{ marginBottom: '1.5rem', padding: '0.875rem 1rem', background: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', borderRadius: '6px' }}>
-          {saveError}
-        </div>
-      )}
+      {sessionExpired && <SessionExpiredNotice />}
+
       <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginBottom: '1.5rem', padding: '0.75rem', background: 'rgba(0,0,0,0.02)', borderRadius: '6px', lineHeight: 1.5 }}>
-        Changes saved here are automatically reflected on the public <strong>Contact</strong> and <strong>Corporate</strong> pages.
+        Changes saved here update the public <strong>Contact</strong> page and the business
+        details search engines read from the site (JSON-LD schema).
       </p>
-      {/* Business Information */}
+
+      {/* Business Profile */}
       <div className="admin-section">
         <div className="admin-section__header">
-          <h3>Business Information</h3>
+          <h3>Business Profile</h3>
         </div>
         <div className="admin-section__body">
           <div style={{ display: 'grid', gap: '1.25rem', opacity: isPending ? 0.7 : 1, transition: 'opacity 0.2s ease' }}>
-            <div>
-              <label className="admin-modal__label" htmlFor="settings-name" style={{ marginBottom: '0.5rem' }}>Business Name</label>
-              <input
-                id="settings-name"
-                className="admin-inline-input"
-                value={business.name}
-                onChange={e => setBusiness({ ...business, name: e.target.value })}
-                disabled={isPending}
-              />
-            </div>
-            <div>
-              <label className="admin-modal__label" htmlFor="settings-owner" style={{ marginBottom: '0.5rem' }}>Owner / Chef</label>
-              <input
-                id="settings-owner"
-                className="admin-inline-input"
-                value={business.owner}
-                onChange={e => setBusiness({ ...business, owner: e.target.value })}
-                disabled={isPending}
-              />
-            </div>
-            <div>
-              <label className="admin-modal__label" htmlFor="settings-address" style={{ marginBottom: '0.5rem' }}>Address</label>
-              <input
-                id="settings-address"
-                className="admin-inline-input"
-                value={business.address}
-                onChange={e => setBusiness({ ...business, address: e.target.value })}
-                disabled={isPending}
-              />
-            </div>
+            <TextField
+              label="Business Name"
+              required
+              value={draft.name}
+              onChange={(v) => setField('name', v)}
+              error={errors.name}
+              disabled={isPending}
+            />
+            <TextField
+              label="Owner / Chef"
+              value={draft.owner}
+              onChange={(v) => setField('owner', v)}
+              help="Shown as the contact person on the Contact page."
+              disabled={isPending}
+            />
+            <TextField
+              label="Address"
+              value={draft.address}
+              onChange={(v) => setField('address', v)}
+              disabled={isPending}
+            />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div>
-                <label className="admin-modal__label" htmlFor="settings-phone" style={{ marginBottom: '0.5rem' }}>Phone</label>
-                <input
-                  id="settings-phone"
-                  className="admin-inline-input"
-                  value={business.phone}
-                  onChange={e => setBusiness({ ...business, phone: e.target.value })}
-                  disabled={isPending}
-                />
-              </div>
-              <div>
-                <label className="admin-modal__label" htmlFor="settings-email" style={{ marginBottom: '0.5rem' }}>Email</label>
-                <input
-                  id="settings-email"
-                  className="admin-inline-input"
-                  value={business.email}
-                  onChange={e => setBusiness({ ...business, email: e.target.value })}
-                  disabled={isPending}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="admin-modal__label" htmlFor="settings-website" style={{ marginBottom: '0.5rem' }}>Website</label>
-              <input
-                id="settings-website"
-                className="admin-inline-input"
-                value={business.website}
-                onChange={e => setBusiness({ ...business, website: e.target.value })}
+              <TextField
+                label="Phone"
+                type="tel"
+                value={draft.phone}
+                onChange={(v) => setField('phone', v)}
+                error={errors.phone}
+                disabled={isPending}
+              />
+              <TextField
+                label="Email"
+                type="email"
+                value={draft.email}
+                onChange={(v) => setField('email', v)}
+                error={errors.email}
                 disabled={isPending}
               />
             </div>
+            <TextField
+              label="Website"
+              type="url"
+              value={draft.website}
+              onChange={(v) => setField('website', v)}
+              error={errors.website}
+              placeholder="https://…"
+              disabled={isPending}
+            />
+            <TextField
+              label="Instagram URL"
+              type="url"
+              value={draft.social_instagram}
+              onChange={(v) => setField('social_instagram', v)}
+              error={errors.social_instagram}
+              placeholder="https://www.instagram.com/…"
+              help={JSONLD_HELP}
+              disabled={isPending}
+            />
+            <TextField
+              label="Facebook URL"
+              type="url"
+              value={draft.social_facebook}
+              onChange={(v) => setField('social_facebook', v)}
+              error={errors.social_facebook}
+              placeholder="https://www.facebook.com/…"
+              help={JSONLD_HELP}
+              disabled={isPending}
+            />
+            <TextField
+              label="Google Business Profile URL"
+              type="url"
+              value={draft.social_google_business}
+              onChange={(v) => setField('social_google_business', v)}
+              error={errors.social_google_business}
+              placeholder="https://maps.google.com/…"
+              help={JSONLD_HELP}
+              disabled={isPending}
+            />
+            <TextField
+              label="Hours note"
+              value={draft.business_hours_note}
+              onChange={(v) => setField('business_hours_note', v)}
+              placeholder="Consultations & tastings by appointment"
+              help={`Short opening-hours note, e.g. 'Consultations & tastings by appointment'. ${JSONLD_HELP}`}
+              disabled={isPending}
+            />
           </div>
         </div>
       </div>
@@ -148,64 +238,35 @@ export default function AdminSettingsClient({ initialSettings }: { initialSettin
           <h3>Notifications</h3>
         </div>
         <div className="admin-section__body">
-          <div style={{ display: 'grid', gap: '1rem', opacity: isPending ? 0.7 : 1, transition: 'opacity 0.2s ease' }}>
-            {[
-              { key: 'emailOnNewInquiry' as const, label: 'Email on new inquiry', desc: 'Get notified when a new contact form is submitted.' },
-              { key: 'emailOnBooking' as const, label: 'Email on booking confirmation', desc: 'Get notified when an inquiry is marked as booked.' },
-              { key: 'weeklyDigest' as const, label: 'Weekly digest', desc: 'Receive a summary of inquiries and events every Monday.' },
-            ].map(pref => (
-              <div key={pref.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-                <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>{pref.label}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.15rem' }}>{pref.desc}</div>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={notifications[pref.key]}
-                  aria-label={pref.label}
-                  disabled={isPending}
-                  onClick={() => !isPending && setNotifications(prev => ({ ...prev, [pref.key]: !prev[pref.key] }))}
-                  style={{
-                    width: '40px',
-                    height: '22px',
-                    borderRadius: '11px',
-                    border: 'none',
-                    padding: 0,
-                    backgroundColor: notifications[pref.key] ? 'var(--clr-ink)' : 'rgba(0,0,0,0.15)',
-                    position: 'relative',
-                    transition: 'background-color 0.2s',
-                    cursor: isPending ? 'default' : 'pointer',
-                    flexShrink: 0,
-                  }}
-                >
-                  <span style={{
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '50%',
-                    backgroundColor: 'white',
-                    position: 'absolute',
-                    top: '3px',
-                    left: notifications[pref.key] ? '21px' : '3px',
-                    transition: 'left 0.2s',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                  }} />
-                </button>
-              </div>
-            ))}
+          <div style={{ opacity: isPending ? 0.7 : 1, transition: 'opacity 0.2s ease' }}>
+            <ToggleSwitch
+              label="Email on new inquiry"
+              checked={draft.emailOnNewInquiry}
+              onChange={(checked) => setDraft((prev) => ({ ...prev, emailOnNewInquiry: checked }))}
+              help="Send an email to the owner inbox when a new contact form is submitted. Customers always receive their confirmation email."
+              disabled={isPending}
+            />
           </div>
-          <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', backgroundColor: 'rgba(217, 119, 6, 0.05)', borderLeft: '3px solid #D97706', fontSize: '0.75rem', color: 'rgba(0,0,0,0.6)', lineHeight: 1.5 }}>
-            <strong>Coming Soon:</strong> Notification preferences are saved to your account. Email delivery requires the <code>RESEND_API_KEY</code> environment variable to be configured. The &quot;Email on new inquiry&quot; feature is active when Resend is configured.
+          <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', backgroundColor: 'rgba(0,0,0,0.02)', borderLeft: '3px solid rgba(0,0,0,0.15)', fontSize: '0.75rem', color: 'rgba(0,0,0,0.6)', lineHeight: 1.5 }}>
+            Email delivery requires the <code>RESEND_API_KEY</code> environment variable. When it is
+            not configured, no emails are sent regardless of this setting.
           </div>
         </div>
       </div>
 
-      {/* Save Button */}
+      {/* Save */}
       <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <button className="admin-btn admin-btn--primary" onClick={handleSave} style={{ padding: '0.7rem 2rem' }} disabled={isPending}>
-          {isPending ? 'Saving...' : saved ? '✓ Saved' : 'Save Changes'}
+        <button
+          className="admin-btn admin-btn--primary"
+          onClick={handleSave}
+          style={{ padding: '0.7rem 2rem' }}
+          disabled={isPending || !dirty}
+        >
+          {isPending ? 'Saving...' : 'Save Changes'}
         </button>
-        <span role="status" aria-live="polite" style={{ fontSize: '0.8rem', color: '#059669' }}>{saved ? 'Changes saved successfully.' : ''}</span>
+        {dirty && !isPending && (
+          <span style={{ fontSize: '0.75rem', color: '#D97706', fontWeight: 500 }}>Unsaved changes</span>
+        )}
       </div>
     </div>
   );

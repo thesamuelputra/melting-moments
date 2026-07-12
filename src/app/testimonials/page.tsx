@@ -1,19 +1,43 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { getTestimonials } from '@/lib/cms';
+import { JsonLd, breadcrumbList, reviewNodes } from '@/lib/seo';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Testimonials | Melting Moments Catering Victoria BC',
-  description: 'Read what our clients say about their experience with Melting Moments Catering in Victoria, BC.',
+  // Layout template appends ' | Melting Moments Catering Victoria BC'.
+  title: 'Testimonials',
+  description:
+    'Read what our clients say about their experience with Melting Moments Catering in Victoria, BC.',
 };
+
+/** Only whole-number 1–5 ratings render stars / structured data. */
+const isValidRating = (r: unknown): r is number =>
+  typeof r === 'number' && Number.isInteger(r) && r >= 1 && r <= 5;
 
 export default async function Testimonials() {
   const reviews = await getTestimonials().catch(() => []);
 
   return (
     <div>
+      {reviews.length > 0 && (
+        <JsonLd
+          data={reviewNodes(
+            reviews.map((rev) => ({
+              author: rev.author,
+              text: rev.text,
+              rating: isValidRating(rev.rating) ? rev.rating : null,
+            }))
+          )}
+        />
+      )}
+      <JsonLd
+        data={breadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Testimonials', path: '/testimonials' },
+        ])}
+      />
       <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
         <div className="menu-index" style={{ marginBottom: "2rem" }}>Kind Words</div>
         <h1 className="haus-display" style={{ textTransform: "uppercase" }}>Testimonials</h1>
@@ -25,7 +49,7 @@ export default async function Testimonials() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginTop: '3rem' }}>
             {reviews.map((rev, i) => (
               <div key={i} className="haus-block-container" style={{ padding: '3rem' }}>
-                {rev.rating && (
+                {isValidRating(rev.rating) && (
                   <div role="img" aria-label={`${rev.rating} out of 5 stars`} style={{ color: '#E2C992', fontSize: '1.1rem', marginBottom: '1.5rem', letterSpacing: '0.1em' }}>
                     {'★'.repeat(rev.rating)}
                   </div>

@@ -2,22 +2,34 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
 import { getCmsContent } from '@/lib/cms';
+import { AREA_SERVED, BUSINESS_ID, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Private Events | Melting Moments Catering Victoria BC',
+  title: 'Private Event Catering',
   description: 'Intimate, fine-dining private event catering, from formal dinners to yacht catering in Victoria, BC.',
   openGraph: {
     url: '/private-events',
     siteName: 'Melting Moments Catering',
     locale: 'en_CA',
     type: 'website',
-    title: 'Private Events | Melting Moments Catering Victoria BC',
     description: 'Intimate, fine-dining private event catering in Victoria, BC.',
-    images: ['/private_dinner.webp'],
+    images: [{ url: '/og/og-private-events.jpg', width: 1200, height: 630, alt: 'Intimate private dinner entrée by Melting Moments Catering' }],
   },
 };
 
 export const revalidate = 300;
+
+const privateEventService = {
+  '@type': 'Service',
+  '@id': `${SITE.url}/private-events#service`,
+  name: 'Private Event Catering',
+  serviceType: 'Private event catering',
+  description:
+    'Intimate, fine-dining private event catering, from formal dinners to yacht catering in Victoria, BC.',
+  url: `${SITE.url}/private-events`,
+  provider: { '@id': BUSINESS_ID },
+  areaServed: AREA_SERVED,
+};
 
 export default async function PrivateEvents() {
   const cms = await getCmsContent();
@@ -37,6 +49,8 @@ export default async function PrivateEvents() {
 
   return (
     <div>
+        <JsonLd data={privateEventService} />
+        <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Private Event Catering', path: '/private-events' }])} />
         <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
             <div className="menu-index" style={{ marginBottom: "2rem" }}>{subtitle}</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>{title}</h1>
