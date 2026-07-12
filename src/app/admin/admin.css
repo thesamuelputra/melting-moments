@@ -22,7 +22,7 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 240px;
+  width: var(--admin-sidebar-width, 240px);
   z-index: 100;
   overflow-y: auto;
   transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
@@ -119,7 +119,7 @@
 
 /* ── Main Content ────────────────────────────────────────── */
 .admin-main {
-  margin-left: 240px;
+  margin-left: var(--admin-sidebar-width, 240px);
   min-height: 100dvh;
   overflow: visible;
 }
@@ -739,4 +739,541 @@
 .admin-btn--primary:disabled:hover {
   background: var(--clr-ink);
   color: white;
+}
+
+/* ============================================================
+   ── UI Kit ──
+   Shared admin components (src/app/admin/_components/):
+   toasts, dialogs, slide panel, sortable rows, fields, switch,
+   empty state, skeletons. Appended — do not fold into blocks
+   above.
+   ============================================================ */
+
+/* Sidebar width token — 0 on mobile (sidebar is off-canvas) so sticky
+   bars using left: var(--admin-sidebar-width) span the full viewport.
+   The drawer itself keeps its physical 240px width. */
+@media (max-width: 768px) {
+  :root {
+    --admin-sidebar-width: 0px;
+  }
+  .admin-sidebar {
+    width: 240px;
+  }
+}
+
+/* ── Toasts ──────────────────────────────────────────────── */
+.admin-toast-stack {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+  pointer-events: none;
+  max-width: min(360px, calc(100vw - 2.5rem));
+}
+
+.admin-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  background: white;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-left: 3px solid rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 0.7rem 0.7rem 0.7rem 0.85rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  font-size: 0.8rem;
+  animation: adminToastIn 0.25s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.admin-toast--success { border-left-color: #059669; }
+.admin-toast--error   { border-left-color: #B91C1C; }
+.admin-toast--info    { border-left-color: #2563EB; }
+
+.admin-toast__icon {
+  display: flex;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.admin-toast--success .admin-toast__icon { color: #059669; }
+.admin-toast--error   .admin-toast__icon { color: #B91C1C; }
+.admin-toast--info    .admin-toast__icon { color: #2563EB; }
+
+.admin-toast__message {
+  flex: 1;
+  margin: 0;
+  color: var(--clr-ink);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.admin-toast__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin: -2px -2px 0 0;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  color: rgba(0,0,0,0.35);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.admin-toast__dismiss:hover {
+  color: var(--clr-ink);
+  background: rgba(0,0,0,0.05);
+}
+
+@keyframes adminToastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Confirm Dialog ──────────────────────────────────────── */
+.admin-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: adminFadeIn 0.2s ease;
+}
+
+.admin-dialog {
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: adminDialogIn 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.admin-dialog__title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.75rem 0;
+  color: var(--clr-ink);
+}
+
+.admin-dialog__body {
+  font-size: 0.85rem;
+  color: rgba(0,0,0,0.5);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.admin-dialog__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+@keyframes adminDialogIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Destructive confirm — #B91C1C family, consistent w/ .admin-badge--declined */
+.admin-btn--danger {
+  background: #B91C1C;
+  color: white;
+  border-color: #B91C1C;
+}
+.admin-btn--danger:hover {
+  background: #991B1B;
+  border-color: #991B1B;
+  color: white;
+}
+.admin-btn--danger:disabled:hover {
+  background: #B91C1C;
+  border-color: #B91C1C;
+  color: white;
+}
+
+/* ── Slide Panel (extends .admin-modal) ──────────────────── */
+.admin-modal--panel {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  flex-shrink: 0;
+}
+
+.admin-panel__title {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--clr-ink);
+}
+
+.admin-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
+}
+
+.admin-panel__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.25rem 2rem;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .admin-panel__header,
+  .admin-panel__body,
+  .admin-panel__footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+/* ── Fields ──────────────────────────────────────────────── */
+.admin-field {
+  margin-bottom: 1.25rem;
+}
+
+.admin-field__label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(0,0,0,0.4);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.admin-field__required {
+  color: #B91C1C;
+}
+
+.admin-field__input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  color: var(--clr-ink);
+  background: #fafafa;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.admin-field__input:focus {
+  outline: none;
+  border-color: var(--clr-ink);
+  background: white;
+}
+
+.admin-field__input:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.admin-field__input[aria-invalid='true'] {
+  border-color: #B91C1C;
+  background: #FFFBFB;
+}
+.admin-field__input[aria-invalid='true']:focus {
+  border-color: #B91C1C;
+}
+
+textarea.admin-field__input {
+  line-height: 1.5;
+  resize: vertical;
+}
+textarea.admin-field__input--autogrow {
+  resize: none;
+  overflow: hidden;
+}
+
+select.admin-field__input--select {
+  cursor: pointer;
+}
+
+.admin-field__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.3rem;
+}
+.admin-field__meta:empty {
+  display: none;
+}
+
+.admin-field__error {
+  font-size: 0.7rem;
+  color: #B91C1C;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.admin-field__help {
+  font-size: 0.7rem;
+  color: rgba(0,0,0,0.4);
+  line-height: 1.4;
+  margin: 0;
+}
+.admin-field__error + .admin-field__help {
+  margin-top: 0.15rem;
+}
+
+.admin-field__counter {
+  font-size: 0.65rem;
+  color: rgba(0,0,0,0.35);
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* Switch row: label + help left, switch right */
+.admin-field--switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.admin-field__switch-text {
+  min-width: 0;
+}
+.admin-field__label--switch {
+  margin-bottom: 0.15rem;
+}
+
+/* ── Toggle Switch ───────────────────────────────────────── */
+.admin-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 999px;
+  background: rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-switch[aria-checked='true'] {
+  background: var(--clr-ink);
+  border-color: var(--clr-ink);
+}
+
+.admin-switch:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.admin-switch__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transition: transform 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.admin-switch[aria-checked='true'] .admin-switch__knob {
+  transform: translateX(18px);
+}
+
+/* ── Sortable List ───────────────────────────────────────── */
+.admin-sortable-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-sortable-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem 0.4rem 0.25rem;
+}
+
+/* In-list placeholder while its clone rides the DragOverlay */
+.admin-sortable-row--ghost {
+  opacity: 0.4;
+}
+
+/* The lifted row (rendered in the DragOverlay) */
+.admin-sortable-row--dragging {
+  box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+  transform: scale(1.01);
+  border-color: rgba(0,0,0,0.12);
+  cursor: grabbing;
+}
+
+.admin-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  color: rgba(0,0,0,0.3);
+  cursor: grab;
+  touch-action: none; /* required for PointerSensor on touch devices */
+  transition: background 0.15s, color 0.15s;
+}
+.admin-drag-handle:hover {
+  background: rgba(0,0,0,0.04);
+  color: rgba(0,0,0,0.55);
+}
+.admin-drag-handle:active {
+  cursor: grabbing;
+}
+.admin-drag-handle:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: none;
+}
+
+/* ── Empty State ─────────────────────────────────────────── */
+.admin-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.admin-empty__title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--clr-ink);
+  margin: 0 0 0.5rem 0;
+}
+
+.admin-empty__body {
+  font-size: 0.85rem;
+  color: rgba(0,0,0,0.45);
+  line-height: 1.5;
+  max-width: 44ch;
+  margin: 0 auto;
+}
+
+.admin-empty__action {
+  margin-top: 1.25rem;
+}
+
+/* ── Skeletons ───────────────────────────────────────────── */
+.admin-skeleton-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.admin-skeleton-row {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+  background: white;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+}
+
+.admin-skeleton {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  height: 12px;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.06);
+}
+
+.admin-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent);
+  animation: adminShimmer 1.4s ease infinite;
+}
+
+@keyframes adminShimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ── Focus-visible parity (new + existing interactive) ───── */
+.admin-btn:focus-visible,
+.admin-tab:focus-visible,
+.admin-drag-handle:focus-visible,
+.admin-switch:focus-visible,
+.admin-modal__close:focus-visible,
+.admin-toast__dismiss:focus-visible,
+.admin-sidebar__link:focus-visible,
+.admin-topbar__hamburger:focus-visible {
+  outline: 2px solid var(--clr-ink);
+  outline-offset: 2px;
+}
+.admin-sidebar__link:focus-visible {
+  outline-color: var(--clr-oat);
+  outline-offset: -2px;
+}
+
+/* ── Reduced motion guards ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .admin-toast,
+  .admin-dialog,
+  .admin-dialog-overlay,
+  .admin-modal,
+  .admin-modal-overlay,
+  .admin-sidebar-overlay.open {
+    animation: none;
+  }
+  .admin-sidebar,
+  .admin-switch,
+  .admin-switch__knob,
+  .admin-sortable-row {
+    transition: none;
+  }
+  .admin-skeleton::after {
+    animation: none;
+  }
 }

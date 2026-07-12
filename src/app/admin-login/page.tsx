@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { unstable_rethrow } from 'next/navigation';
 import { login } from './actions';
 
 export default function AdminLogin() {
@@ -13,11 +14,18 @@ export default function AdminLogin() {
     setError('');
 
     const formData = new FormData(e.currentTarget);
-    const result = await login(formData); // Will redirect on success
-    
-    // Only hit this if login failed
-    if (result?.error) {
-      setError(result.error);
+    try {
+      const result = await login(formData); // Will redirect on success
+      // Only hit this if login failed
+      if (result?.error) {
+        setError(result.error);
+      }
+    } catch (err) {
+      // redirect() rejects with an internal NEXT_REDIRECT error that Next
+      // must handle — rethrow it; only real failures reach the fallback.
+      unstable_rethrow(err);
+      setError('Something went wrong. Please try again.');
+    } finally {
       setLoading(false);
     }
   };

@@ -1,4 +1,6 @@
-import { internalMutation } from "./_generated/server";
+import { mutation } from "./_generated/server";
+import { v } from "convex/values";
+import { assertAdmin, logActivity } from "./lib";
 
 const allItems = [
   // ===== BREADS =====
@@ -92,12 +94,23 @@ const allItems = [
   { category: 'BEVERAGES', name: 'Hot Chocolate Station', description: 'Rich hot chocolate with marshmallows, whipped cream, and chocolate shavings', priceLabel: '$5.00/pp', orderIndex: 4 },
 ];
 
-// Run via Convex dashboard: npx convex run seed:seedMenuItems
-export const seedMenuItems = internalMutation({
-  args: {},
-  handler: async (ctx) => {
-    // Clear existing
+// Run via CLI: npx convex run seed:seedMenuItems '{"adminSecret":"..."}'
+// Refuses to touch a non-empty table unless { force: true } is passed —
+// force wipes the table before re-inserting the hardcoded data.
+export const seedMenuItems = mutation({
+  args: { adminSecret: v.string(), force: v.optional(v.boolean()) },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminSecret);
     const existing = await ctx.db.query("menuItems").collect();
+    if (existing.length > 0 && !args.force) {
+      return {
+        seeded: 0,
+        skipped: true,
+        reason: `menuItems already has ${existing.length} rows — pass { force: true } to wipe and reseed`,
+      };
+    }
+
+    // Clear existing (only reachable when empty or force=true)
     for (const item of existing) {
       await ctx.db.delete(item._id);
     }
@@ -115,7 +128,12 @@ export const seedMenuItems = internalMutation({
       });
     }
 
-    return { seeded: allItems.length };
+    await logActivity(ctx, {
+      action: "Seeded menu items",
+      section: "Menu",
+      details: `${allItems.length} items`,
+    });
+    return { seeded: allItems.length, skipped: false };
   },
 });
 
@@ -144,11 +162,23 @@ const guidosProducts = [
   { name: 'Turkey Dinner', category: 'Holiday', priceFrom: 25, image: '/guidos/turkey-dinner.webp', isAvailable: true, isLimitedEdition: true, orderIndex: 16 },
 ];
 
-export const seedGuidosProducts = internalMutation({
-  args: {},
-  handler: async (ctx) => {
-    // Clear existing
+// Run via CLI: npx convex run seed:seedGuidosProducts '{"adminSecret":"..."}'
+// Refuses to touch a non-empty table unless { force: true } is passed —
+// force wipes the table before re-inserting the hardcoded data.
+export const seedGuidosProducts = mutation({
+  args: { adminSecret: v.string(), force: v.optional(v.boolean()) },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminSecret);
     const existing = await ctx.db.query("guidosProducts").collect();
+    if (existing.length > 0 && !args.force) {
+      return {
+        seeded: 0,
+        skipped: true,
+        reason: `guidosProducts already has ${existing.length} rows — pass { force: true } to wipe and reseed`,
+      };
+    }
+
+    // Clear existing (only reachable when empty or force=true)
     for (const item of existing) {
       await ctx.db.delete(item._id);
     }
@@ -167,6 +197,11 @@ export const seedGuidosProducts = internalMutation({
       });
     }
 
-    return { seeded: guidosProducts.length };
+    await logActivity(ctx, {
+      action: "Seeded Guido's products",
+      section: "Guido's Products",
+      details: `${guidosProducts.length} products`,
+    });
+    return { seeded: guidosProducts.length, skipped: false };
   },
 });

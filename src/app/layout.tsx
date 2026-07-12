@@ -1,30 +1,36 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Instrument_Serif, Inter } from 'next/font/google'
 import './globals.css'
 import PublicShell from '@/components/PublicShell'
 import BannerWrapper from '@/components/BannerWrapper'
 import { Analytics } from '@vercel/analytics/react'
-import { jsonLdSafe } from '@/lib/sanitize'
 import { getSettings } from '@/lib/cms'
+import { SITE, catererNode, websiteNode, JsonLd } from '@/lib/seo'
 
-const instrumentSerif = Instrument_Serif({ 
-  subsets: ['latin'], 
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
   weight: '400',
   variable: '--font-serif',
   display: 'swap',
 });
 
-const inter = Inter({ 
-  subsets: ['latin'], 
+const inter = Inter({
+  subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-sans',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "Melting Moments | Catering & Ready-Made Meals, Victoria BC",
-  description: 'Melting Moments provides completely custom catering, corporate setups, and specialized buffet installations across Victoria, BC. A symphony of taste for weddings, private events, and formal dining.',
-  metadataBase: new URL('https://meltingmoments.ca'),
+  title: {
+    default: 'Melting Moments | Catering & Ready-Made Meals, Victoria BC',
+    // Pages set just their unique phrase (e.g. 'Wedding Catering'); the
+    // template appends the brand + geo suffix. Guido's routes opt out with
+    // `title: { absolute: ... }` to carry their own brand.
+    template: '%s | Melting Moments Catering Victoria BC',
+  },
+  description: SITE.description,
+  metadataBase: new URL(SITE.url),
   alternates: { canonical: './' },
   icons: {
     icon: [
@@ -40,12 +46,13 @@ export const metadata: Metadata = {
     // deep pages don't all collapse onto the homepage URL
     url: './',
     siteName: 'Melting Moments Catering',
-    images: [{ url: '/hero-main.webp', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
+    images: [{ url: '/og/og-default.jpg', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
   },
   twitter: { card: 'summary_large_image' },
-  other: {
-    'theme-color': '#070707',
-  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#070707',
 }
 
 export default async function RootLayout({
@@ -64,39 +71,17 @@ export default async function RootLayout({
     showOn: settings['banner_show_on'] || 'all',
   };
 
-  const schemaOrgJSONLD = {
-    "@context": "https://schema.org",
-    // FoodEstablishment is the closest valid LocalBusiness subtype —
-    // schema.org has no "CateringService" type
-    "@type": "FoodEstablishment",
-    "name": "Melting Moments Catering",
-    "alternateName": "Guido's Gourmet",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "614 Grenville Ave",
-      "addressLocality": "Esquimalt",
-      "addressRegion": "BC",
-      "postalCode": "V9A 6L2",
-      "addressCountry": "CA"
-    },
-    "telephone": "+1-250-385-2462",
-    "url": "https://meltingmoments.ca",
-    "image": "https://meltingmoments.ca/hero-main.webp",
-    "priceRange": "$$",
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 48.4304,
-      "longitude": -123.4183
-    },
-    "sameAs": ["https://www.facebook.com/MeltingMomentsCatering"],
-    "servesCuisine": ["Italian", "International", "Buffet", "West Coast"],
-    "makesOffer": {
-      "@type": "Offer",
-      "name": "Guido's Gourmet Ready-Made Meals",
-      "description": "Homemade Italian meals ready to heat and serve. Delivery available in Victoria, BC.",
-      "url": "https://meltingmoments.ca/guidos"
-    }
-  };
+  // Entity graph: business + website nodes, identity signals sourced from CMS
+  // settings so the owner can grow sameAs/hours without a deploy.
+  const sameAs = [
+    settings['social_facebook'] || SITE.facebook,
+    settings['social_instagram'],
+    settings['social_google_business'],
+  ].filter((url): url is string => Boolean(url));
+  const business = catererNode({
+    sameAs,
+    hoursNote: settings['business_hours_note'] || 'Consultations & tastings by appointment',
+  });
 
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
@@ -106,10 +91,8 @@ export default async function RootLayout({
           {children}
         </PublicShell>
         <Analytics />
-        <script 
-          type="application/ld+json" 
-          dangerouslySetInnerHTML={{ __html: jsonLdSafe(schemaOrgJSONLD) }}
-        />
+        <JsonLd data={business} />
+        <JsonLd data={websiteNode()} />
       </body>
     </html>
   )
