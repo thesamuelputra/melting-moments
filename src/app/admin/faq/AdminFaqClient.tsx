@@ -16,7 +16,7 @@ import {
   useToast,
 } from '../_components';
 import { FALLBACK_FAQS } from '@/lib/fallback-faqs';
-import { createFaq, deleteFaq, reorderFaqs, updateFaq, type ActionResult, type FaqCategory } from './actions';
+import { createFaq, deleteFaq, reorderFaqs, seedStarterFaqs, updateFaq, type ActionResult, type FaqCategory } from './actions';
 
 export type Faq = {
   id: string;
@@ -245,35 +245,17 @@ function FaqManager({ initialFaqs }: { initialFaqs: Faq[] | null }) {
   const handleImport = async () => {
     if (importing) return;
     setImporting(true);
-    const created: Faq[] = [];
-    let firstFailure: Failure | null = null;
-    for (const fallback of FALLBACK_FAQS) {
-      const res = await createFaq({
-        question: fallback.question,
-        answer: fallback.answer,
-        category: fallback.category,
-      }).catch(() => REQUEST_FAILED);
-      if (res.success && res.id) {
-        created.push({
-          id: res.id,
-          question: fallback.question,
-          answer: fallback.answer,
-          category: fallback.category,
-          isActive: true,
-        });
-      } else {
-        firstFailure = res.success ? REQUEST_FAILED : res;
-        if (firstFailure.error === 'unauthorized') break; // no point retrying the rest
-      }
-    }
-    if (created.length > 0) setFaqs((prev) => [...prev, ...created]);
-    if (firstFailure === null) {
-      toast.success(`Imported ${created.length} starter FAQs`);
+    // One server action, one transaction: either every starter question is
+    // imported or none are, and a repeat click imports nothing.
+    const res = await seedStarterFaqs().catch(() => REQUEST_FAILED);
+    if (res.success) {
+      toast.success(`Imported ${res.count} starter FAQs`);
+      router.refresh();
+    } else if (res.error === 'invalid') {
+      toast.info(res.message ?? 'The starter FAQs are already imported');
+      router.refresh();
     } else {
-      fail(
-        firstFailure,
-        `Imported ${created.length} of ${FALLBACK_FAQS.length} starter FAQs; the rest failed. Add the missing ones manually with “+ Add FAQ”.`
-      );
+      fail(res, 'Could not import the starter FAQs. Nothing was changed; try again.');
     }
     setImporting(false);
   };

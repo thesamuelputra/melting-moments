@@ -25,6 +25,43 @@ export const listActive = query({
 
 // Create an FAQ. When orderIndex is omitted it is appended to the end
 // (max(orderIndex) + 1 across the table).
+// Seed the starter questions in one transaction. A no-op unless the table is
+// empty, so concurrent imports (or an import racing a first create) can never
+// produce duplicates: the emptiness check and the inserts commit atomically.
+export const seedStarters = mutation({
+  args: {
+    adminSecret: v.string(),
+    items: v.array(
+      v.object({
+        question: v.string(),
+        answer: v.string(),
+        category: v.optional(v.union(v.literal("catering"), v.literal("guidos"))),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    assertAdmin(args.adminSecret);
+    const existing = await ctx.db.query("faqs").collect();
+    if (existing.length > 0) return 0;
+    let orderIndex = 0;
+    for (const item of args.items) {
+      await ctx.db.insert("faqs", {
+        question: requireText(item.question, "Question"),
+        answer: requireText(item.answer, "Answer"),
+        ...(item.category !== undefined ? { category: item.category } : {}),
+        orderIndex: orderIndex++,
+        isActive: true,
+      });
+    }
+    await logActivity(ctx, {
+      action: "Imported starter FAQs",
+      section: "FAQ",
+      details: `${args.items.length} questions`,
+    });
+    return args.items.length;
+  },
+});
+
 export const create = mutation({
   args: {
     adminSecret: v.string(),

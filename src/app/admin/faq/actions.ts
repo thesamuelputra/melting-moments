@@ -1,6 +1,6 @@
 'use server';
 
-import { fetchMutation, fetchQuery } from 'convex/nextjs';
+import { fetchMutation } from 'convex/nextjs';
 import { revalidatePath, updateTag } from 'next/cache';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
@@ -63,25 +63,16 @@ export async function createFaq(data: {
   if (data.category !== undefined && !isCategory(data.category)) return invalid('Unknown category');
 
   try {
-    // First write into an empty table auto-imports the starter FAQs: the
-    // public /faq fallback is all-or-nothing (any CMS row replaces all the
-    // built-in questions), so without this a single new FAQ would silently
-    // drop the other section's content from the live site and its JSON-LD.
-    let seeded = false;
-    const existing = await fetchQuery(api.faqs.list, {
+    // First write into an empty table imports the starter FAQs: the public
+    // /faq fallback is all-or-nothing (any CMS row replaces all the built-in
+    // questions), so without this a single new FAQ would silently drop the
+    // other section's content from the live site and its JSON-LD. The seed
+    // mutation is a single transaction and a no-op when rows already exist.
+    const seededCount = await fetchMutation(api.faqs.seedStarters, {
       adminSecret: process.env.ADMIN_PASSWORD!,
+      items: FALLBACK_FAQS,
     });
-    if (existing.length === 0) {
-      for (const fallback of FALLBACK_FAQS) {
-        await fetchMutation(api.faqs.create, {
-          adminSecret: process.env.ADMIN_PASSWORD!,
-          question: fallback.question,
-          answer: fallback.answer,
-          category: fallback.category,
-        });
-      }
-      seeded = true;
-    }
+    const seeded = seededCount > 0;
 
     const id = await fetchMutation(api.faqs.create, {
       adminSecret: process.env.ADMIN_PASSWORD!,
@@ -93,6 +84,31 @@ export async function createFaq(data: {
     return { success: true, id: id as string, seeded };
   } catch {
     return failed('Could not save the FAQ');
+  }
+}
+
+/**
+ * Import the starter questions into an empty FAQ table. Atomic and
+ * idempotent: repeat calls (or a race with a first create) import nothing.
+ */
+export async function seedStarterFaqs(): Promise<
+  { success: true; count: number } | Exclude<ActionResult, { success: true }>
+> {
+  const denied = await guard();
+  if (denied) return denied;
+
+  try {
+    const count = await fetchMutation(api.faqs.seedStarters, {
+      adminSecret: process.env.ADMIN_PASSWORD!,
+      items: FALLBACK_FAQS,
+    });
+    if (count === 0) {
+      return invalid('The FAQ list already has entries, so there is nothing to import');
+    }
+    invalidateFaqCaches();
+    return { success: true, count };
+  } catch {
+    return failed('Could not import the starter FAQs');
   }
 }
 
