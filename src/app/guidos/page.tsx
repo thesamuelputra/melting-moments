@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import GuidosImage from '@/components/GuidosImage';
+import GuidosWordmark from '@/components/guidos/GuidosWordmark';
+import GuidosOrnament from '@/components/guidos/GuidosOrnament';
 import type { Metadata } from 'next';
 import { JsonLd, breadcrumbList } from '@/lib/seo';
 
@@ -14,9 +16,6 @@ export const metadata: Metadata = {
     siteName: "Guido's Gourmet",
     locale: 'en_CA',
     type: 'website',
-    // No real Guido's photography exists yet (public/guidos/ holds only
-    // placeholder.svg); reuse the branded default OG crop until it lands,
-    // then add og-guidos.jpg via scripts/generate-og.mjs.
     images: [{ url: '/og/og-default.jpg', width: 1200, height: 630, alt: "Guido's Gourmet by Melting Moments Catering" }],
   },
 };
@@ -31,47 +30,58 @@ export default function GuidosPage() {
   return (
     <div>
       <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: "Guido's Gourmet", path: '/guidos' }])} />
-      {/* Hero */}
-      <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
-        <div className="menu-index" style={{ marginBottom: '2rem' }}>Est. 2009</div>
-        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', marginBottom: '3rem', textTransform: 'uppercase' }}>
-          Guido&apos;s<br />Gourmet
-        </h1>
-        <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%', maxWidth: '900px' }}>
-          <GuidosImage
-            src="/guidos/guidos-hero.webp"
-            alt="Italian ready-made meals"
-            fill
-            sizes="(max-width: 768px) 100vw, 900px"
-            style={{ objectFit: 'cover' }}
-            priority
-          />
+
+      {/* Hero: the brand lockup, spoken plainly on cream paper */}
+      <section className="container" style={{ paddingTop: 'calc(80px + 4vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', textAlign: 'center' }}>
+        <div className="g-eyebrow" style={{ marginBottom: '2rem' }}>Est. 2009 &middot; Victoria BC</div>
+        <GuidosWordmark tagline="When your hunger speaks Italian!" style={{ margin: '0 auto' }} />
+        <p style={{ marginTop: '1.75rem', fontSize: 'var(--text-body)', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--g-ink-soft)', fontWeight: 500 }}>
+          Italian Heritage &middot; Ready-Made Meals
+        </p>
+      </section>
+
+      {/* Hero image, with the packaging tricolour capping it */}
+      <section className="container" style={{ marginTop: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 24px 60px rgba(18,63,46,0.10)' }}>
+          <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
+            {/* The tricolour caps the image (as it caps every package), so all
+                three stripes sit on the photo and read as one flag */}
+            <span className="g-tricolor" aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }} />
+            <GuidosImage
+              src="/guidos/guidos-hero.webp"
+              alt="Italian ready-made meals by Guido's Gourmet"
+              fill
+              sizes="(max-width: 768px) 100vw, 1000px"
+              style={{ objectFit: 'cover' }}
+              priority
+            />
+          </div>
         </div>
       </section>
 
-      {/* Our Roots */}
-      <section className="container spacer-massive" style={{ textAlign: 'center', maxWidth: '700px' }}>
-        <div className="menu-index" style={{ marginBottom: '2rem' }}>01 · Our Roots</div>
-        <p className="noire-serif" style={{ fontSize: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '2rem' }}>
+      {/* Our roots */}
+      <section className="container spacer-massive" style={{ textAlign: 'center', maxWidth: '720px' }}>
+        <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>01 &middot; Our Roots</div>
+        <p className="noire-serif" style={{ fontSize: 'var(--text-secondary)', lineHeight: 1.35, marginBottom: '1.75rem' }}>
           We started in a family kitchen. Seventeen years later, the recipes are the same. The portions are bigger.
         </p>
-        <p style={{ fontSize: 'var(--text-body)', opacity: 0.6, maxWidth: '50ch', margin: '0 auto' }}>
+        <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)', maxWidth: '52ch', margin: '0 auto 1.5rem' }}>
           Good food at a fair price. Order online or visit by appointment. Everything is made fresh by Chef Paul Silletta using traditional Italian recipes passed down through generations.
         </p>
+        <p className="g-script g-script--sm">Chef crafted. Handmade. Made with love.</p>
       </section>
 
-      {/* Divider */}
-      <div className="spacer-large" style={{ textAlign: 'center' }}>
-        <div className="noire-divider"></div>
+      <div className="spacer-large">
+        <GuidosOrnament />
       </div>
 
-      {/* Featured Products */}
+      {/* Featured */}
       <section className="container spacer-massive">
-        <div className="menu-index" style={{ marginBottom: '2rem' }}>02 · Featured</div>
+        <div className="g-eyebrow" style={{ marginBottom: '2rem' }}>02 &middot; Featured</div>
         <div className="product-grid">
           {featuredProducts.map((product) => (
-            <Link href="/guidos/menu" key={product.name} className="product-card">
-              <div className="product-card__image">
+            <Link href="/guidos/menu" key={product.name} className="g-card">
+              <div className="g-card__media">
                 <GuidosImage
                   src={product.image}
                   alt={product.name}
@@ -80,29 +90,28 @@ export default function GuidosPage() {
                   style={{ objectFit: 'cover' }}
                 />
               </div>
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'var(--text-body)', fontWeight: 400, marginBottom: '0.25rem' }}>
-                {product.name}
-              </h3>
-              <span style={{ fontSize: 'var(--text-micro)', letterSpacing: '0.1em', opacity: 0.65 }}>
-                {product.price}
-              </span>
+              <div className="g-card__body">
+                <span className="g-card__name">{product.name}</span>
+                <span className="g-card__price">{product.price}</span>
+              </div>
             </Link>
           ))}
         </div>
-        <div style={{ textAlign: 'center', marginTop: 'clamp(2rem, 4vw, 4rem)' }}>
+        <div style={{ textAlign: 'center', marginTop: 'clamp(2.5rem, 5vw, 4rem)' }}>
           <Link href="/guidos/menu" className="btn-outline">View Full Menu</Link>
         </div>
       </section>
 
-      {/* Delivery Info */}
-      <section className="haus-block-container spacer-massive">
-        <div className="container" style={{ textAlign: 'center', maxWidth: '700px' }}>
-          <div className="menu-index" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2rem' }}>03 · Delivery</div>
-          <h2 className="noire-serif" style={{ color: 'white', marginBottom: '1.5rem' }}>
+      {/* Delivery, on the deep-green block */}
+      <section className="g-block spacer-massive">
+        <div className="container" style={{ textAlign: 'center', maxWidth: '720px' }}>
+          <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>03 &middot; Delivery</div>
+          <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>
             Flat rate: $12.50 anywhere in Victoria.
           </h2>
-          <p style={{ opacity: 0.5, marginBottom: '0.5rem', color: 'white' }}>Pickup by appointment.</p>
-          <p style={{ opacity: 0.5, marginBottom: '2.5rem', color: 'white' }}>614 Grenville Ave, Esquimalt.</p>
+          <p style={{ opacity: 0.75, marginBottom: '0.4rem' }}>Pickup by appointment.</p>
+          <p style={{ opacity: 0.75, marginBottom: '1.75rem' }}>614 Grenville Ave, Esquimalt.</p>
+          <p className="g-script" style={{ marginBottom: '2.25rem' }}>Quando la fame parla, parla Italiano!</p>
           <Link href="/guidos/order" className="btn-outline btn-outline--inverse">
             Order Now
           </Link>

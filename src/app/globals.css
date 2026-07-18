@@ -5,15 +5,17 @@
 
 :root {
   /* Palette */
-  --clr-bone: #F7F6F0; /* Clean gallery white */
+  --clr-bone: #F6F4EB; /* Clean gallery white, warmed a hair to sit in the same family as Guido's cream */
   --clr-ink: #070707; /* Near-black */
   --clr-charcoal: #111111; /* Utility dark */
   --clr-oat: #F3EAE1; /* Soft oatmeal */
   --clr-pine: #1F3323; /* Deep forest green */
+  --clr-gold: #8A6320; /* Shared bronze accent (text-safe on bone) */
 
   /* Type scale (clamped) */
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-script: 'Dancing Script', 'Segoe Script', cursive;
   
   --text-massive: clamp(4rem, 15vw, 12rem);
   --text-primary: clamp(2.5rem, 6vw, 5rem);
@@ -916,3 +918,221 @@ footer :focus-visible,
   padding: 8px 0;
 }
 
+
+/* ========================================================
+   GUIDO'S GOURMET  ·  scoped sub-brand identity
+   Warm cream paper, the Italian tricolour as a hairline
+   signature, gold as the single accent, deep-green blocks.
+   Everything lives under .brand-guidos so none of it leaks
+   into the Melting Moments pages. The execution stays quiet;
+   only the material changes.
+======================================================== */
+
+/* Palette lives at :root so the shared nav and footer (rendered outside the
+   scoped subtree) can read the same values when a visitor is in the section. */
+:root {
+  --g-cream: #F4EEDE;
+  --g-cream-2: #EDE4CE;   /* insets, alternating bands */
+  --g-flag-white: #FCFAF2; /* the tricolour's centre stripe: reads on cream and on deep green */
+  --g-ink: #211C13;       /* warm near-black */
+  --g-ink-soft: rgba(33, 28, 19, 0.72); /* secondary text; passes 4.5:1 on cream and the darker cream-2 panels */
+  --g-line: rgba(33, 28, 19, 0.14);
+
+  /* Italian tricolour (used as accents, never as body text) */
+  --g-red: #C13A2E;
+  --g-green: #1C6B4A;
+  --g-green-deep: #123F2E;
+  --g-green-deeper: #0E3324; /* footer, a step below the delivery block so the seam divides them */
+
+  /* Gold: a text-safe bronze on cream (and the darker cream-2 panel), a brighter tone for dark grounds */
+  --g-gold: #7C591D;
+  --g-gold-bright: #C2A24E;
+}
+
+.brand-guidos {
+  background-color: var(--g-cream);
+  color: var(--g-ink);
+
+  /* Remap bone so shared utilities blend onto the cream canvas
+     (dividers, masks, outline-button hovers pick this up) */
+  --clr-bone: var(--g-cream);
+}
+
+/* Faint paper grain so the cream reads as stock, not flat fill. Whisper level. */
+.brand-guidos.g-paper {
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -10%, rgba(255, 252, 244, 0.6), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-attachment: fixed, scroll;
+}
+
+/* Tricolour hairline: the signature cue */
+.g-tricolor {
+  height: 3px;
+  width: 100%;
+  border: 0;
+  margin: 0;
+  background: linear-gradient(
+    to right,
+    var(--g-green) 0 33.33%,
+    var(--g-flag-white) 33.33% 66.66%,
+    var(--g-red) 66.66% 100%
+  );
+}
+/* Short centered rule for section breaks */
+.g-tricolor--rule {
+  height: 3px;
+  width: clamp(72px, 10vw, 120px);
+  margin: 0 auto;
+  border-radius: 2px;
+}
+
+/* Eyebrow: gold, tracked, uppercase */
+.brand-guidos .g-eyebrow,
+.g-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--g-gold);
+  font-weight: 600;
+}
+
+/* Script tagline: the handwritten voice, used only for taglines */
+.g-script {
+  font-family: var(--font-script);
+  font-weight: 600;
+  color: var(--g-gold);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  font-size: clamp(1.6rem, 3.6vw, 2.9rem);
+}
+.g-script--sm {
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+}
+
+/* Display serif on cream keeps the site's serif, warmed to g-ink */
+.brand-guidos .haus-display,
+.brand-guidos .noire-serif {
+  color: var(--g-ink);
+}
+
+/* Deep-green full-bleed block (replaces the ink haus block) */
+.g-block {
+  background-color: var(--g-green-deep);
+  color: var(--g-cream);
+  padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+  position: relative;
+}
+.g-block .g-eyebrow { color: var(--g-gold-bright); }
+.g-block .g-script { color: var(--g-gold-bright); } /* the dark gold fails contrast on deep green */
+.g-block .noire-serif,
+.g-block .haus-display { color: var(--g-cream); }
+
+/* Product card on cream */
+.brand-guidos .product-card {
+  background-color: transparent;
+}
+.g-card {
+  display: block;
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.35);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+}
+.g-card:hover,
+.g-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(18, 63, 46, 0.12);
+  border-color: rgba(138, 99, 32, 0.4);
+}
+.g-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: var(--g-cream-2);
+}
+.g-card__body {
+  padding: 1.1rem 1.25rem 1.35rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.g-card__name {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.15;
+  color: var(--g-ink);
+}
+.g-card__price {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--g-gold);
+  white-space: nowrap;
+}
+
+/* Buttons recoloured to the Guido's palette (geometry unchanged) */
+.brand-guidos .btn-solid {
+  background-color: var(--g-green);
+  border-color: var(--g-green);
+  color: var(--g-cream);
+}
+.brand-guidos .btn-solid:hover,
+.brand-guidos .btn-solid:focus-visible {
+  background-color: transparent;
+  color: var(--g-green);
+  border-color: var(--g-green);
+}
+.brand-guidos .btn-outline {
+  border-color: rgba(28, 107, 74, 0.4);
+  color: var(--g-green);
+}
+.brand-guidos .btn-outline:hover,
+.brand-guidos .btn-outline:focus-visible,
+.brand-guidos .btn-outline.active {
+  background-color: var(--g-green);
+  color: var(--g-cream);
+  border-color: var(--g-green);
+}
+/* Inverse buttons sitting on the deep-green block */
+.g-block .btn-outline,
+.brand-guidos .btn-outline--inverse {
+  color: var(--g-cream);
+  border-color: rgba(244, 238, 222, 0.4);
+}
+.g-block .btn-outline:hover,
+.g-block .btn-outline:focus-visible,
+.brand-guidos .btn-outline--inverse:hover,
+.brand-guidos .btn-outline--inverse:focus-visible {
+  background-color: var(--g-cream);
+  color: var(--g-green-deep);
+  border-color: var(--g-cream);
+}
+
+/* Menu-index / eyebrow default colour inside the theme */
+.brand-guidos .menu-index {
+  color: var(--g-ink-soft);
+}
+
+/* Divider dot recoloured to gold */
+.brand-guidos .noire-divider { background-color: var(--g-line); }
+.brand-guidos .noire-divider::after {
+  content: "\275D";
+  color: var(--g-gold);
+  background-color: var(--g-cream);
+}
+
+/* The laurel wordmark component */
+.g-wordmark { display: inline-block; line-height: 0; }
+.g-wordmark svg { display: block; height: auto; }
+
+/* Reduced motion: the card lift and any reveals settle instantly */
+@media (prefers-reduced-motion: reduce) {
+  .g-card,
+  .g-card:hover,
+  .g-card:focus-visible { transition: none; transform: none; }
+}
