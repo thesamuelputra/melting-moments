@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Instrument_Serif, Inter } from 'next/font/google'
+import { Instrument_Serif, Inter, Dancing_Script } from 'next/font/google'
 import './globals.css'
 import PublicShell from '@/components/PublicShell'
 import BannerWrapper from '@/components/BannerWrapper'
@@ -18,6 +18,14 @@ const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-sans',
+  display: 'swap',
+});
+
+// Reserved strictly for Guido's taglines (the packaging's handwritten voice).
+const dancingScript = Dancing_Script({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-script',
   display: 'swap',
 });
 
@@ -84,7 +92,7 @@ export default async function RootLayout({
   });
 
   return (
-    <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
+    <html lang="en" className={`${instrumentSerif.variable} ${inter.variable} ${dancingScript.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
         <BannerWrapper data={banner} />
         <PublicShell>

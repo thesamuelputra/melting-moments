@@ -214,12 +214,12 @@ export default function GlobalNav() {
   return (
     <>
       <nav
-        className="global-nav"
+        className={`global-nav${isGuidosPage ? ' brand-guidos' : ''}`}
         aria-label="Main navigation"
         style={{
-          color: 'var(--clr-ink)',
-          backgroundColor: scrolled ? 'var(--clr-bone)' : 'transparent',
-          borderBottom: scrolled ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
+          color: isGuidosPage ? 'var(--g-ink)' : 'var(--clr-ink)',
+          backgroundColor: scrolled ? (isGuidosPage ? 'var(--g-cream)' : 'var(--clr-bone)') : 'transparent',
+          borderBottom: scrolled && !isGuidosPage ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
           position: 'fixed',
           top: 'var(--banner-height, 0px)',
           left: 0,
@@ -234,6 +234,15 @@ export default function GlobalNav() {
           pointerEvents: navPointerEvents,
           visibility: navVisibility,
       }}>
+          {/* Guido's signature: the packaging tricolour as a hairline under the
+              bar, fading in with the cream background on scroll */}
+          {isGuidosPage && (
+            <span
+              className="g-tricolor"
+              aria-hidden="true"
+              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%', opacity: scrolled ? 1 : 0, transition: 'opacity 0.4s ease' }}
+            />
+          )}
           <Link href="/" aria-label="Melting Moments home" style={{ fontWeight: 600, letterSpacing: '-0.02em', zIndex: 10001, fontSize: '0.85rem' }}>Melting Moments</Link>
 
           {/* Desktop Navigation */}
@@ -277,7 +286,7 @@ export default function GlobalNav() {
       {(
         <div
           ref={mobileNavRef}
-          className="nav-mobile-panel"
+          className={`nav-mobile-panel${isGuidosPage ? ' brand-guidos' : ''}`}
           aria-hidden={!isOpen}
           style={{
             position: 'fixed',
@@ -287,7 +296,7 @@ export default function GlobalNav() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'var(--clr-bone)',
+            backgroundColor: isGuidosPage ? 'var(--g-cream)' : 'var(--clr-bone)',
             zIndex: 10000,
             padding: '7rem 2rem 2rem 2rem',
             opacity: isOpen ? 1 : 0,

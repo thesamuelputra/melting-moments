@@ -47,57 +47,79 @@ export default function GuidosOrderPage() {
     }
   };
 
-  const inputStyle = {
-    width: '100%',
-    padding: '1rem',
-    border: '1px solid rgba(0,0,0,0.2)',
-    backgroundColor: 'transparent',
-    fontSize: '1rem',
-    fontFamily: 'inherit',
-  };
-
+  // Gold small tracked caps, the Guido's label voice
   const labelStyle = {
     display: 'block' as const,
     fontSize: '0.8rem',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.1em',
-    opacity: 0.62,
+    letterSpacing: '0.12em',
+    color: 'var(--g-gold)',
+    fontWeight: 600 as const,
     marginBottom: '0.5rem',
   };
 
   return (
     <div>
+      {/* Cream fields with a warm hairline; the focus ring is Italian green.
+          Scoped to this page's fields so no shared styling is touched. */}
+      <style>{`
+        .g-order-field {
+          width: 100%;
+          padding: 1rem;
+          border: 1px solid var(--g-line);
+          border-radius: 6px;
+          background-color: var(--g-cream);
+          color: var(--g-ink);
+          font-size: 1rem;
+          font-family: inherit;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .g-order-field::placeholder { color: var(--g-ink-soft); }
+        .g-order-field:focus,
+        .g-order-field:focus-visible {
+          outline: none;
+          border-color: var(--g-green);
+          box-shadow: 0 0 0 3px rgba(28, 107, 74, 0.18);
+        }
+        .g-order-field--area { resize: vertical; }
+        @media (prefers-reduced-motion: reduce) {
+          .g-order-field { transition: none; }
+        }
+      `}</style>
+
       <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(4rem, 8vw, 8rem)', maxWidth: '700px' }}>
-        <div className="menu-index" style={{ marginBottom: '2rem' }}>Guido&apos;s Gourmet</div>
-        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', marginBottom: '1rem', textTransform: 'uppercase' }}>
+        <div className="g-eyebrow" style={{ marginBottom: '1.25rem' }}>Guido&apos;s Gourmet</div>
+        <h1 className="noire-serif" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', marginBottom: '1.25rem' }}>
           Order Request
         </h1>
-        <p style={{ fontSize: 'var(--text-body)', opacity: 0.5, marginBottom: 'clamp(2rem, 4vw, 4rem)', maxWidth: '45ch' }}>
+        <div className="g-tricolor--rule" style={{ marginLeft: 0, marginRight: 'auto', marginBottom: '1.5rem' }} aria-hidden="true" />
+        <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)', marginBottom: '1.25rem', maxWidth: '45ch' }}>
           Tell us what you&apos;d like below. This is a request, not a confirmed order. Chef Paul will reply within 24 hours to confirm your items, total, and pickup or delivery.
         </p>
+        <p className="g-script g-script--sm" style={{ marginBottom: 'clamp(2rem, 4vw, 4rem)' }}>Chef crafted. Handmade. Made with love.</p>
 
         {!submitted ? (
-          <form onSubmit={handleSubmit} style={{ backgroundColor: 'white', padding: 'clamp(2rem, 5vw, 4rem)', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 20px 40px rgba(0,0,0,0.02)' }}>
+          <form onSubmit={handleSubmit} style={{ backgroundColor: 'var(--g-cream-2)', padding: 'clamp(2rem, 5vw, 4rem)', border: '1px solid var(--g-line)', borderRadius: '10px', boxShadow: '0 20px 40px rgba(18,63,46,0.05)' }}>
             {/* Honeypot */}
             <input type="text" name="website" value={formData.website} onChange={(e) => setFormData({...formData, website: e.target.value})} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
-            <p style={{ fontSize: '0.85rem', opacity: 0.6, lineHeight: 1.5, marginBottom: '2rem' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--g-ink-soft)', lineHeight: 1.5, marginBottom: '2rem' }}>
               No online payment; we&apos;ll confirm your total before anything is charged.
             </p>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Full Name *</span>
-              <input type="text" required autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={inputStyle} />
+              <input type="text" required autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="g-order-field" />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Email Address *</span>
-              <input type="email" required autoComplete="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} style={inputStyle} />
+              <input type="email" required autoComplete="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="g-order-field" />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Phone Number *</span>
-              <input type="tel" required autoComplete="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} style={inputStyle} />
+              <input type="tel" required autoComplete="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="g-order-field" />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
@@ -108,7 +130,7 @@ export default function GuidosOrderPage() {
                 placeholder={"e.g.\n2x Beef Bolognese Lasagne (Family size)\n1x Tiramisu Cans (Classic)\n1x Turkey Pot Pie"}
                 value={formData.items}
                 onChange={(e) => setFormData({...formData, items: e.target.value})}
-                style={{ ...inputStyle, resize: 'vertical' as const }}
+                className="g-order-field g-order-field--area"
               />
             </label>
 
@@ -123,7 +145,7 @@ export default function GuidosOrderPage() {
                     value="delivery"
                     checked={formData.deliveryMethod === 'delivery'}
                     onChange={() => setFormData({...formData, deliveryMethod: 'delivery'})}
-                    style={{ accentColor: 'var(--clr-ink)', width: '20px', height: '20px' }}
+                    style={{ accentColor: 'var(--g-green)', width: '20px', height: '20px' }}
                   />
                   Delivery ($12.50)
                 </label>
@@ -134,7 +156,7 @@ export default function GuidosOrderPage() {
                     value="pickup"
                     checked={formData.deliveryMethod === 'pickup'}
                     onChange={() => setFormData({...formData, deliveryMethod: 'pickup', address: ''})}
-                    style={{ accentColor: 'var(--clr-ink)', width: '20px', height: '20px' }}
+                    style={{ accentColor: 'var(--g-green)', width: '20px', height: '20px' }}
                   />
                   Pickup
                 </label>
@@ -152,7 +174,7 @@ export default function GuidosOrderPage() {
                   placeholder="e.g. 123 Government St, Victoria"
                   value={formData.address}
                   onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  style={inputStyle}
+                  className="g-order-field"
                 />
               </label>
             )}
@@ -164,12 +186,12 @@ export default function GuidosOrderPage() {
                 placeholder="Allergies, special requests, preferred delivery time, etc."
                 value={formData.notes}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                style={{ ...inputStyle, resize: 'vertical' as const }}
+                className="g-order-field g-order-field--area"
               />
             </label>
 
             {error && (
-              <div role="alert" style={{ padding: '1rem', backgroundColor: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem', animation: 'fadeIn 0.3s ease' }}>
+              <div role="alert" style={{ padding: '1rem', backgroundColor: 'rgba(193,58,46,0.06)', border: '1px solid rgba(193,58,46,0.35)', borderRadius: '6px', color: 'var(--g-ink)', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem', animation: 'fadeIn 0.3s ease' }}>
                 {error}
               </div>
             )}
@@ -179,22 +201,22 @@ export default function GuidosOrderPage() {
             </button>
 
             {/* Pickup info */}
-            <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-              <p className="menu-index" style={{ marginBottom: '0.5rem' }}>Pickup Location</p>
-              <p style={{ fontSize: 'var(--text-body)', opacity: 0.5 }}>
+            <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--g-line)' }}>
+              <p className="g-eyebrow" style={{ marginBottom: '0.5rem' }}>Pickup Location</p>
+              <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)' }}>
                 614 Grenville Ave, Esquimalt<br />
                 Pickup by appointment. Paul will arrange a time when he confirms your order.
               </p>
             </div>
           </form>
         ) : (
-          <div style={{ animation: 'fadeIn 0.8s ease forwards', textAlign: 'center', padding: '4rem', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.05)' }}>
-            <div className="shape-circle" style={{ width: '80px', height: '80px', backgroundColor: 'var(--clr-ink)', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2rem' }}>✓</div>
+          <div style={{ animation: 'fadeIn 0.8s ease forwards', textAlign: 'center', padding: '4rem', backgroundColor: 'var(--g-cream-2)', border: '1px solid var(--g-line)', borderRadius: '10px' }}>
+            <div className="shape-circle" style={{ width: '80px', height: '80px', backgroundColor: 'var(--g-green)', margin: '0 auto 2rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--g-cream)', fontSize: '2rem' }}>✓</div>
             <h2 ref={successHeadingRef} tabIndex={-1} className="noire-serif" style={{ marginBottom: '1rem', outline: 'none' }}>Request Received</h2>
-            <p style={{ opacity: 0.7, maxWidth: '38ch', margin: '0 auto', marginBottom: '0.5rem' }}>
+            <p style={{ color: 'var(--g-ink-soft)', maxWidth: '38ch', margin: '0 auto', marginBottom: '0.5rem' }}>
               Thank you, {formData.name}. We&apos;ve received your request. Chef Paul will confirm your items, total, and pickup/delivery within 24 hours.
             </p>
-            <p style={{ opacity: 0.5, fontSize: '0.8rem', marginBottom: '2rem' }}>We&apos;ll be in touch at {formData.email}.</p>
+            <p style={{ color: 'var(--g-ink-soft)', fontSize: '0.8rem', marginBottom: '2rem' }}>We&apos;ll be in touch at {formData.email}.</p>
             <Link href="/guidos/menu" className="btn-outline">Back to Menu</Link>
           </div>
         )}
