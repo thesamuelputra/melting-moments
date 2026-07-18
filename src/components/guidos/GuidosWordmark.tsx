@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 type Tone = 'ink' | 'cream';
 
 const TONES: Record<Tone, { text: string; gold: string; ring: string }> = {
-  ink: { text: '#211C13', gold: '#8A6320', ring: 'rgba(138,99,32,0.55)' },
+  ink: { text: '#211C13', gold: '#7C591D', ring: 'rgba(124,89,29,0.6)' },
   cream: { text: '#F4EEDE', gold: '#C2A24E', ring: 'rgba(194,162,78,0.65)' },
 };
 

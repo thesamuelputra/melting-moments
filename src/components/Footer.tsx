@@ -17,7 +17,7 @@ export default function Footer() {
   return (
     <footer
       className={`haus-block-container${isGuidosPage ? ' brand-guidos' : ''}`}
-      style={{ backgroundColor: isGuidosPage ? 'var(--g-green-deep)' : 'var(--clr-charcoal)', color: '#fff' }}
+      style={{ backgroundColor: isGuidosPage ? 'var(--g-green-deeper)' : 'var(--clr-charcoal)', color: '#fff' }}
     >
         {/* Guido's signature at the seam between page and footer */}
         {isGuidosPage && <span className="g-tricolor" aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0 }} />}

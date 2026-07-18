@@ -1,6 +1,6 @@
 type Tone = 'ink' | 'cream';
 
-const GOLD: Record<Tone, string> = { ink: '#8A6320', cream: '#C2A24E' };
+const GOLD: Record<Tone, string> = { ink: '#7C591D', cream: '#C2A24E' };
 
 /**
  * A small centered flourish for section breaks: a thin gold rule on each side

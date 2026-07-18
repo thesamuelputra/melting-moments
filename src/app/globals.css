@@ -920,7 +920,7 @@ footer :focus-visible,
 
 
 /* ========================================================
-   GUIDO'S GOURMET  —  scoped sub-brand identity
+   GUIDO'S GOURMET  ·  scoped sub-brand identity
    Warm cream paper, the Italian tricolour as a hairline
    signature, gold as the single accent, deep-green blocks.
    Everything lives under .brand-guidos so none of it leaks
@@ -933,17 +933,19 @@ footer :focus-visible,
 :root {
   --g-cream: #F4EEDE;
   --g-cream-2: #EDE4CE;   /* insets, alternating bands */
+  --g-flag-white: #FCFAF2; /* the tricolour's centre stripe: reads on cream and on deep green */
   --g-ink: #211C13;       /* warm near-black */
-  --g-ink-soft: rgba(33, 28, 19, 0.62);
+  --g-ink-soft: rgba(33, 28, 19, 0.72); /* secondary text; passes 4.5:1 on cream and the darker cream-2 panels */
   --g-line: rgba(33, 28, 19, 0.14);
 
   /* Italian tricolour (used as accents, never as body text) */
   --g-red: #C13A2E;
   --g-green: #1C6B4A;
   --g-green-deep: #123F2E;
+  --g-green-deeper: #0E3324; /* footer, a step below the delivery block so the seam divides them */
 
-  /* Gold: a text-safe bronze on cream, a brighter tone for dark grounds */
-  --g-gold: #8A6320;
+  /* Gold: a text-safe bronze on cream (and the darker cream-2 panel), a brighter tone for dark grounds */
+  --g-gold: #7C591D;
   --g-gold-bright: #C2A24E;
 }
 
@@ -964,7 +966,7 @@ footer :focus-visible,
   background-attachment: fixed, scroll;
 }
 
-/* --- Tricolour hairline: the signature cue ------------------------------- */
+/* Tricolour hairline: the signature cue */
 .g-tricolor {
   height: 3px;
   width: 100%;
@@ -973,7 +975,7 @@ footer :focus-visible,
   background: linear-gradient(
     to right,
     var(--g-green) 0 33.33%,
-    var(--g-cream) 33.33% 66.66%,
+    var(--g-flag-white) 33.33% 66.66%,
     var(--g-red) 66.66% 100%
   );
 }
@@ -985,7 +987,7 @@ footer :focus-visible,
   border-radius: 2px;
 }
 
-/* --- Eyebrow: gold, tracked, uppercase ---------------------------------- */
+/* Eyebrow: gold, tracked, uppercase */
 .brand-guidos .g-eyebrow,
 .g-eyebrow {
   font-family: var(--font-sans);
@@ -996,7 +998,7 @@ footer :focus-visible,
   font-weight: 600;
 }
 
-/* --- Script tagline: the handwritten voice, used only for taglines ------- */
+/* Script tagline: the handwritten voice, used only for taglines */
 .g-script {
   font-family: var(--font-script);
   font-weight: 600;
@@ -1009,13 +1011,13 @@ footer :focus-visible,
   font-size: clamp(1.2rem, 2.4vw, 1.6rem);
 }
 
-/* --- Display serif on cream keeps the site's serif, warmed to g-ink ------ */
+/* Display serif on cream keeps the site's serif, warmed to g-ink */
 .brand-guidos .haus-display,
 .brand-guidos .noire-serif {
   color: var(--g-ink);
 }
 
-/* --- Deep-green full-bleed block (replaces the ink haus block) ----------- */
+/* Deep-green full-bleed block (replaces the ink haus block) */
 .g-block {
   background-color: var(--g-green-deep);
   color: var(--g-cream);
@@ -1023,10 +1025,11 @@ footer :focus-visible,
   position: relative;
 }
 .g-block .g-eyebrow { color: var(--g-gold-bright); }
+.g-block .g-script { color: var(--g-gold-bright); } /* the dark gold fails contrast on deep green */
 .g-block .noire-serif,
 .g-block .haus-display { color: var(--g-cream); }
 
-/* --- Product card on cream ---------------------------------------------- */
+/* Product card on cream */
 .brand-guidos .product-card {
   background-color: transparent;
 }
@@ -1072,7 +1075,7 @@ footer :focus-visible,
   white-space: nowrap;
 }
 
-/* --- Buttons recoloured to the Guido's palette (geometry unchanged) ------ */
+/* Buttons recoloured to the Guido's palette (geometry unchanged) */
 .brand-guidos .btn-solid {
   background-color: var(--g-green);
   border-color: var(--g-green);
@@ -1110,12 +1113,12 @@ footer :focus-visible,
   border-color: var(--g-cream);
 }
 
-/* --- Menu-index / eyebrow default colour inside the theme --------------- */
+/* Menu-index / eyebrow default colour inside the theme */
 .brand-guidos .menu-index {
   color: var(--g-ink-soft);
 }
 
-/* --- Divider dot recoloured to gold ------------------------------------- */
+/* Divider dot recoloured to gold */
 .brand-guidos .noire-divider { background-color: var(--g-line); }
 .brand-guidos .noire-divider::after {
   content: "\275D";
@@ -1123,11 +1126,11 @@ footer :focus-visible,
   background-color: var(--g-cream);
 }
 
-/* --- The laurel wordmark component ------------------------------------- */
+/* The laurel wordmark component */
 .g-wordmark { display: inline-block; line-height: 0; }
 .g-wordmark svg { display: block; height: auto; }
 
-/* --- Reduced motion: the card lift and any reveals settle instantly ----- */
+/* Reduced motion: the card lift and any reveals settle instantly */
 @media (prefers-reduced-motion: reduce) {
   .g-card,
   .g-card:hover,

@@ -92,7 +92,7 @@ export default function GuidosOrderPage() {
         <h1 className="noire-serif" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', marginBottom: '1.25rem' }}>
           Order Request
         </h1>
-        <div className="g-tricolor--rule" style={{ marginLeft: 0, marginRight: 'auto', marginBottom: '1.5rem' }} aria-hidden="true" />
+        <div className="g-tricolor g-tricolor--rule" style={{ marginLeft: 0, marginRight: 'auto', marginBottom: '1.5rem' }} aria-hidden="true" />
         <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)', marginBottom: '1.25rem', maxWidth: '45ch' }}>
           Tell us what you&apos;d like below. This is a request, not a confirmed order. Chef Paul will reply within 24 hours to confirm your items, total, and pickup or delivery.
         </p>

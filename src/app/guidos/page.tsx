@@ -43,8 +43,10 @@ export default function GuidosPage() {
       {/* Hero image, with the packaging tricolour capping it */}
       <section className="container" style={{ marginTop: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 24px 60px rgba(18,63,46,0.10)' }}>
-          <div className="g-tricolor" />
           <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
+            {/* The tricolour caps the image (as it caps every package), so all
+                three stripes sit on the photo and read as one flag */}
+            <span className="g-tricolor" aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }} />
             <GuidosImage
               src="/guidos/guidos-hero.webp"
               alt="Italian ready-made meals by Guido's Gourmet"
