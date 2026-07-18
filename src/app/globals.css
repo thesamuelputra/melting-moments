@@ -958,12 +958,18 @@ footer :focus-visible,
   --clr-bone: var(--g-cream);
 }
 
-/* Faint paper grain so the cream reads as stock, not flat fill. Whisper level. */
+/* Faint paper grain so the cream reads as stock, not flat fill. Whisper level.
+   The texture scrolls with the page (the default). It is deliberately NOT a
+   viewport-fixed background: background-attachment: fixed forces the browser to
+   repaint the noise across the whole viewport on every scroll frame, which
+   stutters badly. A normal scrolling background composites smoothly. The tile
+   is a small 140px pattern at 3.5% opacity, so whether it scrolls or stays is
+   imperceptible. */
 .brand-guidos.g-paper {
   background-image:
     radial-gradient(ellipse 120% 80% at 50% -10%, rgba(255, 252, 244, 0.6), transparent 55%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-  background-attachment: fixed, scroll;
+  background-repeat: no-repeat, repeat;
 }
 
 /* Tricolour hairline: the signature cue */
