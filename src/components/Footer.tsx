@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { GuidosCrest } from '@/components/guidos/GuidosWordmark';
+import { SITE } from '@/lib/seo';
 
 export default function Footer() {
   const pathname = usePathname();
@@ -73,7 +74,7 @@ export default function Footer() {
                 </div>
                 {/* Semantic <address> for NAP extraction; fontStyle reset keeps the visual identical */}
                 <address style={{ fontStyle: 'normal', marginBottom: '0.75rem', fontSize: '0.75rem' }}>
-                    <a href="tel:+12503852462">250-385-2462</a> · <a href="mailto:info@meltingmoments.ca">info@meltingmoments.ca</a> · 614 Grenville Ave, Esquimalt, BC
+                    <a href={SITE.phoneHref}>{SITE.phoneDisplay}</a> · <a href={`mailto:${SITE.email}`}>{SITE.email}</a> · {SITE.addressDisplay}
                 </address>
                 <div style={{ marginBottom: '0.75rem', fontSize: '0.75rem' }}>
                     Consultations &amp; tastings by appointment

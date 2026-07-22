@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { JsonLd, breadcrumbList } from '@/lib/seo';
+import { GUIDOS_DELIVERY_FEE, JsonLd, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
@@ -36,7 +36,7 @@ export default function Terms() {
                    Meals are perishable goods. Once delivered, returns or refunds cannot be issued. Please consume within the recommended timeframe provided with your order. If you have food allergies, it is your responsibility to communicate these clearly when placing your order.
                </p>
                <p style={{ opacity: 0.8, marginBottom: '2rem' }}>
-                   Delivery is available in the Greater Victoria area for a flat fee of $12.50. Delivery times are approximate and subject to scheduling. Pickup is available by appointment at 614 Grenville Ave, Esquimalt.
+                   Delivery is available in the Greater Victoria area for a flat fee of {GUIDOS_DELIVERY_FEE}. Delivery times are approximate and subject to scheduling. Pickup is available by appointment at 614 Grenville Ave, Esquimalt.
                </p>
 
                <div className="menu-index" style={{ marginBottom: '1.5rem', marginTop: '3rem', fontSize: 'var(--text-micro)' }}>General</div>

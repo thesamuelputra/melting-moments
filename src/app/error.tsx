@@ -1,6 +1,7 @@
 'use client'
  
 import { useEffect } from 'react'
+import { SITE } from '@/lib/seo'
  
 export default function Error({
   error,
@@ -19,7 +20,7 @@ export default function Error({
       <h1 className="haus-display" style={{ textTransform: 'uppercase', marginBottom: '2rem', fontSize: 'clamp(3rem, 8vw, 6rem)' }}>Something went wrong</h1>
       <p style={{ fontSize: 'var(--text-secondary)', fontFamily: 'var(--font-serif)', maxWidth: '50ch', opacity: 0.8, marginBottom: '4rem' }}>
         An unexpected error occurred while preparing your request. Please try again, or call us at{' '}
-        <a href="tel:+12503852462" style={{ color: 'var(--clr-ink)' }}>250-385-2462</a> and we will help directly.
+        <a href={SITE.phoneHref} style={{ color: 'var(--clr-ink)' }}>{SITE.phoneDisplay}</a> and we will help directly.
       </p>
       <button onClick={() => reset()} className="btn-solid">
         Try Again

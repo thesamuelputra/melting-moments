@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { AREA_SERVED, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
+import { AREA_SERVED, GUIDOS_DELIVERY_FEE, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Service Area',
@@ -100,7 +100,7 @@ export default function ServiceArea() {
                <div>
                  <p className="menu-index" style={{ marginBottom: '1rem' }}>Guido&apos;s Delivery</p>
                  <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, maxWidth: '38ch' }}>
-                   Guido&apos;s Gourmet ready-made meals deliver across Victoria for a flat rate of $12.50. Pickup is also available by appointment from our Esquimalt kitchen.
+                   Guido&apos;s Gourmet ready-made meals deliver across Victoria for a flat rate of {GUIDOS_DELIVERY_FEE}. Pickup is also available by appointment from our Esquimalt kitchen.
                  </p>
                </div>
             </div>

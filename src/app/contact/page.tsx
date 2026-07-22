@@ -1,6 +1,7 @@
 import { getSettings } from '@/lib/cms';
 import ContactClient from './ContactClient';
 import { Metadata } from 'next';
+import { SITE } from '@/lib/seo';
 
 export const revalidate = 300;
 
@@ -25,9 +26,9 @@ export default async function ContactPage() {
     name: settings['owner'] || 'Paul Silletta',
     businessName: settings['name'] || 'Melting Moments Catering',
     address: settings['address'] || '614 Grenville Ave\nEsquimalt, BC V9A 6L2',
-    phone: settings['phone'] || '250-385-2462',
-    phoneRaw: (settings['phone'] || '2503852462').replace(/\D/g, ''),
-    email: settings['email'] || 'info@meltingmoments.ca',
+    phone: settings['phone'] || SITE.phoneDisplay,
+    phoneRaw: (settings['phone'] || SITE.phoneDisplay).replace(/\D/g, ''),
+    email: settings['email'] || SITE.email,
     website: settings['website'] || 'https://meltingmoments.ca',
   };
 

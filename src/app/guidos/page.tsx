@@ -1,9 +1,11 @@
+import fs from 'fs';
+import path from 'path';
 import Link from 'next/link';
 import GuidosImage from '@/components/GuidosImage';
 import GuidosWordmark from '@/components/guidos/GuidosWordmark';
 import GuidosOrnament from '@/components/guidos/GuidosOrnament';
 import type { Metadata } from 'next';
-import { JsonLd, breadcrumbList } from '@/lib/seo';
+import { GUIDOS_DELIVERY_FEE, JsonLd, breadcrumbList } from '@/lib/seo';
 
 export const revalidate = 300;
 
@@ -16,7 +18,7 @@ export const metadata: Metadata = {
     siteName: "Guido's Gourmet",
     locale: 'en_CA',
     type: 'website',
-    images: [{ url: '/og/og-default.jpg', width: 1200, height: 630, alt: "Guido's Gourmet by Melting Moments Catering" }],
+    images: [{ url: '/og/og-guidos.jpg', width: 1200, height: 630, alt: "Guido's Gourmet, ready-made Italian meals in Victoria BC" }],
   },
 };
 
@@ -25,6 +27,12 @@ const featuredProducts = [
   { name: 'Tiramisu Cans', price: 'From $9.95', image: '/guidos/tiramisu-cans.webp' },
   { name: 'Turkey Pot Pie', price: 'From $9.00', image: '/guidos/turkey-pot-pie.webp' },
 ];
+
+// Only pass image paths whose file actually exists, so missing photos render the
+// placeholder without hitting the image optimizer; photos appear automatically
+// once the files are added and the site is redeployed.
+const publicImage = (image: string) =>
+  fs.existsSync(path.join(process.cwd(), 'public', image)) ? image : undefined;
 
 export default function GuidosPage() {
   return (
@@ -53,7 +61,7 @@ export default function GuidosPage() {
                 three stripes sit on the photo and read as one flag */}
             <span className="g-tricolor" aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }} />
             <GuidosImage
-              src="/guidos/guidos-hero.webp"
+              src={publicImage('/guidos/guidos-hero.webp')}
               alt="Italian ready-made meals by Guido's Gourmet"
               fill
               sizes="(max-width: 768px) 100vw, 1000px"
@@ -88,7 +96,7 @@ export default function GuidosPage() {
             <Link href="/guidos/menu" key={product.name} className="g-card">
               <div className="g-card__media">
                 <GuidosImage
-                  src={product.image}
+                  src={publicImage(product.image)}
                   alt={product.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
@@ -112,7 +120,7 @@ export default function GuidosPage() {
         <div className="container" style={{ textAlign: 'center', maxWidth: '720px' }}>
           <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>03 &middot; Delivery</div>
           <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>
-            Flat rate: $12.50 anywhere in Victoria.
+            Flat rate: {GUIDOS_DELIVERY_FEE} anywhere in Victoria.
           </h2>
           <p style={{ opacity: 0.75, marginBottom: '0.4rem' }}>Pickup by appointment.</p>
           <p style={{ opacity: 0.75, marginBottom: '1.75rem' }}>614 Grenville Ave, Esquimalt.</p>

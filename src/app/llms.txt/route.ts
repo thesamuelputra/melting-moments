@@ -1,5 +1,5 @@
 import { getMenuItems, getGuidosProducts, getFaqs, getSettings } from '@/lib/cms';
-import { SITE, SERVICE_COMMUNITIES } from '@/lib/seo';
+import { SITE, SERVICE_COMMUNITIES, GUIDOS_DELIVERY_FEE } from '@/lib/seo';
 
 // /llms.txt: curated business summary for answer engines and assistant
 // crawlers. Composed from live CMS content with the same 300s ISR window as
@@ -87,7 +87,7 @@ export async function GET(): Promise<Response> {
     `Based in Esquimalt, serving Greater Victoria: ${SERVICE_COMMUNITIES.join(', ')}. For weddings and larger events the team travels up-Island (Cowichan Valley, Nanaimo, and beyond).`
   );
   lines.push(
-    "Guido's Gourmet delivery: flat rate $12.50 anywhere in Greater Victoria; pickup by appointment from the Esquimalt kitchen."
+    `Guido's Gourmet delivery: flat rate ${GUIDOS_DELIVERY_FEE} anywhere in Greater Victoria; pickup by appointment from the Esquimalt kitchen.`
   );
   lines.push('');
 

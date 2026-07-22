@@ -23,7 +23,18 @@ export const SITE = {
   description:
     'Melting Moments provides completely custom catering, corporate setups, and specialized buffet installations across Victoria, BC. A symphony of taste for weddings, private events, and formal dining.',
   facebook: 'https://www.facebook.com/MeltingMomentsCatering',
+
+  /* Display helpers: every human-facing NAP rendering imports these so the
+     visible values and the structured data can never drift apart. */
+  phoneDisplay: '250-385-2462',
+  phoneHref: 'tel:+12503852462',
+  addressShort: '614 Grenville Ave, Esquimalt',
+  addressDisplay: '614 Grenville Ave, Esquimalt, BC',
+  addressFull: '614 Grenville Ave, Esquimalt, BC V9A 6L2',
 } as const;
+
+/** Guido's flat delivery fee, referenced on eight surfaces; change it here only. */
+export const GUIDOS_DELIVERY_FEE = '$12.50';
 
 /** Canonical @id for the business entity; every node links back to this. */
 export const BUSINESS_ID = `${SITE.url}/#business`;

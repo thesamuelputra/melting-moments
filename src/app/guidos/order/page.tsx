@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { GUIDOS_DELIVERY_FEE, SITE } from '@/lib/seo';
 
 export default function GuidosOrderPage() {
   const [submitting, setSubmitting] = useState(false);
@@ -39,13 +40,13 @@ export default function GuidosOrderPage() {
         body: JSON.stringify(formData),
       });
       if (res.status === 429) {
-        setError("We've received a lot of requests just now. Please wait a minute, or call us at 250-385-2462.");
+        setError(`We've received a lot of requests just now. Please wait a minute, or call us at ${SITE.phoneDisplay}.`);
         return;
       }
       if (!res.ok) throw new Error('Failed to submit');
       setSubmitted(true);
     } catch {
-      setError('We were unable to send your order request. Please try again, or call us directly at 250-385-2462.');
+      setError(`We were unable to send your order request. Please try again, or call us directly at ${SITE.phoneDisplay}.`);
     } finally {
       setSubmitting(false);
     }
@@ -152,7 +153,7 @@ export default function GuidosOrderPage() {
                     onChange={() => setFormData({...formData, deliveryMethod: 'delivery'})}
                     style={{ accentColor: 'var(--g-green)', width: '20px', height: '20px' }}
                   />
-                  Delivery ($12.50)
+                  Delivery ({GUIDOS_DELIVERY_FEE})
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)', padding: '0.6rem 0' }}>
                   <input
@@ -211,7 +212,7 @@ export default function GuidosOrderPage() {
             <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--g-line)' }}>
               <p className="g-eyebrow" style={{ marginBottom: '0.5rem' }}>Pickup Location</p>
               <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)' }}>
-                614 Grenville Ave, Esquimalt<br />
+                {SITE.addressShort}<br />
                 Pickup by appointment. Paul will arrange a time when he confirms your order.
               </p>
             </div>
