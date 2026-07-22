@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     siteName: "Guido's Gourmet",
     locale: 'en_CA',
     type: 'website',
-    images: [{ url: '/og/og-default.jpg', width: 1200, height: 630, alt: "Guido's Gourmet by Melting Moments Catering" }],
+    images: [{ url: '/og/og-guidos.jpg', width: 1200, height: 630, alt: "Guido's Gourmet, ready-made Italian meals in Victoria BC" }],
   },
 };
 

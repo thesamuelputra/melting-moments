@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { getGuidosProducts } from '@/lib/cms';
 import { JsonLd, SITE, breadcrumbList, productNodes } from '@/lib/seo';
 import GuidosMenuClient from './GuidosMenuClient';
@@ -10,6 +12,16 @@ const breadcrumbs = breadcrumbList([
   { name: 'Menu', path: '/guidos/menu' },
 ]);
 
+// Site-relative images only render when the file exists, so missing photos fall
+// back to the placeholder without hitting the image optimizer; photos appear
+// automatically once the files are added and the site is redeployed. Hosted
+// (https) URLs pass through untouched.
+const resolveImage = (image: string | undefined) => {
+  if (!image) return undefined;
+  if (image.startsWith('http')) return image;
+  return fs.existsSync(path.join(process.cwd(), 'public', image)) ? image : undefined;
+};
+
 export default async function GuidosMenuPage() {
   const items = await getGuidosProducts().catch(() => []);
 
@@ -19,7 +31,7 @@ export default async function GuidosMenuPage() {
     category: item.category,
     priceFrom: item.priceFrom,
     sizes: item.sizes ?? [],
-    image: item.image ?? '/guidos/placeholder.svg',
+    image: resolveImage(item.image) ?? '/guidos/placeholder.svg',
     isAvailable: item.isAvailable,
     isLimitedEdition: item.isLimitedEdition,
   }));

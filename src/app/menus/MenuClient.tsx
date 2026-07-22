@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 
 type MenuItem = {
@@ -58,17 +58,32 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
 
   // Category display order: CMS-managed (menu_category_order setting, threaded
   // from the server page) with the original hardcoded order as a fallback.
-  const order = categoryOrder && categoryOrder.length > 0 ? categoryOrder : [
-    'BREADS', 'ANTIPASTO', 'SALADS', 'STARCHES', 'VEGETABLES',
-    'SEAFOOD', 'ENTREES', 'PACKAGES', 'SOIREE', 'PEASANO',
-    'MEXICAN', 'BBQ', 'LUNCH', 'BREAKFAST', 'BEVERAGES'
-  ];
-
-  // Dynamically merge any unknown categories to the end of the structural order
-  const fullOrder = Array.from(new Set([...order, ...menuItems.map(m => m.category)]));
+  // Memoized so the scroll-spy effect below sees referentially stable inputs
+  // and only re-subscribes when the menu data actually changes.
+  const fullOrder = useMemo(() => {
+    const order = categoryOrder && categoryOrder.length > 0 ? categoryOrder : [
+      'BREADS', 'ANTIPASTO', 'SALADS', 'STARCHES', 'VEGETABLES',
+      'SEAFOOD', 'ENTREES', 'PACKAGES', 'SOIREE', 'PEASANO',
+      'MEXICAN', 'BBQ', 'LUNCH', 'BREAKFAST', 'BEVERAGES'
+    ];
+    // Dynamically merge any unknown categories to the end of the structural order
+    return Array.from(new Set([...order, ...menuItems.map(m => m.category)]));
+  }, [menuItems, categoryOrder]);
 
   // Extract unique active categories available in the database
-  const availableCategories = fullOrder.filter(c => menuItems.some(m => m.category === c && m.isActive !== false));
+  const availableCategories = useMemo(
+    () => fullOrder.filter(c => menuItems.some(m => m.category === c && m.isActive !== false)),
+    [fullOrder, menuItems]
+  );
+
+  // Per-category item lists, filtered to active rows and sorted once per data change
+  const itemsByCategory = useMemo(() => {
+    const map = new Map<string, MenuItem[]>();
+    for (const cat of availableCategories) {
+      map.set(cat, menuItems.filter(m => m.category === cat && m.isActive !== false).sort((a, b) => a.orderIndex - b.orderIndex));
+    }
+    return map;
+  }, [availableCategories, menuItems]);
 
   const formatCategoryName = (cat: string) => {
     const map: Record<string, string> = {
@@ -209,7 +224,7 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
         {/* MENU COLUMN */}
         <div>
           {availableCategories.map((cat, groupIdx) => {
-            const items = menuItems.filter(m => m.category === cat && m.isActive !== false).sort((a,b) => a.orderIndex - b.orderIndex);
+            const items = itemsByCategory.get(cat) ?? [];
             if (items.length === 0) return null;
 
             // If the section carries no distinct figures (everything bundled in
