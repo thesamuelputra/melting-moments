@@ -4,11 +4,9 @@ import { fetchMutation } from 'convex/nextjs';
 import { revalidatePath, updateTag } from 'next/cache';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
-import { requireAdmin, AdminAuthError } from '@/lib/auth';
+import { ensureAdmin, type ActionResult } from '@/lib/admin-actions';
 
-export type ActionResult =
-  | { success: true; id?: string }
-  | { success: false; error: 'unauthorized' | 'invalid' | 'failed'; message?: string };
+export type { ActionResult } from '@/lib/admin-actions';
 
 export type SizeInput = { label: string; price: number };
 
@@ -35,20 +33,8 @@ export type ProductPatchInput = {
   isLimitedEdition?: boolean;
 };
 
-const UNAUTHORIZED = { success: false, error: 'unauthorized' } as const;
-
 function invalid(message: string): ActionResult {
   return { success: false, error: 'invalid', message };
-}
-
-async function ensureAdmin(): Promise<ActionResult | null> {
-  try {
-    await requireAdmin();
-    return null;
-  } catch (err) {
-    if (err instanceof AdminAuthError) return UNAUTHORIZED;
-    throw err; // ADMIN_PASSWORD unset: real server misconfig, let it surface
-  }
 }
 
 /** Site-relative ('/...') or https:// URLs only. Empty string means "no image". */

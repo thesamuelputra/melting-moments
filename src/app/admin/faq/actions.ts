@@ -4,33 +4,24 @@ import { fetchMutation } from 'convex/nextjs';
 import { revalidatePath, updateTag } from 'next/cache';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
-import { AdminAuthError, requireAdmin } from '@/lib/auth';
+import { ensureAdmin, type ActionResult } from '@/lib/admin-actions';
 import { FALLBACK_FAQS } from '@/lib/fallback-faqs';
 
 export type FaqCategory = 'catering' | 'guidos';
 
-export type ActionResult =
+export type { ActionResult } from '@/lib/admin-actions';
+
+/** createFaq additionally reports whether the starter set was imported
+ *  (first write into an empty table). */
+export type CreateFaqResult =
   | { success: true; id?: string; seeded?: boolean }
-  | { success: false; error: 'unauthorized' | 'invalid' | 'failed'; message?: string };
+  | Extract<ActionResult, { success: false }>;
 
 const MAX_QUESTION = 300;
 const MAX_ANSWER = 2000;
 
-const unauthorized = { success: false, error: 'unauthorized' } as const;
 const failed = (message: string) => ({ success: false as const, error: 'failed' as const, message });
 const invalid = (message: string) => ({ success: false as const, error: 'invalid' as const, message });
-
-/** Maps AdminAuthError → 'unauthorized'. A missing ADMIN_PASSWORD env (plain
- *  Error) is a server misconfiguration and is intentionally rethrown. */
-async function guard(): Promise<typeof unauthorized | null> {
-  try {
-    await requireAdmin();
-    return null;
-  } catch (err) {
-    if (err instanceof AdminAuthError) return unauthorized;
-    throw err;
-  }
-}
 
 // Public pages cache CMS reads under the 'cms' tag (src/lib/cms.ts);
 // updateTag expires it immediately (read-your-own-writes; the deprecated
@@ -50,8 +41,8 @@ export async function createFaq(data: {
   question: string;
   answer: string;
   category?: FaqCategory;
-}): Promise<ActionResult> {
-  const denied = await guard();
+}): Promise<CreateFaqResult> {
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   const question = data.question?.trim() ?? '';
@@ -94,7 +85,7 @@ export async function createFaq(data: {
 export async function seedStarterFaqs(): Promise<
   { success: true; count: number } | Exclude<ActionResult, { success: true }>
 > {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   try {
@@ -122,7 +113,7 @@ export async function updateFaq(
     isActive?: boolean;
   }
 ): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   const patch: {
@@ -167,7 +158,7 @@ export async function updateFaq(
 }
 
 export async function deleteFaq(id: string): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   try {
@@ -184,7 +175,7 @@ export async function deleteFaq(id: string): Promise<ActionResult> {
 
 /** Atomic whole-table reorder: the id list must be complete and in order. */
 export async function reorderFaqs(ids: string[]): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   if (ids.length === 0) return { success: true };

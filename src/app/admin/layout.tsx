@@ -18,7 +18,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Defense in depth over the proxy middleware: re-verify the session cookie
   // on every admin render; bounce to login on failure.
   await requireAdminOrRedirect();
-  const settings = await fetchQuery(api.businessSettings.getAll);
+  // A Convex outage must not take down the whole admin shell; fall back to
+  // banner-off defaults and let each page's own fetch surface its error.
+  let settings: Record<string, string> = {};
+  try {
+    settings = await fetchQuery(api.businessSettings.getAll);
+  } catch (error) {
+    console.error('Failed to load business settings for the admin shell:', error);
+  }
   const bannerEnabled = settings['banner_enabled'] === 'true' && !!settings['banner_text'];
   const displayName = settings['owner'] || settings['name'] || 'Admin';
 

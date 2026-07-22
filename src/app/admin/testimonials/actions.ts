@@ -4,33 +4,18 @@ import { fetchMutation } from 'convex/nextjs';
 import { revalidatePath, updateTag } from 'next/cache';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
-import { AdminAuthError, requireAdmin } from '@/lib/auth';
+import { ensureAdmin, type ActionResult } from '@/lib/admin-actions';
 
 export type TestimonialBrand = 'catering' | 'guidos';
 
-export type ActionResult =
-  | { success: true; id?: string }
-  | { success: false; error: 'unauthorized' | 'invalid' | 'failed'; message?: string };
+export type { ActionResult } from '@/lib/admin-actions';
 
 const MAX_AUTHOR = 120;
 const MAX_ROLE = 160;
 const MAX_TEXT = 2000;
 
-const unauthorized = { success: false, error: 'unauthorized' } as const;
 const failed = (message: string) => ({ success: false as const, error: 'failed' as const, message });
 const invalid = (message: string) => ({ success: false as const, error: 'invalid' as const, message });
-
-/** Maps AdminAuthError → 'unauthorized'. A missing ADMIN_PASSWORD env (plain
- *  Error) is a server misconfiguration and is intentionally rethrown. */
-async function guard(): Promise<typeof unauthorized | null> {
-  try {
-    await requireAdmin();
-    return null;
-  } catch (err) {
-    if (err instanceof AdminAuthError) return unauthorized;
-    throw err;
-  }
-}
 
 // Public pages cache CMS reads under the 'cms' tag (src/lib/cms.ts);
 // updateTag expires it immediately (read-your-own-writes). The layout
@@ -59,7 +44,7 @@ export async function createTestimonial(data: {
   /** Omit for "shown on both brands". */
   brand?: TestimonialBrand;
 }): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   const author = data.author?.trim() ?? '';
@@ -103,7 +88,7 @@ export async function updateTestimonial(
     isActive?: boolean;
   }
 ): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   const patch: {
@@ -161,7 +146,7 @@ export async function updateTestimonial(
 }
 
 export async function deleteTestimonial(id: string): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   try {
@@ -178,7 +163,7 @@ export async function deleteTestimonial(id: string): Promise<ActionResult> {
 
 /** Atomic whole-table reorder: the id list must be complete and in order. */
 export async function reorderTestimonials(ids: string[]): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   if (ids.length === 0) return { success: true };

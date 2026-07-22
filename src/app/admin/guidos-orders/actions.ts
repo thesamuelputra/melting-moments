@@ -4,28 +4,11 @@ import { fetchMutation } from 'convex/nextjs';
 import { revalidatePath } from 'next/cache';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
-import { requireAdmin, AdminAuthError } from '@/lib/auth';
+import { ORDER_STATUSES, type OrderStatus } from '@/../convex/statuses';
+import { ensureAdmin, type ActionResult } from '@/lib/admin-actions';
 
-export type ActionResult =
-  | { success: true; id?: string }
-  | { success: false; error: 'unauthorized' | 'invalid' | 'failed'; message?: string };
-
-/** Mirrors ORDER_STATUSES in convex/lib.ts; the mutation arg is this literal union. */
-export type OrderStatus = 'received' | 'preparing' | 'ready' | 'delivered' | 'picked_up';
-
-const ORDER_STATUSES: readonly OrderStatus[] = ['received', 'preparing', 'ready', 'delivered', 'picked_up'];
-
-const UNAUTHORIZED = { success: false, error: 'unauthorized' } as const;
-
-async function ensureAdmin(): Promise<ActionResult | null> {
-  try {
-    await requireAdmin();
-    return null;
-  } catch (err) {
-    if (err instanceof AdminAuthError) return UNAUTHORIZED;
-    throw err; // ADMIN_PASSWORD unset: real server misconfig, let it surface
-  }
-}
+export type { ActionResult } from '@/lib/admin-actions';
+export type { OrderStatus } from '@/../convex/statuses';
 
 // Orders never appear on the public site, so there is no updateTag('cms')
 // here on purpose; only the admin orders page needs revalidating.

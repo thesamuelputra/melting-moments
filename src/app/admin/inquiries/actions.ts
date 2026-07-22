@@ -4,15 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { fetchMutation } from 'convex/nextjs';
 import { api } from '@/../convex/_generated/api';
 import { Id } from '@/../convex/_generated/dataModel';
-import { requireAdmin, AdminAuthError } from '@/lib/auth';
+import { INQUIRY_STATUSES, type InquiryStatus } from '@/../convex/statuses';
+import { ensureAdmin, type ActionResult } from '@/lib/admin-actions';
 
-const INQUIRY_STATUSES = ['new', 'contacted', 'booked', 'declined', 'archived'] as const;
-
-export type InquiryStatus = (typeof INQUIRY_STATUSES)[number];
-
-export type ActionResult =
-  | { success: true; id?: string }
-  | { success: false; error: 'unauthorized' | 'invalid' | 'failed'; message?: string };
+export type { ActionResult } from '@/lib/admin-actions';
+export type { InquiryStatus } from '@/../convex/statuses';
 
 export type RestoreResult =
   | { success: true; restoredStatus: InquiryStatus }
@@ -25,20 +21,6 @@ export type RestoreResult =
 function revalidateInquiryViews() {
   revalidatePath('/admin/inquiries');
   revalidatePath('/admin');
-}
-
-type AuthFailure = { success: false; error: 'unauthorized' };
-
-async function ensureAdmin(): Promise<AuthFailure | null> {
-  try {
-    await requireAdmin();
-    return null;
-  } catch (err) {
-    if (err instanceof AdminAuthError) {
-      return { success: false, error: 'unauthorized' };
-    }
-    throw err; // ADMIN_PASSWORD unset: real server misconfig, let it surface
-  }
 }
 
 export async function updateInquiryStatus(id: string, status: InquiryStatus): Promise<ActionResult> {

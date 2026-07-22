@@ -4,15 +4,11 @@ import { fetchMutation } from 'convex/nextjs';
 import { revalidatePath, updateTag } from 'next/cache';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
-import { AdminAuthError, requireAdmin } from '@/lib/auth';
+import { ensureAdmin, type ActionResult } from '@/lib/admin-actions';
 
-export type ActionFailure = {
-  success: false;
-  error: 'unauthorized' | 'invalid' | 'failed';
-  message?: string;
-};
+export type { ActionResult } from '@/lib/admin-actions';
 
-export type ActionResult = { success: true; id?: string } | ActionFailure;
+export type ActionFailure = Extract<ActionResult, { success: false }>;
 
 /** Bulk delete reports per-item failures so the client can restore only those rows. */
 export type BulkDeleteResult = { success: true } | (ActionFailure & { failedIds?: string[] });
@@ -40,19 +36,6 @@ function invalidateMenus(): void {
   updateTag('cms');
   revalidatePath('/', 'layout');
   revalidatePath('/admin/menus');
-}
-
-/** Map AdminAuthError → 'unauthorized'; rethrow real server misconfig (env unset). */
-async function guard(): Promise<ActionFailure | null> {
-  try {
-    await requireAdmin();
-    return null;
-  } catch (err) {
-    if (err instanceof AdminAuthError) {
-      return { success: false, error: 'unauthorized' };
-    }
-    throw err;
-  }
 }
 
 function failureFrom(error: unknown, fallbackMessage: string): ActionFailure {
@@ -103,7 +86,7 @@ function normalizeItemInput(
 }
 
 export async function addMenuItem(input: MenuItemInput): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   const parsed = normalizeItemInput(input);
@@ -130,7 +113,7 @@ export async function addMenuItem(input: MenuItemInput): Promise<ActionResult> {
 }
 
 export async function updateMenuItem(id: string, input: MenuItemInput): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
   if (!id) return { success: false, error: 'invalid', message: 'Item id is required' };
 
@@ -164,7 +147,7 @@ export async function setMenuItemFlag(
   flag: 'isActive' | 'isFeatured',
   enabled: boolean
 ): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
   if (!id) return { success: false, error: 'invalid', message: 'Item id is required' };
 
@@ -182,7 +165,7 @@ export async function setMenuItemFlag(
 }
 
 export async function deleteMenuItem(id: string): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
   if (!id) return { success: false, error: 'invalid', message: 'Item id is required' };
 
@@ -204,7 +187,7 @@ export async function deleteMenuItem(id: string): Promise<ActionResult> {
  * failed so the client can restore exactly those rows.
  */
 export async function bulkDeleteMenuItems(ids: string[]): Promise<BulkDeleteResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   const unique = Array.from(new Set(ids)).filter(Boolean);
@@ -244,7 +227,7 @@ export async function bulkDeleteMenuItems(ids: string[]): Promise<BulkDeleteResu
 
 /** Persist a category's full drag-and-drop order atomically (single transaction). */
 export async function reorderMenuItems(category: string, ids: string[]): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   const cat = typeof category === 'string' ? category.trim() : '';
@@ -268,7 +251,7 @@ export async function reorderMenuItems(category: string, ids: string[]): Promise
 
 /** Persist the public section order to businessSettings.menu_category_order. */
 export async function saveCategoryOrder(categories: string[]): Promise<ActionResult> {
-  const denied = await guard();
+  const denied = await ensureAdmin();
   if (denied) return denied;
 
   const cleaned = Array.from(
