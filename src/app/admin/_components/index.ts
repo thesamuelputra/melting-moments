@@ -23,8 +23,7 @@ export type {
 export { default as EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 
-export { default as SkeletonRows } from './SkeletonRows';
-export type { SkeletonRowsProps } from './SkeletonRows';
+export { default as SessionExpiredToast } from './SessionExpiredToast';
 
 export { useDirtyGuard } from './useDirtyGuard';
 export { useAutoRefresh } from './useAutoRefresh';

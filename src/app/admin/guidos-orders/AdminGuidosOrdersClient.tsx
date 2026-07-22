@@ -1,8 +1,7 @@
 'use client';
 
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { ConfirmDialog, useAutoRefresh, useToast } from '../_components';
-import SessionExpiredToast from './SessionExpiredToast';
+import { ConfirmDialog, SessionExpiredToast, useAutoRefresh, useToast } from '../_components';
 import {
   deleteGuidosOrder,
   updateGuidosOrderStatus,

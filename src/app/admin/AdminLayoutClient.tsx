@@ -240,11 +240,11 @@ export default function AdminLayoutClient({ children, bannerEnabled, displayName
       {/* Sidebar */}
       <aside className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="admin-sidebar__brand">
-          <h2>Melting Moments</h2>
+          <div className="admin-sidebar__brand-name">Melting Moments</div>
           <span>Admin Console</span>
         </div>
 
-        <nav className="admin-sidebar__nav">
+        <nav className="admin-sidebar__nav" aria-label="Primary">
           {navItems.map((item, i) => {
             if ('divider' in item) {
               return (

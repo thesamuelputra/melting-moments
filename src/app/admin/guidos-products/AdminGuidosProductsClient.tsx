@@ -7,6 +7,7 @@ import {
   EmptyState,
   NumberField,
   SelectField,
+  SessionExpiredToast,
   SlidePanel,
   SortableList,
   TextField,
@@ -15,7 +16,6 @@ import {
   useDirtyGuard,
   useToast,
 } from '../_components';
-import SessionExpiredToast from './SessionExpiredToast';
 import {
   addGuidosProduct,
   deleteGuidosProduct,

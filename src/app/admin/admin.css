@@ -36,7 +36,7 @@
   margin-bottom: 1rem;
 }
 
-.admin-sidebar__brand h2 {
+.admin-sidebar__brand-name {
   font-family: var(--font-serif);
   font-size: 1.4rem;
   font-weight: 400;
@@ -639,9 +639,11 @@
 @media (max-width: 768px) {
   .admin-sidebar {
     transform: translateX(-100%);
+    visibility: hidden;
   }
   .admin-sidebar.open {
     transform: translateX(0);
+    visibility: visible;
   }
   .admin-sidebar-overlay.open {
     display: block;
