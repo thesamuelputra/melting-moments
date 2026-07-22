@@ -73,7 +73,7 @@ export default function Footer() {
                 </div>
                 {/* Semantic <address> for NAP extraction; fontStyle reset keeps the visual identical */}
                 <address style={{ fontStyle: 'normal', marginBottom: '0.75rem', fontSize: '0.75rem' }}>
-                    <a href="tel:+12503852462">250-385-2462</a> · <a href="mailto:info@meltingmoments.ca">info@meltingmoments.ca</a> · 614 Grenville Ave, Esquimalt BC
+                    <a href="tel:+12503852462">250-385-2462</a> · <a href="mailto:info@meltingmoments.ca">info@meltingmoments.ca</a> · 614 Grenville Ave, Esquimalt, BC
                 </address>
                 <div style={{ marginBottom: '0.75rem', fontSize: '0.75rem' }}>
                     Consultations &amp; tastings by appointment

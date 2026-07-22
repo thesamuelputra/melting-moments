@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import { AREA_SERVED, BUSINESS_ID, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
@@ -89,12 +90,12 @@ export default function Fountains() {
         </div>
         <div style={{ padding: '2rem', backgroundColor: 'var(--clr-ink)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <p style={{ maxWidth: '50ch', lineHeight: 1.6, opacity: 0.8 }}>Strawberries, pineapples, cantaloupe, marshmallows, graham crackers, angel food cake, pound cake, chocolate chip cookies, sugar and shortbread cookies, Oreo cookies, cream puffs, Rice Krispies, and lady fingers.</p>
-            <div className="menu-price" style={{ color: 'white', fontSize: '1.5rem' }}>$5.50<span style={{ fontSize: '0.8rem', opacity: 0.5 }}> / PP</span></div>
+            <div className="menu-price" style={{ color: 'white', fontSize: '1.5rem' }}>$5.50<span style={{ fontSize: '0.8rem', opacity: 0.5 }}> per person</span></div>
         </div>
         <p style={{ fontSize: 'var(--text-body)', opacity: 0.5, marginTop: '1.5rem', lineHeight: 1.6 }}>All rentals include 4 hours of enjoyment, skewers, napkins. Delivery fees apply within the Victoria area. Delivery is $30 per trip. Lindt chocolate in milk or dark. White chocolate and other colours available upon request.</p>
       </section>
 
-      <section className="container" style={{ paddingBottom: '10rem' }}>
+      <section className="container" style={{ paddingBottom: 'clamp(3rem, 6vw, 5rem)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2rem', borderTop: '1px solid var(--clr-charcoal)', paddingTop: '4rem' }}>
           <h2 className="noire-serif">Champagne Fountain</h2>
         </div>
@@ -105,6 +106,15 @@ export default function Fountains() {
         <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Gold Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Includes a Melting Moments attendant, fresh flower display, a platter of fresh strawberries, fluted glasses and seven litres of your preferred non-alcoholic beverage. (Our specialty is a fruit punch). Serves up to 100.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$549</div></div>
         <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Silver Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Includes a fresh flower display and a platter of fresh strawberries for your champagne glass.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$349</div></div>
         <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Bronze Package</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Champagne Fountain delivery and pick up service only. The fountain is simple to operate.</p></div><div className="menu-price" style={{ textAlign: 'right', marginTop: '6px' }}>$199</div></div>
+      </section>
+
+      <section className="container" style={{ paddingBottom: 'clamp(6rem, 12vw, 10rem)', textAlign: 'center' }}>
+        <div className="noire-divider" style={{ marginBottom: 'clamp(3rem, 6vw, 5rem)' }} />
+        <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>Bring a chocolate fountain to your celebration</h2>
+        <p style={{ fontSize: 'var(--text-body)', opacity: 0.7, maxWidth: '46ch', margin: '0 auto 2.5rem auto', lineHeight: 1.6 }}>
+          Share your date and guest count, and we&apos;ll pair you with the right fountain and dipping spread.
+        </p>
+        <Link href="/contact" className="btn-solid">Enquire about a chocolate fountain</Link>
       </section>
 
     </div>

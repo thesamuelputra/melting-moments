@@ -3,7 +3,7 @@ import { AREA_SERVED, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Service Area',
-  description: 'Melting Moments serves the Greater Victoria area including Langford, Colwood, Oak Bay, Saanich, and is available up-island to Nanaimo and Tofino.',
+  description: 'Melting Moments serves the Greater Victoria area including Langford, Colwood, Oak Bay, Saanich, and is available up-island to Nanaimo.',
 };
 
 export const revalidate = 300;

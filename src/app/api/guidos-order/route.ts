@@ -67,63 +67,73 @@ export async function POST(request: Request) {
     });
     
     if (process.env.RESEND_API_KEY) {
-      const { error: ownerEmailError } = await resend!.emails.send({
-        from: `Guido's Gourmet <${FROM_ADDRESS}>`,
-        to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
-        replyTo: email,
-        subject: `New Guido's Gourmet Order from ${clean(name)}`,
-        html: `
-          <h2>New Ready-Made Meals Order</h2>
-          <p><strong>Name:</strong> ${eName}</p>
-          <p><strong>Email:</strong> ${eEmail}</p>
-          <p><strong>Phone:</strong> ${ePhone}</p>
-          <p><strong>Delivery:</strong> ${eDeliveryMethod}</p>
-          <hr/>
-          <p><strong>Order Items:</strong></p>
-          <pre style="white-space: pre-wrap; font-family: inherit;">${eItems}</pre>
-          ${eNotes ? `<p><strong>Notes:</strong> ${eNotes}</p>` : ''}
-          <br/>
-          <p><a href="https://meltingmoments.ca/admin">View in Admin Dashboard</a></p>
-        `
-      });
+      try {
+        const { error: ownerEmailError } = await resend!.emails.send({
+          from: `Guido's Gourmet <${FROM_ADDRESS}>`,
+          to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
+          replyTo: email,
+          subject: `New Guido's Gourmet Order from ${clean(name)}`,
+          html: `
+            <h2>New Ready-Made Meals Order</h2>
+            <p><strong>Name:</strong> ${eName}</p>
+            <p><strong>Email:</strong> ${eEmail}</p>
+            <p><strong>Phone:</strong> ${ePhone}</p>
+            <p><strong>Delivery:</strong> ${eDeliveryMethod}</p>
+            <hr/>
+            <p><strong>Order Items:</strong></p>
+            <pre style="white-space: pre-wrap; font-family: inherit;">${eItems}</pre>
+            ${eNotes ? `<p><strong>Notes:</strong> ${eNotes}</p>` : ''}
+            <br/>
+            <p><a href="https://meltingmoments.ca/admin">View in Admin Dashboard</a></p>
+          `
+        });
 
-      // Don't fail the request: the order is already saved in Convex. Log loudly instead.
-      if (ownerEmailError) {
-        console.error('[Guidos Order API] Owner notification email failed:', ownerEmailError);
+        // The order is already saved in Convex, so a returned email error is non-fatal. Log loudly.
+        if (ownerEmailError) {
+          console.error('[Guidos Order API] Owner notification email failed:', ownerEmailError);
+        }
+      } catch (ownerEmailThrew) {
+        // A thrown transport error must stay non-fatal too, or the customer retries and duplicates the order.
+        console.error('[Guidos Order API] Owner notification email threw:', ownerEmailThrew);
       }
 
       // Confirmation email to the customer
-      const { error: confirmationEmailError } = await resend!.emails.send({
-        from: `Guido's Gourmet <${FROM_ADDRESS}>`,
-        to: email,
-        subject: 'Guido\'s Gourmet: Order Received',
-        html: `
-          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #070707;">
-            <div style="text-align: center; padding: 3rem 2rem; border-bottom: 1px solid #eee;">
-              <h1 style="font-size: 1.8rem; font-weight: 400; margin: 0;">Guido's Gourmet</h1>
-              <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.5; margin-top: 0.5rem;">Ready-Made Italian Meals</p>
-            </div>
-            <div style="padding: 2rem;">
-              <p style="font-size: 1rem; line-height: 1.6;">Dear ${eName},</p>
-              <p style="font-size: 1rem; line-height: 1.6;">Thank you for your order. Chef Paul will review it and confirm within 24 hours.</p>
-              <div style="background: #F7F6F0; padding: 1.5rem; margin: 1.5rem 0; border-left: 3px solid #070707;">
-                <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5;">Your Order</p>
-                <pre style="white-space: pre-wrap; font-family: inherit; margin: 0.5rem 0;">${eItems}</pre>
-                <p style="margin: 0.5rem 0 0 0;"><strong>${eDeliveryMethod}</strong></p>
+      try {
+        const { error: confirmationEmailError } = await resend!.emails.send({
+          from: `Guido's Gourmet <${FROM_ADDRESS}>`,
+          to: email,
+          subject: 'Guido\'s Gourmet: Order Received',
+          html: `
+            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #070707;">
+              <div style="text-align: center; padding: 3rem 2rem; border-bottom: 1px solid #eee;">
+                <h1 style="font-size: 1.8rem; font-weight: 400; margin: 0;">Guido's Gourmet</h1>
+                <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.5; margin-top: 0.5rem;">Ready-Made Italian Meals</p>
               </div>
-              <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">If you have any questions, call us at <a href="tel:2503852462" style="color: #070707;">250-385-2462</a>.</p>
-              <p style="font-size: 1rem; line-height: 1.6; margin-top: 1.5rem;">Warm regards,<br/>Chef Paul Silletta<br/><span style="opacity: 0.5; font-size: 0.85rem;">Guido's Gourmet</span></p>
+              <div style="padding: 2rem;">
+                <p style="font-size: 1rem; line-height: 1.6;">Dear ${eName},</p>
+                <p style="font-size: 1rem; line-height: 1.6;">Thank you for your order. Chef Paul will review it and confirm within 24 hours.</p>
+                <div style="background: #F7F6F0; padding: 1.5rem; margin: 1.5rem 0; border-left: 3px solid #070707;">
+                  <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5;">Your Order</p>
+                  <pre style="white-space: pre-wrap; font-family: inherit; margin: 0.5rem 0;">${eItems}</pre>
+                  <p style="margin: 0.5rem 0 0 0;"><strong>${eDeliveryMethod}</strong></p>
+                </div>
+                <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">If you have any questions, call us at <a href="tel:+12503852462" style="color: #070707;">250-385-2462</a>.</p>
+                <p style="font-size: 1rem; line-height: 1.6; margin-top: 1.5rem;">Warm regards,<br/>Chef Paul Silletta<br/><span style="opacity: 0.5; font-size: 0.85rem;">Guido's Gourmet</span></p>
+              </div>
+              <div style="text-align: center; padding: 1.5rem 2rem; border-top: 1px solid #eee; font-size: 0.7rem; opacity: 0.4;">
+                614 Grenville Ave, Esquimalt, BC V9A 6L2 · 250-385-2462
+              </div>
             </div>
-            <div style="text-align: center; padding: 1.5rem 2rem; border-top: 1px solid #eee; font-size: 0.7rem; opacity: 0.4;">
-              614 Grenville Ave, Esquimalt, BC V9A 6L2 · 250-385-2462
-            </div>
-          </div>
-        `
-      });
+          `
+        });
 
-      // Don't fail the request: the order is already saved in Convex. Log loudly instead.
-      if (confirmationEmailError) {
-        console.error('[Guidos Order API] Customer confirmation email failed:', confirmationEmailError);
+        // The order is already saved in Convex, so a returned email error is non-fatal. Log loudly.
+        if (confirmationEmailError) {
+          console.error('[Guidos Order API] Customer confirmation email failed:', confirmationEmailError);
+        }
+      } catch (confirmationEmailThrew) {
+        // A thrown transport error must stay non-fatal too, or the customer retries and duplicates the order.
+        console.error('[Guidos Order API] Customer confirmation email threw:', confirmationEmailThrew);
       }
     }
 

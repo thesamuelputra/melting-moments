@@ -37,8 +37,10 @@ export default function AnnouncementBanner({ data }: { data: BannerData }) {
 
   const bgMap = {
     dark: { bg: 'var(--clr-ink)', color: 'var(--clr-oat)' },
+    // Navy ground and light gold have no equivalent palette token, so they stay
+    // as literals to keep the accent banner visually identical.
     accent: { bg: '#1a1a2e', color: '#E2C992' },
-    light: { bg: '#F5F0E8', color: 'var(--clr-ink)' },
+    light: { bg: 'var(--clr-bone)', color: 'var(--clr-ink)' },
   };
   const { bg, color } = bgMap[data.style] || bgMap.dark;
 

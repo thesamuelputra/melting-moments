@@ -38,6 +38,10 @@ export default function GuidosOrderPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
+      if (res.status === 429) {
+        setError("We've received a lot of requests just now. Please wait a minute, or call us at 250-385-2462.");
+        return;
+      }
       if (!res.ok) throw new Error('Failed to submit');
       setSubmitted(true);
     } catch {
@@ -109,23 +113,24 @@ export default function GuidosOrderPage() {
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Full Name *</span>
-              <input type="text" required autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="g-order-field" />
+              <input type="text" required maxLength={200} autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="g-order-field" />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Email Address *</span>
-              <input type="email" required autoComplete="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="g-order-field" />
+              <input type="email" required maxLength={200} autoComplete="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="g-order-field" />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>Phone Number *</span>
-              <input type="tel" required autoComplete="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="g-order-field" />
+              <input type="tel" required maxLength={50} autoComplete="tel" placeholder="e.g. 250-555-0123" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="g-order-field" />
             </label>
 
             <label style={{ display: 'block', marginBottom: '1.5rem' }}>
               <span style={labelStyle}>What would you like to order? *</span>
               <textarea
                 required
+                maxLength={3000}
                 rows={5}
                 placeholder={"e.g.\n2x Beef Bolognese Lasagne (Family size)\n1x Tiramisu Cans (Classic)\n1x Turkey Pot Pie"}
                 value={formData.items}
@@ -170,6 +175,7 @@ export default function GuidosOrderPage() {
                 <input
                   type="text"
                   required
+                  maxLength={500}
                   autoComplete="street-address"
                   placeholder="e.g. 123 Government St, Victoria"
                   value={formData.address}
@@ -183,6 +189,7 @@ export default function GuidosOrderPage() {
               <span style={labelStyle}>Any notes? (Optional)</span>
               <textarea
                 rows={3}
+                maxLength={2000}
                 placeholder="Allergies, special requests, preferred delivery time, etc."
                 value={formData.notes}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
