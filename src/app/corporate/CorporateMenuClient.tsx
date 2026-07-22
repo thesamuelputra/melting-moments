@@ -42,6 +42,7 @@ export default function CorporateMenuClient({ menuItems }: { menuItems: MenuItem
       <div className="category-tabs">
         <button
           className={`category-tab ${filter === 'ALL' ? 'category-tab--active' : ''}`}
+          aria-pressed={filter === 'ALL'}
           onClick={() => setFilter('ALL')}
         >
           Complete Menu
@@ -50,6 +51,7 @@ export default function CorporateMenuClient({ menuItems }: { menuItems: MenuItem
           <button
             key={cat}
             className={`category-tab ${filter === cat ? 'category-tab--active' : ''}`}
+            aria-pressed={filter === cat}
             onClick={() => setFilter(cat)}
           >
             {formatCategoryName(cat)}

@@ -44,6 +44,7 @@ export default function GuidosMenuClient({ products }: { products: Product[] }) 
               <button
                 key={cat}
                 className="category-tab"
+                aria-pressed={isActive}
                 onClick={() => setActiveCategory(cat)}
                 style={{
                   color: isActive ? 'var(--g-ink)' : 'var(--g-ink-soft)',

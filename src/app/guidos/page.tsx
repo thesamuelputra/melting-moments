@@ -21,9 +21,9 @@ export const metadata: Metadata = {
 };
 
 const featuredProducts = [
-  { name: 'Beef Bolognese Lasagne', price: 'From $27', image: '/guidos/beef-bolognese-lasagne.webp' },
+  { name: 'Beef Bolognese Lasagne', price: 'From $27.00', image: '/guidos/beef-bolognese-lasagne.webp' },
   { name: 'Tiramisu Cans', price: 'From $9.95', image: '/guidos/tiramisu-cans.webp' },
-  { name: 'Turkey Pot Pie', price: '$9', image: '/guidos/turkey-pot-pie.webp' },
+  { name: 'Turkey Pot Pie', price: 'From $9.00', image: '/guidos/turkey-pot-pie.webp' },
 ];
 
 export default function GuidosPage() {
@@ -33,6 +33,11 @@ export default function GuidosPage() {
 
       {/* Hero: the brand lockup, spoken plainly on cream paper */}
       <section className="container" style={{ paddingTop: 'calc(80px + 4vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', textAlign: 'center' }}>
+        {/* The wordmark below is a decorative SVG, so carry the page heading in a
+            visually-hidden h1 for assistive tech and search engines. */}
+        <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}>
+          Guido&apos;s Gourmet, Ready-Made Italian Meals
+        </h1>
         <div className="g-eyebrow" style={{ marginBottom: '2rem' }}>Est. 2009 &middot; Victoria BC</div>
         <GuidosWordmark tagline="When your hunger speaks Italian!" style={{ margin: '0 auto' }} />
         <p style={{ marginTop: '1.75rem', fontSize: 'var(--text-body)', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--g-ink-soft)', fontWeight: 500 }}>

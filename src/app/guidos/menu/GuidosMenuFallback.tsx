@@ -86,9 +86,24 @@ export default function GuidosMenuFallback() {
             <div
               key={product.name}
               className={`g-card ${!product.isAvailable ? 'product-card--sold-out' : ''}`}
-              onClick={() => setExpandedProduct(expandedProduct === product.name ? null : product.name)}
-              style={{ cursor: 'pointer' }}
             >
+              <button
+                type="button"
+                aria-expanded={expandedProduct === product.name}
+                disabled={!product.isAvailable}
+                aria-disabled={!product.isAvailable}
+                onClick={() => setExpandedProduct(expandedProduct === product.name ? null : product.name)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  width: '100%',
+                  textAlign: 'inherit',
+                  cursor: 'pointer',
+                  font: 'inherit',
+                  color: 'inherit',
+                }}
+              >
               <div className="g-card__media">
                 <GuidosImage
                   src={product.image}
@@ -121,6 +136,7 @@ export default function GuidosMenuFallback() {
                 <span className="g-card__name">{product.name}</span>
                 <span className="g-card__price">From ${product.priceFrom.toFixed(2)}</span>
               </div>
+              </button>
 
               {/* Expanded detail stays in the DOM (CSS-collapsed, not
                   conditionally mounted) so every per-size price ships in the

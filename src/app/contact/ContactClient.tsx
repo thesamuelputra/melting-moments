@@ -135,6 +135,11 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
   // Format address for display (newline → <br>)
   const addressLines = contactInfo.address.split('\n');
 
+  // Earliest selectable event date, built from LOCAL date parts so the same
+  // day stays selectable in the evening (toISOString would roll to UTC).
+  const now = new Date();
+  const minDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
   return (
     <div>
       <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
@@ -146,7 +151,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
             <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 6vw, 6rem)', marginBottom: '3rem' }}>CONTACT</h1>
             <div style={{ display: 'grid', gap: '3rem' }}>
               <div>
-                <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>Mailing Address</h3>
+                <h2 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>Mailing Address</h2>
                 <p style={{ fontSize: 'var(--text-body)', opacity: 0.7, marginTop: '1rem', lineHeight: 1.6 }}>
                   {contactInfo.name}<br />
                   {contactInfo.businessName}<br />
@@ -154,7 +159,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 </p>
               </div>
               <div>
-                <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>Direct Line</h3>
+                <h2 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>Direct Line</h2>
                 <p style={{ fontSize: 'var(--text-body)', opacity: 0.7, marginTop: '1rem', lineHeight: 1.6 }}>
                   Ph: <a href={`tel:${contactInfo.phoneRaw}`} style={{ textDecoration: 'underline' }}>{contactInfo.phone}</a><br />
                   <a href={contactInfo.website} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>{contactInfo.website.replace(/^https?:\/\//, '')}</a><br />
@@ -162,7 +167,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 </p>
               </div>
               <div>
-                <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>Socials</h3>
+                <h2 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>Socials</h2>
                 <p style={{ fontSize: 'var(--text-body)', opacity: 0.7, marginTop: '1rem', lineHeight: 1.6 }}>
                   <a href="https://www.facebook.com/MeltingMomentsCatering" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>Facebook: Melting Moments Catering</a><br />
                   <a href="https://www.google.ca/maps/@48.4304115,-123.4182687,17z?hl=en" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>View Map Location</a>
@@ -204,11 +209,11 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <h2 className="noire-serif" tabIndex={-1} ref={(el) => { headingRefs.current[2] = el; }} style={{ marginBottom: '2rem' }}>Date &amp; Venue</h2>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Event Date</span>
-                  <input type="date" required min={new Date().toISOString().split('T')[0]} value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} style={inputStyle} />
+                  <input type="date" required min={minDate} value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} style={inputStyle} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Venue / Location (Optional)</span>
-                  <input type="text" placeholder="e.g. Victoria Conference Centre" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} style={inputStyle} />
+                  <input type="text" maxLength={300} placeholder="e.g. Victoria Conference Centre" value={formData.venue} onChange={(e) => setFormData({...formData, venue: e.target.value})} style={inputStyle} />
                 </label>
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
                   <button type="button" onClick={() => setStep(1)} className="btn-outline" style={{ flex: 1, padding: 'clamp(1rem, 2vw, 1.2rem) 1rem' }}>Back</button>
@@ -224,7 +229,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <input type="text" name="website" value={formData.website} onChange={(e) => setFormData({...formData, website: e.target.value})} style={{ display: 'none' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Full Name *</span>
-                  <input type="text" required autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={inputStyle} />
+                  <input type="text" required maxLength={200} autoComplete="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} style={inputStyle} />
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Email Address *</span>
@@ -236,7 +241,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Additional Details (Optional)</span>
-                  <textarea rows={4} placeholder="Dietary needs, theme preferences, budget range, etc." value={formData.details} onChange={(e) => setFormData({...formData, details: e.target.value})} style={{ ...inputStyle, resize: 'vertical' as const }} />
+                  <textarea rows={4} maxLength={2000} placeholder="Dietary needs, theme preferences, budget range, etc." value={formData.details} onChange={(e) => setFormData({...formData, details: e.target.value})} style={{ ...inputStyle, resize: 'vertical' as const }} />
                 </label>
                 {error && (
                   <div role="alert" style={{ padding: '1rem', backgroundColor: 'rgba(185,28,28,0.05)', border: '1px solid rgba(185,28,28,0.2)', color: '#B91C1C', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1rem', animation: 'fadeIn 0.3s ease' }}>
@@ -246,7 +251,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
                   <button type="button" onClick={() => setStep(2)} className="btn-outline" disabled={submitting} style={{ flex: 1, padding: 'clamp(1rem, 2vw, 1.2rem) 1rem' }}>Back</button>
                   <button type="submit" className="btn-solid" style={{ flex: 2, padding: 'clamp(1rem, 2vw, 1.2rem) 1rem', opacity: submitting ? 0.7 : 1, cursor: submitting ? 'wait' : 'pointer' }} disabled={submitting}>
-                    {submitting ? 'Sending…' : 'Request Quote'}
+                    {submitting ? 'Sending…' : 'Get a Quote'}
                   </button>
                 </div>
               </form>

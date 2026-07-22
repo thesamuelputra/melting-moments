@@ -142,6 +142,10 @@ export default function GlobalNav() {
   useEffect(() => {
     if (!isOpen) return;
 
+    // Capture the trigger now so the cleanup returns focus to the same node
+    // rather than reading a ref that may have changed by teardown time
+    const hamburger = hamburgerRef.current;
+
     // Lock body scroll while menu is open
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -166,7 +170,7 @@ export default function GlobalNav() {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = originalOverflow;
       // Return focus to the hamburger button when the menu closes
-      hamburgerRef.current?.focus();
+      hamburger?.focus();
     };
   }, [isOpen]);
 
@@ -327,7 +331,7 @@ export default function GlobalNav() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {cateringItems.map((item) => (
                   <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
-                    style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.5)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
+                    style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.62)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>
                 ))}
@@ -353,7 +357,7 @@ export default function GlobalNav() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {guidosItems.map((item) => (
                   <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
-                    style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.5)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
+                    style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.62)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>
                 ))}
@@ -379,7 +383,7 @@ export default function GlobalNav() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {aboutItems.map((item) => (
                   <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
-                    style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.5)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
+                    style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.62)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>
                 ))}
