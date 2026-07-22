@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import SessionExpiredToast from './SessionExpiredToast';
 import {
   ConfirmDialog,
+  SessionExpiredToast,
   SlidePanel,
   TextAreaField,
   useAutoRefresh,
@@ -51,6 +51,11 @@ const ARCHIVED_BADGE_STYLE: React.CSSProperties = { background: '#F3F4F6', color
 
 function isInquiryStatus(value: string): value is InquiryStatus {
   return (INQUIRY_STATUSES as readonly string[]).includes(value);
+}
+
+/** Human-readable label for a status enum value, falling back to the raw value. */
+function statusLabel(status: string): string {
+  return STATUS_OPTIONS.find((o) => o.value === status)?.label ?? status;
 }
 
 function formatAbsolute(iso: string): string {
@@ -154,7 +159,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
       );
       unmarkPending(id);
       if (res.success) {
-        toast.success(`Status set to ${status}`);
+        toast.success(`Status set to ${statusLabel(status)}`);
       } else {
         patchInquiry(id, previous);
         reportFailure(res, 'Failed to update status. Change reverted');
@@ -180,7 +185,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
       if (res.success) {
         // Reconcile with the authoritative status returned by the server.
         if (isInquiryStatus(res.restoredStatus)) patchInquiry(id, { status: res.restoredStatus });
-        toast.success(`Inquiry restored to ${res.restoredStatus}`);
+        toast.success(`Inquiry restored to ${statusLabel(res.restoredStatus)}`);
       } else {
         patchInquiry(id, previous);
         reportFailure(res, 'Failed to restore inquiry. Change reverted');
@@ -352,7 +357,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                     </td>
                     <td style={{ textTransform: 'capitalize' }}>{inq.eventType}</td>
                     <td>{inq.guestCount || '-'}</td>
-                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</td>
+                    <td>{inq.date ? new Date(inq.date + 'T00:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</td>
                     <td
                       style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.45)' }}
                       title={formatAbsolute(inq.submittedAt)}
@@ -546,7 +551,7 @@ export default function AdminInquiriesClient({ initialInquiries }: { initialInqu
                 <div className="admin-modal__field">
                   <div className="admin-modal__label">Event Date</div>
                   <div className="admin-modal__value">
-                    {selected.date ? new Date(selected.date).toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' }) : '-'}
+                    {selected.date ? new Date(selected.date + 'T00:00:00').toLocaleDateString('en-CA', { month: 'long', day: 'numeric', year: 'numeric' }) : '-'}
                   </div>
                 </div>
                 <div className="admin-modal__field">

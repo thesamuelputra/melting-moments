@@ -194,7 +194,7 @@ export default async function AdminDashboard() {
                       <span style={{ fontWeight: 500 }}>{inq.eventType}</span>
                       <div style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.1rem' }}>{inq.guestCount} guests</div>
                     </td>
-                    <td>{inq.date ? new Date(inq.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</td>
+                    <td>{inq.date ? new Date(inq.date + 'T00:00:00').toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</td>
                     <td style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.45)', whiteSpace: 'nowrap' }} title={formatAbsolute(inq.submittedAt)}>
                       {formatRelativeTime(inq.submittedAt)}
                     </td>
