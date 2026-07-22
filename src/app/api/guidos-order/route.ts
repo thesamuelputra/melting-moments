@@ -12,6 +12,7 @@ const FROM_ADDRESS = process.env.RESEND_FROM || 'onboarding@resend.dev';
 const clean = (s: string) => s.replace(/[\r\n\t]+/g, ' ').slice(0, 120);
 
 import { escapeHtml, isValidEmail } from '@/lib/sanitize';
+import { GUIDOS_DELIVERY_FEE, SITE } from '@/lib/seo';
 
 export async function POST(request: Request) {
   try {
@@ -21,6 +22,32 @@ export async function POST(request: Request) {
     if (body.website) {
        console.log('[Guidos Order API] Honeypot triggered, rejecting silently.');
        return NextResponse.json({ success: true, message: 'Order received.' });
+    }
+
+    // Authoritative rate limit, backed by Convex. The in-memory limiter in
+    // src/proxy.ts is per-isolate on Vercel, so it stays as a best-effort
+    // front line while this check is the one that holds globally. Fails
+    // open: a Convex outage must never block a real order.
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const ip =
+      forwardedFor?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+    try {
+      const rate = await fetchMutation(api.rateLimits.hit, {
+        adminSecret: process.env.ADMIN_PASSWORD!,
+        key: `order:${ip}`,
+        limit: 10,
+        windowMs: 60000,
+      });
+      if (!rate.allowed) {
+        return NextResponse.json(
+          { error: 'Too many requests' },
+          { status: 429, headers: { 'Retry-After': String(rate.retryAfterSeconds ?? 60) } }
+        );
+      }
+    } catch (rateLimitError) {
+      console.error('[Guidos Order API] Rate limit check failed, allowing request:', rateLimitError);
     }
 
     if (!body.name || !body.email || !body.phone || !body.items || !body.deliveryMethod) {
@@ -52,7 +79,7 @@ export async function POST(request: Request) {
     const eEmail = escapeHtml(email);
     const ePhone = escapeHtml(phone);
     const eItems = escapeHtml(items);
-    const eDeliveryMethod = deliveryMethod === 'delivery' ? `Delivery ($12.50) to ${escapeHtml(address)}` : 'Pickup at 614 Grenville Ave';
+    const eDeliveryMethod = deliveryMethod === 'delivery' ? `Delivery (${GUIDOS_DELIVERY_FEE}) to ${escapeHtml(address)}` : `Pickup at ${SITE.addressShort}`;
     const eNotes = escapeHtml(notes);
 
     // Persist to Convex database
@@ -70,7 +97,7 @@ export async function POST(request: Request) {
       try {
         const { error: ownerEmailError } = await resend!.emails.send({
           from: `Guido's Gourmet <${FROM_ADDRESS}>`,
-          to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
+          to: process.env.OWNER_EMAIL || SITE.email,
           replyTo: email,
           subject: `New Guido's Gourmet Order from ${clean(name)}`,
           html: `
@@ -117,11 +144,11 @@ export async function POST(request: Request) {
                   <pre style="white-space: pre-wrap; font-family: inherit; margin: 0.5rem 0;">${eItems}</pre>
                   <p style="margin: 0.5rem 0 0 0;"><strong>${eDeliveryMethod}</strong></p>
                 </div>
-                <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">If you have any questions, call us at <a href="tel:+12503852462" style="color: #070707;">250-385-2462</a>.</p>
+                <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">If you have any questions, call us at <a href="${SITE.phoneHref}" style="color: #070707;">${SITE.phoneDisplay}</a>.</p>
                 <p style="font-size: 1rem; line-height: 1.6; margin-top: 1.5rem;">Warm regards,<br/>Chef Paul Silletta<br/><span style="opacity: 0.5; font-size: 0.85rem;">Guido's Gourmet</span></p>
               </div>
               <div style="text-align: center; padding: 1.5rem 2rem; border-top: 1px solid #eee; font-size: 0.7rem; opacity: 0.4;">
-                614 Grenville Ave, Esquimalt, BC V9A 6L2 · 250-385-2462
+                ${SITE.addressFull} · ${SITE.phoneDisplay}
               </div>
             </div>
           `

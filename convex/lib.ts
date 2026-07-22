@@ -11,25 +11,15 @@ export function assertAdmin(secret: string | undefined): void {
   }
 }
 
-// Status enums, enforced at mutation args via v.union(v.literal(...)).
-// Schema fields stay v.string() so existing rows remain valid.
-export const INQUIRY_STATUSES = [
-  "new",
-  "contacted",
-  "booked",
-  "declined",
-  "archived",
-] as const;
-export type InquiryStatus = (typeof INQUIRY_STATUSES)[number];
-
-export const ORDER_STATUSES = [
-  "received",
-  "preparing",
-  "ready",
-  "delivered",
-  "picked_up",
-] as const;
-export type OrderStatus = (typeof ORDER_STATUSES)[number];
+// Status enums live in ./statuses so Next.js code can import them without
+// pulling in Convex server internals; re-exported here so existing convex
+// imports keep working.
+export {
+  INQUIRY_STATUSES,
+  ORDER_STATUSES,
+  type InquiryStatus,
+  type OrderStatus,
+} from "./statuses";
 
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
 const PRUNE_BATCH_SIZE = 25;

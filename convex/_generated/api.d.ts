@@ -16,7 +16,9 @@ import type * as guidosProducts from "../guidosProducts.js";
 import type * as inquiries from "../inquiries.js";
 import type * as lib from "../lib.js";
 import type * as menuItems from "../menuItems.js";
+import type * as rateLimits from "../rateLimits.js";
 import type * as seed from "../seed.js";
+import type * as statuses from "../statuses.js";
 import type * as testimonials from "../testimonials.js";
 
 import type {
@@ -34,7 +36,9 @@ declare const fullApi: ApiFromModules<{
   inquiries: typeof inquiries;
   lib: typeof lib;
   menuItems: typeof menuItems;
+  rateLimits: typeof rateLimits;
   seed: typeof seed;
+  statuses: typeof statuses;
   testimonials: typeof testimonials;
 }>;
 

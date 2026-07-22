@@ -38,6 +38,17 @@ export default defineSchema({
     value: v.string(),
   }).index("by_key", ["key"]),
 
+  // Fixed-window rate limit counters, keyed by "<route>:<ip>" (for example
+  // "contact:1.2.3.4"). Written only by rateLimits.hit, which the public API
+  // routes call server-side. This is the authoritative limiter; the
+  // in-memory one in src/proxy.ts is per-isolate on Vercel and only a
+  // best-effort front line. Stale rows are cleaned up opportunistically.
+  rateLimits: defineTable({
+    key: v.string(),
+    windowStart: v.float64(), // timestamp ms when the current window opened
+    count: v.float64(),       // requests seen in the current window
+  }).index("by_key", ["key"]),
+
   // FAQs (CMS-managed)
   faqs: defineTable({
     question: v.string(),

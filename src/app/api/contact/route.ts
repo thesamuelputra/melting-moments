@@ -12,6 +12,7 @@ const FROM_ADDRESS = process.env.RESEND_FROM || 'onboarding@resend.dev';
 const clean = (s: string) => s.replace(/[\r\n\t]+/g, ' ').slice(0, 120);
 
 import { escapeHtml, isValidEmail } from '@/lib/sanitize';
+import { SITE } from '@/lib/seo';
 
 export async function POST(request: Request) {
   try {
@@ -21,6 +22,32 @@ export async function POST(request: Request) {
     if (body.website) {
        console.log('[Contact API] Honeypot triggered, rejecting silently.');
        return NextResponse.json({ success: true, message: 'Inquiry received successfully.' });
+    }
+
+    // Authoritative rate limit, backed by Convex. The in-memory limiter in
+    // src/proxy.ts is per-isolate on Vercel, so it stays as a best-effort
+    // front line while this check is the one that holds globally. Fails
+    // open: a Convex outage must never block a real inquiry.
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const ip =
+      forwardedFor?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+    try {
+      const rate = await fetchMutation(api.rateLimits.hit, {
+        adminSecret: process.env.ADMIN_PASSWORD!,
+        key: `contact:${ip}`,
+        limit: 10,
+        windowMs: 60000,
+      });
+      if (!rate.allowed) {
+        return NextResponse.json(
+          { error: 'Too many requests' },
+          { status: 429, headers: { 'Retry-After': String(rate.retryAfterSeconds ?? 60) } }
+        );
+      }
+    } catch (rateLimitError) {
+      console.error('[Contact API] Rate limit check failed, allowing request:', rateLimitError);
     }
 
     if (!body.eventType || !body.name || !body.email) {
@@ -80,7 +107,7 @@ export async function POST(request: Request) {
         try {
           const { error: ownerEmailError } = await resend!.emails.send({
             from: `Melting Moments Catering <${FROM_ADDRESS}>`,
-            to: process.env.OWNER_EMAIL || 'info@meltingmoments.ca',
+            to: process.env.OWNER_EMAIL || SITE.email,
             replyTo: email,
             subject: `New Catering Inquiry: ${clean(eventType)} from ${clean(name)}`,
             html: `
@@ -130,11 +157,11 @@ export async function POST(request: Request) {
                   <p style="margin: 0.25rem 0;"><strong>Date:</strong> ${eDate || 'TBD'}</p>
                   ${eVenue ? `<p style="margin: 0.25rem 0;"><strong>Venue:</strong> ${eVenue}</p>` : ''}
                 </div>
-                <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">In the meantime, feel free to explore our <a href="https://meltingmoments.ca/menus" style="color: #070707;">full menus</a> or call us directly at <a href="tel:+12503852462" style="color: #070707;">250-385-2462</a>.</p>
+                <p style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">In the meantime, feel free to explore our <a href="https://meltingmoments.ca/menus" style="color: #070707;">full menus</a> or call us directly at <a href="${SITE.phoneHref}" style="color: #070707;">${SITE.phoneDisplay}</a>.</p>
                 <p style="font-size: 1rem; line-height: 1.6; margin-top: 1.5rem;">Warm regards,<br/>Chef Paul Silletta<br/><span style="opacity: 0.5; font-size: 0.85rem;">Melting Moments Catering</span></p>
               </div>
               <div style="text-align: center; padding: 1.5rem 2rem; border-top: 1px solid #eee; font-size: 0.7rem; opacity: 0.4;">
-                614 Grenville Ave, Esquimalt, BC V9A 6L2 · 250-385-2462
+                ${SITE.addressFull} · ${SITE.phoneDisplay}
               </div>
             </div>
           `
