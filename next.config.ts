@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   // Security headers are managed exclusively by src/proxy.ts to avoid
   // duplication. See proxy.ts addSecurityHeaders() for the full set
   // including CSP, X-Frame-Options, etc.
+  // Drop the x-powered-by: Next.js header (avoid advertising the stack).
+  poweredByHeader: false,
   async redirects() {
     return [
       // The gallery page was removed; send any stale links to the brand hub

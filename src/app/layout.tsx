@@ -22,11 +22,14 @@ const inter = Inter({
 });
 
 // Reserved strictly for Guido's taglines (the packaging's handwritten voice).
+// Not preloaded: only /guidos uses it, so preloading on every route wastes the
+// hint. It still loads on demand (display swap) when a Guido's page renders it.
 const dancingScript = Dancing_Script({
   subsets: ['latin'],
   weight: ['500', '600', '700'],
   variable: '--font-script',
   display: 'swap',
+  preload: false,
 });
 
 export const metadata: Metadata = {

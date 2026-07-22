@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Convex codegen output is not authored by us; linting it only surfaces
+    // unused eslint-disable warnings.
+    "convex/_generated/**",
   ]),
   {
     // Intentional sync/reset effects (hydration-safe year, close-menu-on-route

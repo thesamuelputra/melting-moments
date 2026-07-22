@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import { AREA_SERVED, BUSINESS_ID, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
@@ -40,11 +41,11 @@ export default function FamilyStyle() {
           GATHERED <br /> AT THE TABLE
         </h1>
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '16/9', marginBottom: '4rem' }}>
-          <Image src="/macro_roulade.webp" alt="Sliced pork roulade plated to share" fill sizes="100vw" style={{ objectFit: 'cover' }} />
+          <Image src="/macro_roulade.webp" alt="Sliced pork roulade plated to share" fill sizes="100vw" style={{ objectFit: 'cover' }} priority />
         </div>
       </header>
 
-      <section className="container" style={{ paddingTop: 'clamp(2rem, 4vw, 4rem)', paddingBottom: '8rem' }}>
+      <section className="container" style={{ paddingTop: 'clamp(2rem, 4vw, 4rem)', paddingBottom: 'clamp(3rem, 6vw, 5rem)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4rem' }}>
           <h2 className="noire-serif">Peasano Dinner</h2>
           <span className="menu-index">ITALIAN</span>
@@ -62,21 +63,30 @@ export default function FamilyStyle() {
 
         <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Pasta Di Casa</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Assorted Pasta Styles with Homemade Sauce</p></div></div>
         <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Insalata</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Fresh Arugula tossed with Olive Oil, Vinegar and Fresh Herbs</p></div></div>
-        <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Carne</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Roasted Chicken or Veal or Chicken Parmesan, Pan Fried and Topped with Tomato Sauce. (Optional add on Salmon or Beef Strip loin Add $2 per person)</p></div></div>
+        <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Carne</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Roasted Chicken or Veal or Chicken Parmesan, Pan Fried and Topped with Tomato Sauce. Optional add-on: salmon or beef striploin, add $2 per person.</p></div></div>
         <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Patate</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>Roasted Potatoes with Fresh Herbs</p></div></div>
         <div className="menu-grid-constraint"><div aria-hidden="true" /><div><h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Vegetali</h3><p style={{ fontSize: 'var(--text-body)', opacity: 0.6, lineHeight: 1.6, maxWidth: '45ch' }}>An Array of Fresh Roasted Vegetables</p></div></div>
 
         <div style={{ display: 'grid', gap: '1rem', marginTop: '4rem', padding: '2rem', border: '1px solid rgba(0,0,0,0.1)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <span className="noire-serif" style={{ fontSize: '1.5rem' }}>One Carne Option</span>
-                <span className="menu-price">$33.50 PP</span>
+                <span className="menu-price">$33.50 per person</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <span className="noire-serif" style={{ fontSize: '1.5rem' }}>Two Meat Options</span>
-                <span className="menu-price">$36.50 PP</span>
+                <span className="menu-price">$36.50 per person</span>
             </div>
             <p style={{ opacity: 0.5, fontSize: '0.9rem', marginTop: '1rem' }}>Use of plate charge required for this option. On average $3 per serving.</p>
         </div>
+      </section>
+
+      <section className="container" style={{ paddingBottom: 'clamp(6rem, 12vw, 10rem)', textAlign: 'center' }}>
+        <div className="noire-divider" style={{ marginBottom: 'clamp(3rem, 6vw, 5rem)' }} />
+        <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>Gather your table around a family-style dinner</h2>
+        <p style={{ fontSize: 'var(--text-body)', opacity: 0.7, maxWidth: '46ch', margin: '0 auto 2.5rem auto', lineHeight: 1.6 }}>
+          Share your date and guest count, and Chef Paul will build the menu around your table.
+        </p>
+        <Link href="/contact" className="btn-solid">Ask about a family-style dinner</Link>
       </section>
     </div>
   );

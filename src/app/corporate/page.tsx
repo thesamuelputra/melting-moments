@@ -61,7 +61,7 @@ export default async function Corporate() {
         </div>
 
         <div className="shape-editorial-tall" style={{ width: '100%', position: 'relative', aspectRatio: '16/9' }}>
-          <Image src="/catering_menu_hero.webp" alt="Three plated dishes on a steel service table" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
+          <Image src="/catering_menu_hero.webp" alt="Three plated dishes on a steel service table" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} priority />
         </div>
       </header>
 
