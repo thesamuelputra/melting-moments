@@ -44,7 +44,7 @@ Primary flows: catering quote request (`/contact` to `/api/contact`), Guido's or
 
 ## Executive summary
 
-The site is in strong shape: typecheck and build are clean, there are no crashes, no data-loss paths, no exposed secrets, security headers are present on the live alias, structured data is complete on every route, and a mobile sweep found no horizontal overflow and a Cumulative Layout Shift of 0 on the key pages. The exhaustive pass (six code and curl auditors plus a browser sweep, every P0/P1 adversarially verified) surfaced 49 findings and zero false positives. There were no P0s. One functional P1 was real and is fixed: the admin displayed every customer event date one day early because a date-only string was parsed as UTC and formatted in Pacific time, an operational hazard for a catering business. The other P1 is the known go-live item: every SEO signal points at meltingmoments.ca, which still serves the old site because the domain has not been cut over to this deployment. The remaining findings are P2 and P3: accessibility polish (a missing h1 on the Guido's hub, one skipped heading level, low-contrast mobile sub-links, filter buttons that did not expose their selected state), performance nits (a font preloaded site-wide but used only on Guido's, three hero images missing the priority hint, an LCP-deferring image fade), content and consistency issues (a confirmation email that contradicted the stated response time, inconsistent price formatting, a run-on menu line), and code-health items (a few duplicated helpers, one dead component, generated files being linted). Thirty-six were fixed mechanically in this pass; thirteen are flagged for a human decision in FOLLOWUPS.md (domain cutover, dependency CVEs, a handful of refactors, and design or content decisions).
+The site is in strong shape: typecheck and build are clean, there are no crashes, no data-loss paths, no exposed secrets, security headers are present on the live alias, structured data is complete on every route, and a mobile sweep found no horizontal overflow and a Cumulative Layout Shift of 0 on the key pages. The exhaustive pass (six code and curl auditors plus a browser sweep, every P0/P1 adversarially verified) surfaced 49 findings and zero false positives. There were no P0s. One functional P1 was real and is fixed: the admin displayed every customer event date one day early because a date-only string was parsed as UTC and formatted in Pacific time, an operational hazard for a catering business. The other P1 is the known go-live item: every SEO signal points at meltingmoments.ca, which still serves the old site because the domain has not been cut over to this deployment. The remaining findings are P2 and P3: accessibility polish (a missing h1 on the Guido's hub, one skipped heading level, low-contrast mobile sub-links, filter buttons that did not expose their selected state), performance nits (a font preloaded site-wide but used only on Guido's, three hero images missing the priority hint, an LCP-deferring image fade), content and consistency issues (a confirmation email that contradicted the stated response time, inconsistent price formatting, a run-on menu line), and code-health items (a few duplicated helpers, one dead component, generated files being linted). In two fix passes, 44 of the 50 findings are fixed and verified, including the dependency CVEs (sharp pinned to a patched build, npm audit now clean), a durable Convex-backed rate limiter to replace the per-isolate one, the NAP and delivery-fee single-sourcing, the shared admin-action and status modules, the memoized menu client, a purpose-built Guido's OG image, and an end to the missing-photo 400s. Six remain in FOLLOWUPS.md: three are intentional or accepted (the deliberate page-transition timing, benign React-hook lint warnings, a documented dormant table), and three are the owner's or an architectural call (the domain cutover, a spelling confirmation, and migrating the CSP off unsafe-inline).
 
 ## Findings
 
@@ -70,26 +70,26 @@ Status: `fixed` = corrected and verified in this pass; `flagged` = documented in
 | F16 | P3 | accessibility / images (WCAG 1.1.1 | GuidosImage announces its alt text twice until (or unless) the photo loads | src/components/GuidosImage.tsx:47-73 | fixed |
 | F17 | P3 | API routes / email delivery | A thrown Resend error after the lead is saved returns 500, producing duplicate submissions on re | src/app/api/contact/route.ts:80-135 (bubbles to catc | fixed |
 | F18 | P3 | Public forms / contact | Event-date `min` is computed in UTC, blocking same-day selection in the evening (Pacific time) | src/app/contact/ContactClient.tsx:207 | fixed |
-| F19 | P3 | Security / rate limiting | In-memory contact/order rate limiter is unreliable on the edge/serverless deployment | src/proxy.ts:66-99 | flagged |
+| F19 | P3 | Security / rate limiting | In-memory contact/order rate limiter is unreliable on the edge/serverless deployment | src/proxy.ts:66-99 | fixed |
 | F20 | P3 | Public forms / validation | No client-side maxLength on contact/order text fields; server silently truncates over-length inp | src/app/contact/ContactClient.tsx:227-239; src/app/g | fixed |
 | F21 | P3 | performance / images / LCP | GuidosImage renders its priority hero at opacity:0 and fades in on load, deferring the LCP paint | src/components/GuidosImage.tsx:61-73 (opacity:0 + fa | fixed |
-| F22 | P3 | performance / React re-renders | MenuClient recomputes derived arrays and re-subscribes the scroll listener on every render | src/app/menus/MenuClient.tsx:68-71, 117-140, 211-212 | flagged |
+| F22 | P3 | performance / React re-renders | MenuClient recomputes derived arrays and re-subscribes the scroll listener on every render | src/app/menus/MenuClient.tsx:68-71, 117-140, 211-212 | fixed |
 | F23 | P3 | performance / navigation latency | PageTransition adds a fixed ~300ms artificial delay to every internal navigation | src/components/PageTransition.tsx:14-58 (delay at 42 | flagged |
 | F24 | P3 | performance / CSS compositing | Persistent `will-change: transform` on always-mounted page-shutter panels | src/app/globals.css:797-803 (.page-shutter__panel),  | fixed |
 | F25 | P3 | lint / dead-config | 4 unused eslint-disable warnings come from convex/_generated (generated files that are being lin | eslint.config.mjs:10; convex/_generated/api.js:1 | fixed |
 | F26 | P3 | lint / react-hooks | 7 set-state-in-effect warnings are all benign, intentional patterns (not bugs) | eslint.config.mjs:16; src/components/Footer.tsx:11 | flagged |
-| F27 | P3 | duplicated-logic / drift | Admin order/inquiry status enums are re-declared in the Next actions instead of shared with the  | src/app/admin/guidos-orders/actions.ts:16; convex/li | flagged |
-| F28 | P3 | error-handling | Admin pages/layout call fetchQuery with no try/catch; a Convex outage crashes the admin section | src/app/admin/layout.tsx:21 | flagged |
+| F27 | P3 | duplicated-logic / drift | Admin order/inquiry status enums are re-declared in the Next actions instead of shared with the  | src/app/admin/guidos-orders/actions.ts:16; convex/li | fixed |
+| F28 | P3 | error-handling | Admin pages/layout call fetchQuery with no try/catch; a Convex outage crashes the admin section | src/app/admin/layout.tsx:21 | fixed |
 | F29 | P3 | hardcoded-values / tokens | AnnouncementBanner uses raw hex colors instead of the design-token CSS variables | src/components/AnnouncementBanner.tsx:41 | fixed |
 | F30 | P3 | dead-code | Dormant siteImages Convex table retained after media module removal (documented, no orphaned fun | convex/schema.ts:88 | flagged |
-| F31 | P3 | hardcoded-values / drift | Guido's delivery fee $12.50 is a bare literal in 8 files with no shared constant | src/app/api/guidos-order/route.ts:55 | flagged |
+| F31 | P3 | hardcoded-values / drift | Guido's delivery fee $12.50 is a bare literal in 8 files with no shared constant | src/app/api/guidos-order/route.ts:55 | fixed |
 | F32 | P3 | duplicated-logic / drift | SessionExpiredToast.tsx is duplicated byte-for-byte across three admin sections | src/app/admin/inquiries/SessionExpiredToast.tsx:1 | fixed |
 | F33 | P3 | dead-code | SkeletonRows component is exported from the admin barrel but never used | src/app/admin/_components/SkeletonRows.tsx:11 | fixed |
-| F34 | P3 | duplicated-logic | ensureAdmin helper and ActionResult type are copy-pasted across all admin actions files | src/app/admin/guidos-orders/actions.ts:20 | flagged |
+| F34 | P3 | duplicated-logic | ensureAdmin helper and ActionResult type are copy-pasted across all admin actions files | src/app/admin/guidos-orders/actions.ts:20 | fixed |
 | F35 | P3 | lint / react-hooks | exhaustive-deps ref-in-cleanup warning in GlobalNav is benign but has a safe fix | src/components/GlobalNav.tsx:169 | fixed |
 | F36 | P3 | security hardening | CSP allows 'unsafe-inline' in script-src (and style-src), weakening XSS defense | src/proxy.ts:119-120 | flagged |
 | F37 | P3 | branding / mobile UX | Global dark theme-color (#070707) applied to Guido's light cream-brand pages | src/app/layout.tsx:62-64 (no override in src/app/gui | fixed |
-| F38 | P3 | SEO / branding | Guido's pages use the Melting Moments OG image for social shares despite Guido's-specific alt te | src/app/guidos/page.tsx:19, src/app/guidos/menu/layo | flagged |
+| F38 | P3 | SEO / branding | Guido's pages use the Melting Moments OG image for social shares despite Guido's-specific alt te | src/app/guidos/page.tsx:19, src/app/guidos/menu/layo | fixed |
 | F39 | P3 | security / info disclosure | x-powered-by: Next.js header exposed on the live alias | next.config.ts:3 (nextConfig object; poweredByHeader | fixed |
 | F40 | P3 | Copy / possible spelling | "Peasano Dinner" is very likely a misspelling of "Paesano" | src/app/family-style/page.tsx:49 | flagged |
 | F41 | P3 | Copy / grammar | Family-Style "Carne" add-on line is a run-on with punctuation and casing errors | src/app/family-style/page.tsx:65 | fixed |
@@ -101,7 +101,7 @@ Status: `fixed` = corrected and verified in this pass; `flagged` = documented in
 | F47 | P3 | Formatting consistency (per-person | Per-person price suffix is written three different ways across public pages | src/app/family-style/page.tsx:72 | fixed |
 | F48 | P3 | Content consistency (service area) | Service-area metadata claims Tofino coverage; the page body does not | src/app/service-area/page.tsx:6 | fixed |
 | F49 | P3 | UI copy consistency (button labels | The quote form's submit button says "Request Quote" while every link to it says "Get a Quote" | src/app/contact/ContactClient.tsx:249 | fixed |
-| F50 | P3 | Network / content gap | Guido's pages fire 400s from /_next/image for product and hero photos that do not exist yet in public/guidos (placeholder shows, CLS 0, but failed requests and console noise on every Guido's view) | browser sweep: /guidos, /guidos/menu network tab | flagged |
+| F50 | P3 | Network / content gap | Guido's pages fire 400s from /_next/image for product and hero photos that do not exist yet in public/guidos (placeholder shows, CLS 0, but failed requests and console noise on every Guido's view) | browser sweep: /guidos, /guidos/menu network tab | fixed |
 
 ## Metrics (before to after)
 
@@ -115,8 +115,8 @@ Status: `fixed` = corrected and verified in this pass; `flagged` = documented in
 | CLS (menus, guidos, local) | 0 | 0 |
 | LCP local (menus / guidos) | 240ms / 64ms | comparable; three more heroes now carry the priority hint |
 | Console errors per route | analytics 404 (local only) + Guido's photo 400s | unchanged; photo 400s flagged as F50 (content gap) |
-| Findings | 49 raised, 0 false positives | 37 fixed, 13 flagged in FOLLOWUPS.md |
-| `npm audit` | 3 high (transitive) | unchanged; ticketed as DEP-1 in FOLLOWUPS.md |
+| Findings | 50 raised, 0 false positives | 44 fixed and verified; 6 remain (3 intentional/accepted, 3 owner or architectural) |
+| `npm audit` | 3 high (transitive) | 0 vulnerabilities (sharp pinned to 0.35.3 via override) |
 
 ## Assumptions and open questions
 
