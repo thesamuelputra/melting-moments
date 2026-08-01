@@ -144,7 +144,7 @@ export default function GuidosOrderPage() {
             <fieldset style={{ border: 'none', padding: 0, margin: 0, marginBottom: '1.5rem' }}>
               <legend style={labelStyle}>Delivery Method *</legend>
               <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)', padding: '0.6rem 0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)', padding: '0.6rem 0', minHeight: '44px' }}>
                   <input
                     type="radio"
                     name="deliveryMethod"
@@ -155,7 +155,7 @@ export default function GuidosOrderPage() {
                   />
                   Delivery ({GUIDOS_DELIVERY_FEE})
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)', padding: '0.6rem 0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: 'var(--text-body)', padding: '0.6rem 0', minHeight: '44px' }}>
                   <input
                     type="radio"
                     name="deliveryMethod"

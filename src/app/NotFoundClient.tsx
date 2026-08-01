@@ -4,6 +4,13 @@ import Link from 'next/link'
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 
+const linkStyle = {
+  textDecoration: 'underline',
+  display: 'flex',
+  alignItems: 'center',
+  minHeight: '44px',
+};
+
 export default function NotFoundClient() {
   const pathname = usePathname();
   const isGuidosPath = pathname?.startsWith('/guidos');
@@ -37,10 +44,13 @@ export default function NotFoundClient() {
           </Link>
         )}
       </div>
-      <div style={{ marginTop: '4rem', display: 'flex', gap: '2rem', opacity: 0.4, fontSize: 'var(--text-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-        <Link href="/menus" style={{ textDecoration: 'underline' }}>Catering</Link>
-        <Link href="/guidos" style={{ textDecoration: 'underline' }}>Ready-Made Meals</Link>
-        <Link href="/contact" style={{ textDecoration: 'underline' }}>Contact</Link>
+      {/* These are the way out for someone who is already lost, so they get a
+          full tap target and enough contrast to read: at 0.4 the ink came out
+          around 2.7:1 on bone, well under AA. */}
+      <div style={{ marginTop: '3rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', columnGap: '2rem', opacity: 0.7, fontSize: 'var(--text-micro)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <Link href="/menus" style={linkStyle}>Catering</Link>
+        <Link href="/guidos" style={linkStyle}>Ready-Made Meals</Link>
+        <Link href="/contact" style={linkStyle}>Contact</Link>
       </div>
     </div>
   )

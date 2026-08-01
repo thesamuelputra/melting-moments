@@ -484,7 +484,34 @@ footer :focus-visible,
   pointer-events: none;
 }
 
-/* Category filter tabs */
+/* Category filter tabs.
+   The tab rules sit above the mobile block below on purpose: both selectors
+   carry the same specificity, so whichever is written last wins. Declared
+   after it, the base padding here quietly cancelled the mobile tap target. */
+.category-tab {
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(17, 17, 17, 0.66); /* 0.4 failed WCAG contrast (2.6:1) */
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.category-tab:hover {
+  color: var(--clr-ink);
+}
+
+.category-tab--active {
+  color: var(--clr-ink);
+  border-bottom-color: var(--clr-ink);
+}
+
 .category-tabs {
   display: flex;
   gap: 2rem;
@@ -560,28 +587,38 @@ footer :focus-visible,
   }
 }
 
-.category-tab {
-  font-family: var(--font-sans);
-  font-size: var(--text-micro);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: rgba(17, 17, 17, 0.66); /* 0.4 failed WCAG contrast (2.6:1) */
-  background: none;
-  border: none;
-  border-bottom: 1px solid transparent;
-  padding: 0.5rem 0;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color 0.3s ease, border-color 0.3s ease;
+/* Footer sitemap. Desktop ranges the three groups right, against the giant
+   CTA. Declared here rather than down with the rest of the footer styling so
+   the mobile block below, which has the same specificity, actually wins. */
+.footer-nav { text-align: right; }
+.footer-nav__groups {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 2.5rem;
+  margin-bottom: 2rem;
 }
-
-.category-tab:hover {
-  color: var(--clr-ink);
+.footer-nav__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
 }
-
-.category-tab--active {
-  color: var(--clr-ink);
-  border-bottom-color: var(--clr-ink);
+.footer-nav__heading {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  opacity: 0.75;
+  margin-bottom: 0.3rem;
+}
+.footer-nav__legal {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+/* A11y: enlarge footer link tap targets to meet WCAG 2.2 AA target size (>=24px) */
+.footer-nav a {
+  display: inline-block;
+  padding: 8px 0;
 }
 
 /* ========================================================
@@ -658,9 +695,45 @@ footer :focus-visible,
     word-wrap: break-word;
   }
 
-  /* Center the footer on mobile */
+  /* The footer sitemap on a phone. Ranging the groups right and letting them
+     wrap put Catering and Guido's on one row and pushed Discover onto a
+     second, with the whole left half of the footer left empty and every link
+     landing on a different indent. Two even columns instead, reading left to
+     right, with the long Catering list running down the first one. */
   .footer-nav {
-    text-align: center !important;
+    text-align: left;
+  }
+  .footer-nav__groups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 2.5rem 1.5rem;
+  }
+  .footer-nav__group:first-child {
+    grid-row: span 2;
+  }
+  .footer-nav__group {
+    gap: 0;
+  }
+  /* Full 44px rows: the links were 31px tall and 7px apart, which is a hard
+     target to hit with a thumb. Only the ones that stand on their own line;
+     the address runs phone and email inline against a separator, and turning
+     those into blocks strands the separator on a line of its own. */
+  .footer-nav__groups a,
+  .footer-nav__legal a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+  }
+  /* 10px is fine for a tracked label, less so for something you have to read
+     and then aim at. */
+  .footer-nav__groups a {
+    font-size: 11px;
+  }
+  .footer-nav__legal {
+    justify-content: flex-start;
+    gap: 1.5rem;
   }
 
   /* Hero brand lockup stacks vertically on mobile */
@@ -936,13 +1009,6 @@ footer :focus-visible,
   border-bottom-color: var(--clr-ink);
 }
 
-/* A11y: enlarge footer link tap targets to meet WCAG 2.2 AA target size (>=24px) */
-.footer-nav a {
-  display: inline-block;
-  padding: 8px 0;
-}
-
-
 /* ========================================================
    GUIDO'S GOURMET  ·  scoped sub-brand identity
    Warm cream paper, the Italian tricolour as a hairline
@@ -1095,6 +1161,10 @@ footer :focus-visible,
   font-size: 1.25rem;
   line-height: 1.15;
   color: var(--g-ink);
+  /* A flex item will not shrink below its own content unless told to, so a
+     long name shouldered the nowrap price out through the card's
+     overflow: hidden and the price vanished off the edge. */
+  min-width: 0;
 }
 .g-card__price {
   font-family: var(--font-sans);
@@ -1103,6 +1173,17 @@ footer :focus-visible,
   letter-spacing: 0.04em;
   color: var(--g-gold);
   white-space: nowrap;
+}
+
+/* Two cards to a row leaves each body about 165px wide: too narrow to seat a
+   serif name and a price on one line without the name breaking into a column
+   of single words. Give each its own line instead. */
+@media (max-width: 600px) {
+  .g-card__body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
 }
 
 /* Buttons recoloured to the Guido's palette (geometry unchanged) */

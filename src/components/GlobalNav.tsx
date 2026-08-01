@@ -160,17 +160,44 @@ export default function GlobalNav() {
     return () => observer.disconnect();
   }, []);
 
+  // Set whenever the menu is closing because the visitor is leaving the page,
+  // so the scroll-lock teardown below knows not to put the old scroll position
+  // back. Tracked at the point of the click rather than inferred from the path,
+  // which has not always changed yet by the time the teardown runs.
+  const leavingPage = useRef(false);
+  const closeForNavigation = () => {
+    leavingPage.current = true;
+    setIsOpen(false);
+  };
+
   // Focus trap, Escape handling, focus return, and body scroll lock for the mobile nav
   useEffect(() => {
     if (!isOpen) return;
+
+    // Opening is the start of a fresh session with the panel: whatever closed
+    // it last time, and the route effect's run on mount, do not carry over.
+    leavingPage.current = false;
 
     // Capture the trigger now so the cleanup returns focus to the same node
     // rather than reading a ref that may have changed by teardown time
     const hamburger = hamburgerRef.current;
 
-    // Lock body scroll while menu is open
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    // Lock body scroll while the menu is open. iOS Safari ignores
+    // overflow: hidden on the body and keeps scrolling the page behind the
+    // panel, so pin the body instead and put the page back where it was on
+    // the way out.
+    const scrollTop = window.scrollY;
+    const body = document.body;
+    const prev = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollTop}px`;
+    body.style.width = '100%';
 
     // Move focus to the first focusable element inside the panel
     const firstFocusable = mobileNavRef.current?.querySelector<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])');
@@ -190,7 +217,19 @@ export default function GlobalNav() {
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = originalOverflow;
+      body.style.overflow = prev.overflow;
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      // Unpinning is not neutral: the browser puts back the offset the
+      // document had before it was pinned, and this teardown runs after
+      // PageTransition has sent a new page to the top, so leaving it alone
+      // drags that page back down. Always state the position outright, the one
+      // the visitor was reading at when they stay, the top when they leave.
+      // Instant, since a smooth scroll would animate the page under the
+      // closing panel.
+      window.scrollTo(0, leavingPage.current ? 0 : scrollTop);
+      leavingPage.current = false;
       // Return focus to the hamburger button when the menu closes
       hamburger?.focus();
     };
@@ -214,8 +253,11 @@ export default function GlobalNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isHomepage]);
 
-  // Close mobile menu on route change
+  // Close mobile menu on route change. Catches the ways out of the panel that
+  // are not one of its own links, the wordmark and the back button among them,
+  // so those do not restore the previous page's scroll either.
   useEffect(() => {
+    leavingPage.current = true;
     setIsOpen(false);
     setMobileCateringOpen(false);
     setMobileGuidosOpen(false);
@@ -278,7 +320,10 @@ export default function GlobalNav() {
               style={{ position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%', opacity: scrolled ? 1 : 0, transition: 'opacity 0.4s ease' }}
             />
           )}
-          <Link href="/" aria-label="Melting Moments home" style={{ fontWeight: 600, letterSpacing: '-0.02em', zIndex: 10001, fontSize: '0.85rem' }}>Melting Moments</Link>
+          {/* The wordmark is the way home from every page, so it gets a full
+              tap target. The bar already stands 61px tall, so growing the link
+              to 44px inside it costs no layout. */}
+          <Link href="/" aria-label="Melting Moments home" style={{ fontWeight: 600, letterSpacing: '-0.02em', zIndex: 10001, fontSize: '0.85rem', display: 'flex', alignItems: 'center', minHeight: '44px', marginTop: '-12px', marginBottom: '-12px' }}>Melting Moments</Link>
 
           {/* Desktop Navigation */}
           <div className="nav-links-desktop" style={{ display: 'flex', gap: '2rem', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', alignItems: 'center' }}>
@@ -363,7 +408,7 @@ export default function GlobalNav() {
             {mobileCateringOpen && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {cateringItems.map((item) => (
-                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
+                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={closeForNavigation}
                     style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.62)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>
@@ -389,7 +434,7 @@ export default function GlobalNav() {
             {mobileGuidosOpen && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {guidosItems.map((item) => (
-                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
+                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={closeForNavigation}
                     style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.62)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>
@@ -415,7 +460,7 @@ export default function GlobalNav() {
             {mobileAboutOpen && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '0.5rem' }}>
                 {aboutItems.map((item) => (
-                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={() => setIsOpen(false)}
+                  <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} onClick={closeForNavigation}
                     style={{ fontSize: '1rem', fontFamily: 'var(--font-sans)', color: 'rgba(0,0,0,0.62)', padding: '0.5rem 0', letterSpacing: '0.04em' }}>
                     {item.label}
                   </Link>
@@ -424,8 +469,8 @@ export default function GlobalNav() {
             )}
 
             <div className="spacer-large" style={{ margin: '0.75rem 0' }}><div className="noire-divider"></div></div>
-            <Link href="/contact" onClick={() => setIsOpen(false)} style={{ padding: '0.75rem 0' }}>Contact</Link>
-            <Link href={ctaHref} onClick={() => setIsOpen(false)} className="btn-solid" style={{ minHeight: 'auto', marginTop: '1rem', padding: '1rem 3rem', fontSize: '1rem', fontFamily: 'var(--font-sans)' }}>{ctaLabel}</Link>
+            <Link href="/contact" onClick={closeForNavigation} style={{ padding: '0.75rem 0' }}>Contact</Link>
+            <Link href={ctaHref} onClick={closeForNavigation} className="btn-solid" style={{ minHeight: 'auto', marginTop: '1rem', padding: '1rem 3rem', fontSize: '1rem', fontFamily: 'var(--font-sans)' }}>{ctaLabel}</Link>
           </div>
         </div>
       )}

@@ -45,10 +45,10 @@ export default function Footer() {
                 </Link>
               )}
             </div>
-            <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.72)', textAlign: 'right' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '2.5rem', marginBottom: '2rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.65rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Catering</div>
+            <div className="menu-index footer-nav" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                <div className="footer-nav__groups">
+                    <div className="footer-nav__group">
+                        <div className="footer-nav__heading">Catering</div>
                         <Link href="/catering">Overview</Link>
                         <Link href="/menus">Menus</Link>
                         <Link href="/weddings">Weddings</Link>
@@ -57,14 +57,14 @@ export default function Footer() {
                         <Link href="/family-style">Family Style</Link>
                         <Link href="/fountains">Fountains</Link>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.65rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Guido&apos;s</div>
+                    <div className="footer-nav__group">
+                        <div className="footer-nav__heading">Guido&apos;s</div>
                         <Link href="/guidos">About</Link>
                         <Link href="/guidos/menu">Menu</Link>
                         <Link href="/guidos/order">Order</Link>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <div style={{ fontSize: '0.65rem', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '0.3rem' }}>Discover</div>
+                    <div className="footer-nav__group">
+                        <div className="footer-nav__heading">Discover</div>
                         <Link href="/about">About Us</Link>
                         <Link href="/chef-paul">Chef Paul</Link>
                         <Link href="/testimonials">Testimonials</Link>
@@ -79,7 +79,7 @@ export default function Footer() {
                 <div style={{ marginBottom: '0.75rem', fontSize: '0.75rem' }}>
                     Consultations &amp; tastings by appointment
                 </div>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginBottom: '1rem', fontSize: '0.75rem' }}>
+                <div className="footer-nav__legal" style={{ fontSize: '0.75rem' }}>
                     <Link href="/privacy">Privacy</Link>
                     <Link href="/terms">Terms</Link>
                 </div>

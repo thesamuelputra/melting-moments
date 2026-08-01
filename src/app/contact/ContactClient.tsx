@@ -21,14 +21,17 @@ function CustomSelect({ options, value, onChange, placeholder, labelId, required
   const listboxId = `${baseId}-listbox`;
   const optionId = (idx: number) => `${baseId}-option-${idx}`;
 
+  // pointerdown rather than mousedown: a tap only produces the mouse event as
+  // a courtesy afterwards, and not on every element, so on a phone the list
+  // could stay open behind whatever the visitor tapped next.
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: Event) {
       if (ref.current && !ref.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('pointerdown', handleClickOutside);
+    return () => document.removeEventListener('pointerdown', handleClickOutside);
   }, [ref]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -93,10 +96,16 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
   });
 
   const headingRefs = useRef<Record<number, HTMLHeadingElement | null>>({});
-  const isInitialMount = useRef(true);
+  const focusedStep = useRef(step);
 
+  // Move focus to the new step's heading so the change is announced. Keyed off
+  // the step actually changing rather than a ran-once flag: React runs effects
+  // twice in development, which flipped that flag and then focused the heading
+  // on arrival, and focus() scrolls, so landing on this page jumped it down
+  // past the intro.
   useEffect(() => {
-    if (isInitialMount.current) { isInitialMount.current = false; return; }
+    if (focusedStep.current === step) return;
+    focusedStep.current = step;
     headingRefs.current[step]?.focus();
   }, [step]);
 
