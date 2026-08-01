@@ -701,9 +701,12 @@
   background: rgba(0,0,0,0.02);
 }
 
-/* CSS custom property for sidebar width, used by the sticky save bar */
+/* CSS custom property for sidebar width, used by the sticky save bar.
+   --admin-actionbar-height is published at runtime by screens that render a
+   fixed bottom action bar, so the toast stack can clear it. */
 :root {
   --admin-sidebar-width: 240px;
+  --admin-actionbar-height: 0px;
 }
 
 /* Responsive dashboard two-column */
@@ -759,11 +762,15 @@
 }
 
 /* ===== Toasts ===== */
+/* Lifted clear of the sticky save bar, which shares this corner and sits
+   under the toasts. The height is published by whichever screen renders that
+   bar and collapses to 0 when it is gone. */
 .admin-toast-stack {
   position: fixed;
   right: 1.25rem;
-  bottom: 1.25rem;
+  bottom: calc(1.25rem + var(--admin-actionbar-height, 0px));
   z-index: 400;
+  transition: bottom 0.2s ease;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

@@ -9,6 +9,16 @@ export default function PageTransition({ children }: { children: React.ReactNode
   const [shutterActive, setShutterActive] = useState(false);
   const isNavigating = useRef(false);
   const prevPathname = useRef(pathname);
+  const cameFromHistory = useRef(false);
+
+  // history.scrollRestoration is 'auto', so the browser puts a back/forward
+  // navigation back where the visitor left it. Note which navigations are
+  // pops so the jump-to-top below does not race that.
+  useEffect(() => {
+    const notePop = () => { cameFromHistory.current = true; };
+    window.addEventListener('popstate', notePop);
+    return () => window.removeEventListener('popstate', notePop);
+  }, []);
 
   // Intercept internal link clicks before Next.js handles them
   useEffect(() => {
@@ -24,6 +34,11 @@ export default function PageTransition({ children }: { children: React.ReactNode
 
       // Skip if same page or mid-transition
       if (href === pathname || isNavigating.current) return;
+
+      // A followed link is a fresh push, wherever the visitor has been before.
+      // Cleared here rather than below, because the reduced-motion path returns
+      // early and still navigates.
+      cameFromHistory.current = false;
 
       // Respect reduced motion: skip the shutter entirely and let Next.js
       // navigate instantly (no preventDefault, no artificial delay).
@@ -57,11 +72,15 @@ export default function PageTransition({ children }: { children: React.ReactNode
     return () => document.removeEventListener('click', handleClick, true);
   }, [pathname, router]);
 
-  // Scroll to top when route changes
+  // A new page starts at the top. Going back does not: that lands the visitor
+  // where they were, which is the whole point of going back, so leave the
+  // browser's own restoration alone rather than fighting it to zero.
   useEffect(() => {
     if (pathname !== prevPathname.current) {
       prevPathname.current = pathname;
-      window.scrollTo(0, 0);
+      const wasPop = cameFromHistory.current;
+      cameFromHistory.current = false;
+      if (!wasPop) window.scrollTo(0, 0);
     }
   }, [pathname]);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { saveSiteContent } from './actions';
 import { TextAreaField, TextField, useDirtyGuard, useToast } from '../_components';
@@ -207,7 +207,30 @@ export default function AdminContentClient({ initialContent }: { initialContent:
   const [isPending, startTransition] = useTransition();
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [saveBar, setSaveBar] = useState<HTMLDivElement | null>(null);
   const toast = useToast();
+
+  // Publish the save bar's height so the toast stack can sit above it. Toasts
+  // are anchored to the same bottom-right corner as Save, and they outrank it,
+  // so without this a toast lands on top of the button you just pressed and
+  // blocks the next press.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!saveBar) {
+      root.style.setProperty('--admin-actionbar-height', '0px');
+      return;
+    }
+    const publish = () => {
+      root.style.setProperty('--admin-actionbar-height', `${Math.ceil(saveBar.getBoundingClientRect().height)}px`);
+    };
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(saveBar);
+    return () => {
+      observer.disconnect();
+      root.style.setProperty('--admin-actionbar-height', '0px');
+    };
+  }, [saveBar]);
 
   const dirtyKeys = useMemo(
     () => ALL_FIELDS.map((f) => f.key).filter((k) => content[k] !== baseline[k]),
@@ -391,7 +414,7 @@ export default function AdminContentClient({ initialContent }: { initialContent:
 
       {/* Sticky Save Bar */}
       {dirty && (
-        <div style={{
+        <div ref={setSaveBar} style={{
           position: 'fixed',
           bottom: 0,
           left: 'var(--admin-sidebar-width, 240px)',
