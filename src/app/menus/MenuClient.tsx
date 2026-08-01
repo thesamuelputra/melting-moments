@@ -21,6 +21,24 @@ type MenuItem = {
 const INCLUDED_LABEL = 'Included';
 const isIncluded = (label: string) => label.trim().toLowerCase() === INCLUDED_LABEL.toLowerCase();
 
+/**
+ * Bottom edge of the fixed chrome in viewport coordinates: the announcement
+ * banner, the nav, and the pinned rail where it is showing. Both the anchor
+ * jump and the scroll-spy reading line measure from this, so a jump always
+ * lands below the bar and lights the section it jumped to, whatever the
+ * banner and nav happen to measure.
+ */
+function chromeBottom(rail: HTMLElement | null): number {
+  const root = getComputedStyle(document.documentElement);
+  const num = (name: string, fallback: number) =>
+    parseFloat(root.getPropertyValue(name)) || fallback;
+  const railHeight =
+    rail && getComputedStyle(rail).display !== 'none'
+      ? rail.getBoundingClientRect().height
+      : 0;
+  return num('--banner-height', 0) + num('--nav-height', 61) + railHeight;
+}
+
 export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { menuItems: MenuItem[]; disclaimer: string; categoryOrder?: string[] }) {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -28,6 +46,9 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 600);
+    // Reconcile with where the page actually loaded, so a restored or
+    // deep-linked position still gets the control
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -116,29 +137,30 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
     const el = document.getElementById(sectionId(cat));
     if (el) {
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const rail = railRef.current;
-      const railPinned = rail && getComputedStyle(rail).display !== 'none';
-      const offset = railPinned ? rail.getBoundingClientRect().height + 63 + 16 : 100;
-      const banner = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--banner-height')) || 0;
-      const top = el.getBoundingClientRect().top + window.scrollY - offset - banner;
+      // Land the header a consistent 16px below the bar rather than under it
+      const offset = chromeBottom(railRef.current) + 16;
+      const top = el.getBoundingClientRect().top + window.scrollY - offset;
       window.scrollTo({ top, behavior: prefersReduced ? 'auto' : 'smooth' });
     }
   };
 
   // Scroll-spy: the active section is the last header at or above the reading
-  // line (140px under the fixed nav), so exactly one chip/index entry is lit
-  // even mid-section. Drives the sticky index (desktop) and the rail (mobile).
+  // line, so exactly one chip/index entry is lit even mid-section. Drives the
+  // sticky index (desktop) and the rail (mobile). The line sits just under the
+  // chrome, which is where a tapped jump parks its header, so the section you
+  // jumped to is the one that lights up.
   // rAF-throttled; setState with an unchanged value is a no-op re-render-wise.
   useEffect(() => {
     const ids = availableCategories.map(cat => sectionId(cat));
     let ticking = false;
     const update = () => {
       ticking = false;
+      const readingLine = chromeBottom(railRef.current) + 30;
       let current: string | null = null;
       for (const id of ids) {
         const el = document.getElementById(id);
         if (!el) continue;
-        if (el.getBoundingClientRect().top <= 140) current = id;
+        if (el.getBoundingClientRect().top <= readingLine) current = id;
         else break; // sections are in DOM order; the rest are below the line
       }
       setActiveSection(current ?? ids[0] ?? null);
@@ -199,7 +221,7 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
       >
         {/* STICKY CATEGORY INDEX (desktop only) */}
         {isDesktop && (
-          <nav aria-label="Menu sections" style={{ position: 'sticky', top: '100px', alignSelf: 'start' }}>
+          <nav aria-label="Menu sections" style={{ position: 'sticky', top: 'calc(var(--banner-height) + var(--nav-height) + 20px)', alignSelf: 'start' }}>
             <div className="menu-index" style={{ marginBottom: '1.5rem' }}>Sections</div>
             <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               {availableCategories.map((cat, i) => {
@@ -236,7 +258,7 @@ export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { m
               <div key={cat} style={{ animation: 'fadeIn 0.5s ease forwards' }}>
                 <div
                   id={sectionId(cat)}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: allIncluded ? '1.5rem' : '3rem', marginTop: showTopBorder ? '4rem' : 0, borderTop: showTopBorder ? '1px solid var(--clr-charcoal)' : 'none', paddingTop: showTopBorder ? '3rem' : 0, scrollMarginTop: 'calc(var(--banner-height, 0px) + 130px)' }}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: allIncluded ? '1.5rem' : '3rem', marginTop: showTopBorder ? '4rem' : 0, borderTop: showTopBorder ? '1px solid var(--clr-charcoal)' : 'none', paddingTop: showTopBorder ? '3rem' : 0, scrollMarginTop: 'calc(var(--banner-height) + var(--nav-height) + var(--menu-rail-height) + 16px)' }}
                 >
                   <h2 className="noire-serif" style={{ color: 'var(--clr-ink)' }}>{formatCategoryName(cat)}</h2>
                   <span className="menu-index">{String(groupIdx + 1).padStart(2, '0')}</span>

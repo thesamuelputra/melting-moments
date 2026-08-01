@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 type BannerData = {
@@ -13,6 +14,7 @@ type BannerData = {
 export default function AnnouncementBanner({ data }: { data: BannerData }) {
   const [dismissed, setDismissed] = useState(false);
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
+  const isGuidosPage = usePathname().startsWith('/guidos');
 
   useEffect(() => {
     // Respect session dismissal
@@ -21,14 +23,24 @@ export default function AnnouncementBanner({ data }: { data: BannerData }) {
   }, [data.text]);
 
   useEffect(() => {
-    // Tell the nav how tall the banner is via a CSS custom property
-    if (ref && !dismissed) {
+    // Tell the nav and the sticky rails how tall the banner is via a CSS
+    // custom property. Observed rather than measured once: the message wraps
+    // to a different number of lines on rotation and on narrow phones, and it
+    // reflows again when the webfont swaps in, and everything below is pinned
+    // to this number.
+    if (!ref || dismissed) {
+      document.documentElement.style.setProperty('--banner-height', '0px');
+      return;
+    }
+    const publish = () => {
       const height = ref.getBoundingClientRect().height;
       document.documentElement.style.setProperty('--banner-height', `${height}px`);
-    } else {
-      document.documentElement.style.setProperty('--banner-height', '0px');
-    }
+    };
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(ref);
     return () => {
+      observer.disconnect();
       document.documentElement.style.setProperty('--banner-height', '0px');
     };
   }, [ref, dismissed]);
@@ -40,7 +52,11 @@ export default function AnnouncementBanner({ data }: { data: BannerData }) {
     // Navy ground and light gold have no equivalent palette token, so they stay
     // as literals to keep the accent banner visually identical.
     accent: { bg: '#1a1a2e', color: '#E2C992' },
-    light: { bg: 'var(--clr-bone)', color: 'var(--clr-ink)' },
+    // The light style is the one that borrows the page's own paper, so it
+    // follows the section the visitor is in the way the nav and footer do.
+    light: isGuidosPage
+      ? { bg: 'var(--g-cream)', color: 'var(--g-ink)' }
+      : { bg: 'var(--clr-bone)', color: 'var(--clr-ink)' },
   };
   const { bg, color } = bgMap[data.style] || bgMap.dark;
 

@@ -137,6 +137,28 @@ export default function GlobalNav() {
   const isContactPage = pathname === '/contact';
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+
+  // Publish the bar's real height as --nav-height so the sticky sub-bars (the
+  // menus rail, the Guido's category filters) can pin flush underneath it.
+  // That height depends on the loaded font, so it is measured rather than
+  // assumed; a hardcoded guess left a hairline of the page showing through
+  // between the two bars, and scrolling text sliced through the seam.
+  // Floored, so the sub-bar overlaps by a sub-pixel rather than ever gapping.
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const publish = () => {
+      const height = Math.floor(el.getBoundingClientRect().height);
+      document.documentElement.style.setProperty('--nav-height', `${height}px`);
+    };
+    publish();
+    // Re-measure on font swap, viewport change, and the mobile browser's
+    // collapsing address bar
+    const observer = new ResizeObserver(publish);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Focus trap, Escape handling, focus return, and body scroll lock for the mobile nav
   useEffect(() => {
@@ -178,20 +200,19 @@ export default function GlobalNav() {
     const handleScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 50);
-      // On homepage, navbar appears after scrolling past 15vh for quicker access
-      if (isHomepage && !visible) {
-        if (y > window.innerHeight * 0.15) {
-          setVisible(true);
-        }
-      }
+      // On the homepage the bar stays out of the way over the hero and arrives
+      // once the visitor is past it; everywhere else it is always there.
+      // Derived rather than latched, so coming back to / at the top hides it
+      // again instead of leaving ink links over the dark hero photo.
+      setVisible(!isHomepage || y > window.innerHeight * 0.15);
     };
-    // On subpages, always visible
-    if (!isHomepage) {
-      setVisible(true);
-    }
+    // Reconcile with the position the page actually loaded at. Without this a
+    // reload partway down, a #hash landing, or a restored scroll position
+    // paints the bar in its scroll-0 state: transparent, over body text.
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHomepage, visible]);
+  }, [isHomepage]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -218,17 +239,27 @@ export default function GlobalNav() {
   return (
     <>
       <nav
+        ref={navRef}
         className={`global-nav${isGuidosPage ? ' brand-guidos' : ''}`}
         aria-label="Main navigation"
         style={{
           color: isGuidosPage ? 'var(--g-ink)' : 'var(--clr-ink)',
-          backgroundColor: scrolled ? (isGuidosPage ? 'var(--g-cream)' : 'var(--clr-bone)') : 'transparent',
-          borderBottom: scrolled && !isGuidosPage ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
+          // Opaque while the menu is open as well as when scrolled: the bar
+          // floats over the panel, so a transparent one would be an invisible
+          // strip that swallows taps and lets the menu's own list scroll up
+          // behind it.
+          backgroundColor:
+            scrolled || isOpen ? (isGuidosPage ? 'var(--g-cream)' : 'var(--clr-bone)') : 'transparent',
+          borderBottom: scrolled && !isOpen && !isGuidosPage ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
           position: 'fixed',
           top: 'var(--banner-height, 0px)',
           left: 0,
           right: 0,
-          zIndex: 9999,
+          // Above the mobile panel (10000), below the banner (10005). A fixed
+          // element with a z-index makes its own stacking context, so the
+          // close button and wordmark inside this bar cannot rise above the
+          // panel on their own: the whole bar has to sit on top.
+          zIndex: 10001,
           padding: '1.25rem clamp(1.5rem, 5vw, 4rem)',
           display: 'flex',
           justifyContent: 'space-between',
@@ -302,7 +333,9 @@ export default function GlobalNav() {
             bottom: 0,
             backgroundColor: isGuidosPage ? 'var(--g-cream)' : 'var(--clr-bone)',
             zIndex: 10000,
-            padding: '7rem 2rem 2rem 2rem',
+            // Start the list clear of the bar floating above it, whatever the
+            // banner and the bar actually measure
+            padding: 'calc(var(--banner-height) + var(--nav-height) + 3rem) 2rem 2rem 2rem',
             opacity: isOpen ? 1 : 0,
             visibility: isOpen ? 'visible' : 'hidden',
             pointerEvents: isOpen ? 'auto' : 'none',

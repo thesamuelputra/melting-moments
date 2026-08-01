@@ -22,6 +22,18 @@
   --text-secondary: clamp(1.2rem, 3vw, 2.5rem);
   --text-body: clamp(14px, 1.2vw, 16px);
   --text-micro: clamp(10px, 0.8vw, 11px);
+
+  /* Fixed chrome, measured at runtime and republished onto the document
+     element: --banner-height by AnnouncementBanner, --nav-height by GlobalNav.
+     The values below are the server-render defaults, correct for the current
+     type; the measured values take over on hydration. Sticky sub-bars pin
+     against these instead of hardcoding a height that the font decides. */
+  --banner-height: 0px;
+  --nav-height: 61px;
+  /* Height of the pinned menus rail, which only exists on narrow viewports.
+     Declared in CSS rather than measured so a plain #section link lands in
+     the right place before any JavaScript has run. */
+  --menu-rail-height: 0px;
 }
 
 /* Absolute Resets */
@@ -36,6 +48,13 @@ body {
   line-height: 1.5;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+/* The announcement banner is fixed, so it takes no room in the flow. Reserve
+   it here once instead of asking every page's top padding to know about it;
+   it collapses to nothing whenever the banner is off or dismissed. */
+#main-content {
+  padding-top: var(--banner-height);
 }
 
 /* ========================================================
@@ -325,16 +344,18 @@ footer :focus-visible,
   outline-color: var(--clr-bone) !important;
 }
 
+/* Above the announcement banner (10005), and pushed clear of it on focus, so
+   the first Tab lands on something the visitor can actually see. */
 .skip-nav {
-  position: absolute;
+  position: fixed;
   top: -100%;
   left: 0;
-  z-index: 10000;
+  z-index: 10010;
   padding: 1rem 2rem;
   background: var(--clr-ink);
   color: var(--clr-bone);
 }
-.skip-nav:focus { top: 0; }
+.skip-nav:focus { top: var(--banner-height); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -474,19 +495,20 @@ footer :focus-visible,
 }
 .category-tabs::-webkit-scrollbar { display: none; }
 
-/* Mobile: keep the filter rail reachable while browsing. Full-bleed,
-   pinned just under the fixed nav, frosted so content scrolls beneath */
+/* Mobile: keep the filter rail reachable while browsing. Full-bleed and
+   pinned flush under the fixed nav, so the two read as one bar of chrome.
+   Opaque, in the page's own paper colour: a translucent fill let body text
+   read through the rail, and --clr-bone is remapped to the cream inside
+   .brand-guidos, so this stays correct on the Guido's menu too. */
 @media (max-width: 900px) {
   .category-tabs {
     position: sticky;
-    top: calc(var(--banner-height, 0px) + 63px);
+    top: calc(var(--banner-height) + var(--nav-height));
     z-index: 90;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
     padding: 0 clamp(1.25rem, 5vw, 4rem);
-    background: rgba(247, 246, 240, 0.92);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: var(--clr-bone);
     border-bottom: 1px solid rgba(17, 17, 17, 0.08);
   }
   /* Tap target: the tab itself carries the rail's vertical padding */
@@ -501,20 +523,20 @@ footer :focus-visible,
   display: none;
 }
 @media (max-width: 900px) {
+  /* 1rem padding above and below the chips, plus their line box */
+  :root { --menu-rail-height: 49px; }
   .menu-rail {
     display: flex;
     gap: 1.75rem;
     position: sticky;
-    top: calc(var(--banner-height, 0px) + 63px);
+    top: calc(var(--banner-height) + var(--nav-height));
     z-index: 90;
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     margin: 0 calc(50% - 50vw) clamp(2rem, 4vw, 3rem);
     padding: 0 clamp(1.25rem, 5vw, 4rem);
-    background: rgba(247, 246, 240, 0.92);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: var(--clr-bone);
     border-bottom: 1px solid rgba(17, 17, 17, 0.08);
   }
   .menu-rail::-webkit-scrollbar { display: none; }
