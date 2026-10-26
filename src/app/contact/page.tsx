@@ -8,7 +8,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   // Root layout template appends ' | Melting Moments Catering Victoria BC'
   title: 'Contact & Quotes',
-  description: 'Get in touch with Melting Moments Catering to plan your wedding, corporate event, or private gathering in Victoria, BC.',
+  description: 'Get in touch with Melting Moments Catering to plan your wedding or event in Victoria, BC.',
   openGraph: {
     // Page-level openGraph replaces the root object; re-specify the shared fields.
     type: 'website',

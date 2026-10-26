@@ -69,14 +69,14 @@ const allItems = [
   { category: 'BBQ', name: 'Premium BBQ', description: 'Marinated steaks, chicken skewers, sausages, grilled vegetables, Caesar salad, baked potatoes', priceLabel: '$52/pp', orderIndex: 2 },
   { category: 'BBQ', name: 'Smoker Package', description: 'Pulled pork, smoked brisket, BBQ chicken, cornbread, beans, coleslaw, pickles', priceLabel: '$48/pp', orderIndex: 3 },
 
-  // ===== CORPORATE BREAKFAST =====
+  // ===== BREAKFAST =====
   { category: 'BREAKFAST', name: 'Continental', description: 'Freshly-baked pastries, danishes and muffins served with cold fruit juices, fresh brewed coffee and hot tea.', priceLabel: '$9.95/pp', orderIndex: 1 },
   { category: 'BREAKFAST', name: 'Royal Continental', description: 'Freshly-baked pastries, Danishes and muffins served with fresh seasonal sliced fruit, juices, coffee and tea.', priceLabel: '$12.50/pp', orderIndex: 2 },
   { category: 'BREAKFAST', name: 'Supreme Continental', description: 'Soft bagels, freshly-baked scones, fruit yogurt with granola, seasonal sliced fruit, juices, coffee and tea.', priceLabel: '$14.50/pp', orderIndex: 3 },
   { category: 'BREAKFAST', name: 'Hot Breakfast Buffet', description: 'Scrambled eggs, bacon, sausages, hash browns, toast, fresh fruit, coffee, tea and juices', priceLabel: '$18.95/pp', orderIndex: 4 },
   { category: 'BREAKFAST', name: 'Eggs Benedict Station', description: 'Classic, salmon, and mushroom Eggs Benedict with hollandaise, breakfast potatoes, fruit', priceLabel: '$22.50/pp', orderIndex: 5 },
 
-  // ===== CORPORATE LUNCH =====
+  // ===== LUNCH =====
   { category: 'LUNCH', name: 'The Picnic', description: 'Cold cut combos sandwich.', priceLabel: '$8.95/ea', orderIndex: 1 },
   { category: 'LUNCH', name: 'The Italian', description: 'Italian meats, Mozzarella cheese, lettuce and tomato, served with a variety of flavored mayonnaises, pesto, and red pepper.', priceLabel: '$9.95/ea', orderIndex: 2 },
   { category: 'LUNCH', name: 'The Grilled Chicken', description: 'Grilled chicken, goat cheese and pesto mayo with fresh spinach leaves, red peppers.', priceLabel: '$9.95/ea', orderIndex: 3 },

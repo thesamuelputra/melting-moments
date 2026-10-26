@@ -21,7 +21,7 @@ export const SITE = {
   country: 'CA',
   geo: { latitude: 48.4304, longitude: -123.4183 },
   description:
-    'Melting Moments provides completely custom catering, corporate setups, and specialized buffet installations across Victoria, BC. A symphony of taste for weddings, private events, and formal dining.',
+    'Melting Moments provides fully custom catering for weddings and events across Victoria, BC, cooked from scratch by Chef Paul Silletta.',
   facebook: 'https://www.facebook.com/MeltingMomentsCatering',
 
   /* Display helpers: every human-facing NAP rendering imports these so the

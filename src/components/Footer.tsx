@@ -52,10 +52,7 @@ export default function Footer() {
                         <Link href="/catering">Overview</Link>
                         <Link href="/menus">Menus</Link>
                         <Link href="/weddings">Weddings</Link>
-                        <Link href="/corporate">Corporate</Link>
-                        <Link href="/private-events">Private Events</Link>
-                        <Link href="/family-style">Family Style</Link>
-                        <Link href="/fountains">Fountains</Link>
+                        <Link href="/events">Events</Link>
                     </div>
                     <div className="footer-nav__group">
                         <div className="footer-nav__heading">Guido&apos;s</div>

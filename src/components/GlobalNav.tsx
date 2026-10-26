@@ -101,11 +101,8 @@ function NavDropdown({ label, items, active, currentPath }: { label: string; ite
 const cateringItems = [
   { href: '/catering', label: 'Overview' },
   { href: '/menus', label: 'Menus' },
-  { href: '/corporate', label: 'Corporate' },
-  { href: '/family-style', label: 'Family Style' },
   { href: '/weddings', label: 'Weddings' },
-  { href: '/private-events', label: 'Private Events' },
-  { href: '/fountains', label: 'Fountains' },
+  { href: '/events', label: 'Events' },
 ];
 
 const guidosItems = [

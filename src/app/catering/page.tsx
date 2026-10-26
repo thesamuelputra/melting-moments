@@ -9,10 +9,10 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: 'Catering Services',
   description:
-    'Catering for weddings, corporate events and private dining across Vancouver Island. Chef Paul Silletta: 17 years, family recipes, in your kitchen on the day.',
+    'Catering for weddings and events across Vancouver Island. Chef Paul Silletta: 17 years, family recipes, in your kitchen on the day.',
   openGraph: {
     description:
-      'Weddings, corporate, private & yacht dining, family style and chocolate fountains, catered across Vancouver Island by Chef Paul Silletta.',
+      'Weddings and events, catered across Vancouver Island by Chef Paul Silletta.',
     images: [{ url: '/og/og-default.jpg', width: 1200, height: 630, alt: 'Melting Moments Catering' }],
     url: '/catering',
     siteName: 'Melting Moments Catering',
@@ -29,28 +29,10 @@ const offerings = [
     line: 'A menu built around your day, plated and served by people who care how it lands.',
   },
   {
-    name: 'Corporate',
-    href: '/corporate',
-    image: '/hero-main.webp',
-    line: 'Galas, launches and lunches: punctual, polished and easy to hand off.',
-  },
-  {
-    name: 'Private & Yacht Dining',
-    href: '/private-events',
+    name: 'Events',
+    href: '/events',
     image: '/private_dinner.webp',
-    line: 'Intimate dinners at home or on the water, cooked to order on site.',
-  },
-  {
-    name: 'Family Style',
-    href: '/family-style',
-    image: '/macro_roulade.webp',
-    line: 'Generous platters passed around the table, the way good food is meant to be shared.',
-  },
-  {
-    name: 'Chocolate Fountains',
-    href: '/fountains',
-    image: '/copper_pots.webp',
-    line: 'A warm, flowing centrepiece: premium chocolate, set up and tended for you.',
+    line: 'Corporate functions, private celebrations and dinners on the water, cooked to order on site.',
   },
 ];
 
@@ -86,7 +68,7 @@ export default async function Catering() {
               Catering, made by hand.
             </h2>
             <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, marginBottom: '1.5rem', lineHeight: 1.7 }}>
-              We cater weddings, corporate events and private dining across Vancouver Island, built
+              We cater weddings and events across Vancouver Island, built
               around real food, real recipes, and the people at the table. Chef Paul Silletta has
               been cooking in Victoria for 17 years, and he is the one who shows up in your kitchen
               on the day.
@@ -138,7 +120,7 @@ export default async function Catering() {
                   src={item.image}
                   alt={item.name}
                   fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   style={{ objectFit: 'cover' }}
                 />
               </div>

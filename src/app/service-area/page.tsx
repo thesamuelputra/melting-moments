@@ -36,7 +36,7 @@ export default function ServiceArea() {
             <div style={{ maxWidth: '760px', margin: '3rem auto 0 auto', textAlign: 'center' }}>
                <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>Victoria &amp; Beyond</h2>
                <p style={{ fontSize: "var(--text-body)", opacity: 0.8, maxWidth: '60ch', margin: '0 auto 1.5rem auto' }}>
-                   Based in Esquimalt, we cater across Greater Victoria, from intimate dinners to weddings and corporate gatherings. Wherever you are on the south Island, there&apos;s a good chance we already know the room.
+                   Based in Esquimalt, we cater across Greater Victoria, from intimate dinners to weddings and large events. Wherever you are on the south Island, there&apos;s a good chance we already know the room.
                </p>
             </div>
 

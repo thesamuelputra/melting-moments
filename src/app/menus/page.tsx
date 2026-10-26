@@ -9,13 +9,13 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'Catering Menus',
-  description: 'Browse our catering menus, from Italian family-style dinners to corporate luncheons and BBQ packages. Acclaimed cuisine in Victoria, BC.',
+  description: 'Browse our catering menus: buffet packages, chef-carved entrées, Italian dinners, BBQ and more. Acclaimed cuisine in Victoria, BC.',
   openGraph: {
     url: '/menus',
     siteName: 'Melting Moments Catering',
     locale: 'en_CA',
     type: 'website',
-    description: 'Browse our catering menus. Italian family-style, corporate, BBQ, and more.',
+    description: 'Browse our catering menus. Buffet packages, Italian, BBQ, and more.',
     images: [{ url: '/og/og-menus.jpg', width: 1200, height: 630, alt: 'Assorted catering dishes by Melting Moments Catering' }],
   },
 };

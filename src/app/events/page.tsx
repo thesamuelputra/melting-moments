@@ -5,62 +5,62 @@ import { getCmsContent } from '@/lib/cms';
 import { AREA_SERVED, BUSINESS_ID, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Private Event Catering',
-  description: 'Intimate, fine-dining private event catering, from formal dinners to yacht catering in Victoria, BC.',
+  title: 'Event Catering',
+  description: 'Event catering in Victoria, BC: corporate functions, private celebrations and dinners aboard a yacht, cooked on site by Chef Paul Silletta.',
   openGraph: {
-    url: '/private-events',
+    url: '/events',
     siteName: 'Melting Moments Catering',
     locale: 'en_CA',
     type: 'website',
-    description: 'Intimate, fine-dining private event catering in Victoria, BC.',
-    images: [{ url: '/og/og-private-events.jpg', width: 1200, height: 630, alt: 'Intimate private dinner entrée by Melting Moments Catering' }],
+    description: 'Event catering in Victoria, BC, from boardroom lunches to dinner on the water.',
+    images: [{ url: '/og/og-events.jpg', width: 1200, height: 630, alt: 'Plated dinner entrée by Melting Moments Catering' }],
   },
 };
 
 export const revalidate = 300;
 
-const privateEventService = {
+const eventService = {
   '@type': 'Service',
-  '@id': `${SITE.url}/private-events#service`,
-  name: 'Private Event Catering',
-  serviceType: 'Private event catering',
+  '@id': `${SITE.url}/events#service`,
+  name: 'Event Catering',
+  serviceType: 'Event catering',
   description:
-    'Intimate, fine-dining private event catering, from formal dinners to yacht catering in Victoria, BC.',
-  url: `${SITE.url}/private-events`,
+    'Event catering in Victoria, BC: corporate functions, private celebrations and dinners aboard a yacht, cooked on site by Chef Paul Silletta.',
+  url: `${SITE.url}/events`,
   provider: { '@id': BUSINESS_ID },
   areaServed: AREA_SERVED,
 };
 
-export default async function PrivateEvents() {
+export default async function Events() {
   const cms = await getCmsContent();
 
   const subtitle = cms('events_header_subtitle', 'Information');
-  const title = cms('events_header_title', 'Private Events');
-  const heading = cms('events_heading', 'Dinner, In Good Hands');
-  const body1 = cms('events_body_1', 'From a formal dinner party to catering aboard a yacht, we bring the kitchen to you and serve a proper meal in your own space, without the fuss.');
-  const body2 = cms('events_body_2', "Whether it's an anniversary dinner for 12 or a milestone birthday for 80, Chef Paul builds every course around the host and the guests at the table.");
+  const title = cms('events_header_title', 'Events');
+  const heading = cms('events_heading', 'Any Occasion, In Good Hands');
+  const body1 = cms('events_body_1', 'Corporate functions, milestone birthdays, anniversaries, holiday parties, dinner aboard a yacht: whatever the occasion, we bring the kitchen to you and serve a proper meal in your own space, without the fuss.');
+  const body2 = cms('events_body_2', "Whether it's a boardroom lunch for 20, an intimate dinner for 12 or a gala for 300, Chef Paul builds every course around the host and the guests in the room.");
   const ctaButton = cms('events_cta_button', 'Plan Your Event');
 
   const cards = [
-    { title: cms('events_card1_title', 'Your Venue, Our Craft'), desc: cms('events_card1_desc', 'We bring a full-service kitchen to any location: your home, a vineyard, a yacht, or a heritage venue.') },
+    { title: cms('events_card1_title', 'Your Venue, Our Craft'), desc: cms('events_card1_desc', 'We bring a full-service kitchen to any location: your office, your home, a vineyard, a yacht, or a heritage venue.') },
     { title: cms('events_card2_title', 'Tailored Menus'), desc: cms('events_card2_desc', 'No templates. Every menu is designed from scratch after a personal consultation with Chef Paul.') },
     { title: cms('events_card3_title', 'Service That Stays Out of the Way'), desc: cms('events_card3_desc', 'Our staff are attentive without hovering, so your guests remember the food and the night, not the logistics.') },
   ];
 
   return (
     <div>
-        <JsonLd data={privateEventService} />
-        <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Private Event Catering', path: '/private-events' }])} />
+        <JsonLd data={eventService} />
+        <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: 'Event Catering', path: '/events' }])} />
         <header className="container" style={{ paddingTop: "calc(80px + 3vw)", paddingBottom: "clamp(2rem, 4vw, 4rem)" }}>
             <div className="menu-index" style={{ marginBottom: "2rem" }}>{subtitle}</div>
             <h1 className="haus-display" style={{ textTransform: "uppercase" }}>{title}</h1>
             <div className="spacer-large">
                 <div className="noire-divider"></div>
             </div>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', marginTop: '4rem', alignItems: 'center' }}>
               <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%' }}>
-                <Image src="/private_dinner.webp" alt="Intimate private dinner entree" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} priority />
+                <Image src="/private_dinner.webp" alt="Plated dinner entrée at a catered event" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} priority />
               </div>
               <div>
                 <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>{heading}</h2>
@@ -70,12 +70,15 @@ export default async function PrivateEvents() {
                 <p style={{ fontSize: "var(--text-body)", opacity: 0.8, marginBottom: '2rem', lineHeight: 1.7 }}>
                     {body2}
                 </p>
-                <Link href="/contact" className="btn-solid">{ctaButton}</Link>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                  <Link href="/contact" className="btn-solid">{ctaButton}</Link>
+                  <Link href="/menus" className="btn-outline">View Menus</Link>
+                </div>
               </div>
             </div>
         </header>
 
-        {/* Why choose private catering */}
+        {/* Why choose us for an event */}
         <section className="container" style={{ paddingTop: '2rem', paddingBottom: '6rem' }}>
           <div className="noire-divider" style={{ marginBottom: '3rem' }} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem' }}>

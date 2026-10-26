@@ -111,18 +111,18 @@ const CONTENT_SCHEMA = [
     ],
   },
   {
-    page: 'Private Events',
-    slug: '/private-events',
+    page: 'Events',
+    slug: '/events',
     sections: [
       {
         section: 'Header',
-        hint: 'Top of the Private Events page',
+        hint: 'Top of the Events page',
         fields: [
           { key: 'events_header_subtitle', label: 'Subtitle', hint: 'Small label above the title', type: 'text' as const, default: 'Information' },
-          { key: 'events_header_title', label: 'Title', hint: 'Large display title', type: 'text' as const, default: 'Private Events' },
-          { key: 'events_heading', label: 'Section Heading', hint: 'e.g. Dinner, In Good Hands', type: 'text' as const, default: 'Dinner, In Good Hands' },
-          { key: 'events_body_1', label: 'Paragraph 1', hint: 'First paragraph of body text', type: 'textarea' as const, default: 'From a formal dinner party to catering aboard a yacht, we bring the kitchen to you and serve a proper meal in your own space, without the fuss.' },
-          { key: 'events_body_2', label: 'Paragraph 2', hint: 'Second paragraph of body text', type: 'textarea' as const, default: "Whether it's an anniversary dinner for 12 or a milestone birthday for 80, Chef Paul builds every course around the host and the guests at the table." },
+          { key: 'events_header_title', label: 'Title', hint: 'Large display title', type: 'text' as const, default: 'Events' },
+          { key: 'events_heading', label: 'Section Heading', hint: 'e.g. Any Occasion, In Good Hands', type: 'text' as const, default: 'Any Occasion, In Good Hands' },
+          { key: 'events_body_1', label: 'Paragraph 1', hint: 'First paragraph of body text', type: 'textarea' as const, default: 'Corporate functions, milestone birthdays, anniversaries, holiday parties, dinner aboard a yacht: whatever the occasion, we bring the kitchen to you and serve a proper meal in your own space, without the fuss.' },
+          { key: 'events_body_2', label: 'Paragraph 2', hint: 'Second paragraph of body text', type: 'textarea' as const, default: "Whether it's a boardroom lunch for 20, an intimate dinner for 12 or a gala for 300, Chef Paul builds every course around the host and the guests in the room." },
           { key: 'events_cta_button', label: 'CTA Button Text', hint: 'Button label', type: 'text' as const, default: 'Plan Your Event' },
         ],
       },
@@ -131,27 +131,11 @@ const CONTENT_SCHEMA = [
         hint: 'Three card grid below the main content',
         fields: [
           { key: 'events_card1_title', label: 'Card 1 Title', hint: 'e.g. Your Venue, Our Craft', type: 'text' as const, default: 'Your Venue, Our Craft' },
-          { key: 'events_card1_desc', label: 'Card 1 Description', hint: 'Body text for card 1', type: 'textarea' as const, default: 'We bring a full-service kitchen to any location: your home, a vineyard, a yacht, or a heritage venue.' },
+          { key: 'events_card1_desc', label: 'Card 1 Description', hint: 'Body text for card 1', type: 'textarea' as const, default: 'We bring a full-service kitchen to any location: your office, your home, a vineyard, a yacht, or a heritage venue.' },
           { key: 'events_card2_title', label: 'Card 2 Title', hint: 'e.g. Tailored Menus', type: 'text' as const, default: 'Tailored Menus' },
           { key: 'events_card2_desc', label: 'Card 2 Description', hint: 'Body text for card 2', type: 'textarea' as const, default: 'No templates. Every menu is designed from scratch after a personal consultation with Chef Paul.' },
           { key: 'events_card3_title', label: 'Card 3 Title', hint: 'e.g. Service That Stays Out of the Way', type: 'text' as const, default: 'Service That Stays Out of the Way' },
           { key: 'events_card3_desc', label: 'Card 3 Description', hint: 'Body text for card 3', type: 'textarea' as const, default: 'Our staff are attentive without hovering, so your guests remember the food and the night, not the logistics.' },
-        ],
-      },
-    ],
-  },
-  {
-    page: 'Corporate',
-    slug: '/corporate',
-    sections: [
-      {
-        section: 'Header',
-        hint: 'Top of the Corporate page',
-        fields: [
-          { key: 'corporate_header_index', label: 'Section Label', hint: 'Small label above the title', type: 'text' as const, default: 'Corporate Functions' },
-          { key: 'corporate_header_title', label: 'Title', hint: 'Large stacked display title: each line of text is one line on the page', type: 'text' as const, default: 'BOARDROOM\nTO BANQUET' },
-          { key: 'corporate_body_1', label: 'Paragraph 1', hint: 'First body paragraph', type: 'textarea' as const, default: "You've got less than 24 hours to plan a continental breakfast or a lunch. It has to be good. It has to be quick. It has to be now. Why bother trying to get reservations somewhere, or trying to find something that will please everyone, when we can bring it all right to you?" },
-          { key: 'corporate_body_2', label: 'Paragraph 2', hint: 'Second body paragraph', type: 'textarea' as const, default: "Whether it's that breakfast for 300 in your lobby or a formal boardroom luncheon for 20, a simple brown-bag lunch or a full china and crystal setting we've got it covered." },
         ],
       },
     ],

@@ -18,12 +18,10 @@ const OUT_DIR = path.join(PUBLIC_DIR, 'og');
 // [source (relative to public/), output (relative to public/og/)]
 const JOBS = [
   ['hero-main.webp', 'og-default.jpg'],
-  ['catering_menu_hero.webp', 'og-corporate.jpg'],
   ['catering_menu_hero.webp', 'og-menus.jpg'],
   ['wedding_entree.webp', 'og-weddings.jpg'],
-  ['private_dinner.webp', 'og-private-events.jpg'],
+  ['private_dinner.webp', 'og-events.jpg'],
   ['copper_pots.webp', 'og-about.jpg'],
-  ['macro_roulade.webp', 'og-family-style.jpg'],
   ['chef_plating_sauce.webp', 'og-chef.jpg'],
   // No og-guidos.jpg yet: public/guidos/ has no real hero photo (only
   // placeholder.svg). Add ['guidos/guidos-hero.webp', 'og-guidos.jpg']

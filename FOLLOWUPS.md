@@ -14,11 +14,11 @@ What remains after the full-site audit and its two fix passes. Of the 50 finding
 
 ### F40 (P3) · Confirm the "Peasano" spelling
 
-**Where:** src/app/family-style/page.tsx, src/app/menus/page.tsx, src/app/menus/MenuClient.tsx (display label "Peasano Dinner").
+**Where:** src/app/menus/page.tsx, src/app/menus/MenuClient.tsx (display label "Peasano Dinner").
 
 **Why it is not done here:** "Peasano" is not standard Italian (the usual word is "Paesano"), but it may be the owner's deliberate house spelling, so it is not safe to change unilaterally.
 
-**Recommended:** confirm the intended spelling with Chef Paul. If it should be "Paesano", change the three display labels only; the internal category key PEASANO can stay.
+**Recommended:** confirm the intended spelling with Chef Paul. If it should be "Paesano", change the two display labels only; the internal category key PEASANO can stay.
 
 ### F36 (P3) · Migrate the CSP off 'unsafe-inline'
 
@@ -41,3 +41,15 @@ All seven are correct, intentional patterns (hydration-safe year, sessionStorage
 ### F30 (P3) · Dormant siteImages Convex table
 
 Retained on purpose after the media module was removed so any existing rows stay valid. There are no orphaned functions referencing it. Dropping it is a data decision for a future migration, not an audit fix.
+
+## Owner actions after the catering trim
+
+The site now offers two catering options, Weddings and Events. One piece of live content is data rather than code and still carries the old wording.
+
+### FAQ · "How far in advance should I book?"
+
+**Where:** the faqs table in Convex (production and dev), edited from /admin/faq. The public /faq page and /llms.txt read this row first and only fall back to src/lib/fallback-faqs.ts when the table is empty.
+
+**Why it is not done here:** it is a data edit behind the admin password, which only the owner holds.
+
+**Recommended:** in /admin/faq, change the answer to read exactly: "For weddings, we recommend booking 9-12 months in advance. For other events, 2-3 months is preferred, though we can sometimes accommodate shorter notices." The fallback file already carries this wording, so the two will match again once the row is saved.

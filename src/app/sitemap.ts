@@ -9,18 +9,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/contact', priority: 0.9, changeFrequency: 'monthly' },
     { path: '/menus', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/weddings', priority: 0.9, changeFrequency: 'monthly' },
-    { path: '/corporate', priority: 0.9, changeFrequency: 'monthly' },
-    // Service pages
+    { path: '/events', priority: 0.9, changeFrequency: 'monthly' },
+    // About pages
     { path: '/about', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/chef-paul', priority: 0.8, changeFrequency: 'monthly' },
-    { path: '/fountains', priority: 0.8, changeFrequency: 'monthly' },
-    { path: '/private-events', priority: 0.8, changeFrequency: 'monthly' },
-    { path: '/family-style', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/testimonials', priority: 0.7, changeFrequency: 'monthly' },
     // Utility pages
     { path: '/faq', priority: 0.6, changeFrequency: 'monthly' },
     { path: '/service-area', priority: 0.6, changeFrequency: 'yearly' },
-    // (/quote intentionally omitted; it 308-redirects to /contact)
+    // (/quote intentionally omitted; it 308-redirects to /contact. The retired
+    // /corporate, /private-events, /family-style and /fountains URLs redirect
+    // permanently from next.config.ts and are left out for the same reason.)
     // Legal pages
     { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
     { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },

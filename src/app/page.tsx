@@ -7,15 +7,12 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Melting Moments & Guido's Gourmet | Catering, Victoria BC",
-  description: 'Bespoke catering and homemade Italian ready-made meals by Chef Paul Silletta in Victoria, BC. Weddings, corporate events, private dining, and meal delivery.',
+  description: 'Bespoke catering and homemade Italian ready-made meals by Chef Paul Silletta in Victoria, BC. Weddings, events, and meal delivery.',
 };
 
 const SERVICES = [
   { href: '/weddings', name: 'Weddings', line: 'Bespoke menus and full-service catering for your day.' },
-  { href: '/corporate', name: 'Corporate', line: 'Galas, conferences and office gatherings, handled.' },
-  { href: '/private-events', name: 'Private & Yacht', line: 'Intimate dinners and on-board dining, fully staffed.' },
-  { href: '/family-style', name: 'Family Style', line: 'Generous shared platters for relaxed celebrations.' },
-  { href: '/fountains', name: 'Chocolate Fountains', line: "Vancouver Island's largest fountain rental service." },
+  { href: '/events', name: 'Events', line: 'Corporate functions, private celebrations and dinners on the water, fully staffed.' },
 ];
 
 export default async function Home() {
@@ -51,7 +48,7 @@ export default async function Home() {
             </span>
           </div>
           <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 'var(--text-body)', maxWidth: '46ch', margin: '2rem auto 0 auto', lineHeight: 1.6 }}>
-            Catering for weddings, events and private dining across Vancouver Island, plus Guido&apos;s ready-made Italian, at home.
+            Catering for weddings and events across Vancouver Island, plus Guido&apos;s ready-made Italian, at home.
           </p>
           <Link href="/contact" className="btn-bone" style={{ marginTop: '2.25rem' }}>
             Get a Quote
@@ -73,7 +70,7 @@ export default async function Home() {
               <div className="menu-index" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '1rem' }}>01 · Catering</div>
               <h2 className="noire-serif" style={{ color: 'white', marginBottom: '1rem', fontSize: 'var(--text-secondary)' }}>Melting Moments Catering</h2>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--text-body)', maxWidth: '35ch', marginBottom: '2rem' }}>
-                Weddings, corporate events, and private dining across Vancouver Island.
+                Weddings and events across Vancouver Island.
               </p>
               <span className="btn-outline btn-outline--inverse">Explore Catering</span>
             </div>

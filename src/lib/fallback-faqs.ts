@@ -23,7 +23,7 @@ export const FALLBACK_FAQS: FallbackFaq[] = [
   {
     question: 'How far in advance should I book?',
     answer:
-      'For weddings, we recommend booking 9-12 months in advance. For corporate and private events, 2-3 months is preferred, though we can sometimes accommodate shorter notices.',
+      'For weddings, we recommend booking 9-12 months in advance. For other events, 2-3 months is preferred, though we can sometimes accommodate shorter notices.',
     category: 'catering',
   },
   {

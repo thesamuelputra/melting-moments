@@ -290,18 +290,6 @@ body {
   display: none;
 }
 
-/* Pricing Grid Pattern */
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-}
-.pricing-card {
-  padding: 2rem;
-  border: 1px solid rgba(17, 17, 17, 0.1);
-  background-color: white;
-}
-
 /* Global Navbar Styling */
 .global-nav {
   position: fixed;
@@ -507,11 +495,6 @@ footer :focus-visible,
   color: var(--clr-ink);
 }
 
-.category-tab--active {
-  color: var(--clr-ink);
-  border-bottom-color: var(--clr-ink);
-}
-
 .category-tabs {
   display: flex;
   gap: 2rem;
@@ -656,10 +639,6 @@ footer :focus-visible,
     -webkit-overflow-scrolling: touch;
   }
   
-  .pricing-grid {
-    grid-template-columns: 1fr;
-  }
-
   .nav-links-desktop { display: none !important; }
   .nav-hamburger { display: flex; }
   #mobile-menu-btn { display: flex !important; }
@@ -668,12 +647,6 @@ footer :focus-visible,
   .contact-grid {
     grid-template-columns: 1fr !important;
     gap: 3rem !important;
-  }
-
-  /* Stack the menus/corporate/fountains header 2-col layout on mobile */
-  .page-header-grid {
-    grid-template-columns: 1fr !important;
-    gap: 2rem !important;
   }
 
   /* Stack the about page 2-col grids on mobile */

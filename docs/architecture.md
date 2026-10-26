@@ -36,7 +36,7 @@ Inquiry and Guido's-order actions hold no public-facing content, so they revalid
 
 Admin routes are dynamic. `src/app/admin/layout.tsx` awaits `connection()` (this Next version's replacement for `unstable_noStore`) and calls `requireAdminOrRedirect()`, which reads cookies. Nothing under `/admin` is ever cached.
 
-Route-level redirects: `/quote` calls `permanentRedirect('/contact')` (308, deliberately kept out of the sitemap), and `/gallery` permanently redirects to `/catering` via `next.config.ts`.
+Route-level redirects: `/quote` calls `permanentRedirect('/contact')` (308, deliberately kept out of the sitemap); `next.config.ts` permanently redirects `/gallery`, `/family-style` and `/fountains` to `/catering`, and `/corporate` and `/private-events` to `/events`.
 
 ## Directory layout
 
@@ -46,7 +46,7 @@ Route-level redirects: `/quote` calls `permanentRedirect('/contact')` (308, deli
 | `convex/lib.ts` | Shared backend helpers: `assertAdmin`, status enums, in-transaction activity logging with pruning, and input validators. |
 | `convex/seed.ts` | Guarded seeds for `menuItems` and `guidosProducts`, run from the CLI. |
 | `src/proxy.ts` | Middleware: security headers (including CSP), admin route protection with sliding session renewal, per-IP rate limiting for the form APIs, and the guidosgourmet.ca host redirect. |
-| `src/app/` | Public routes, one directory per page (`about`, `catering`, `menus`, `weddings`, `corporate`, `private-events`, `family-style`, `fountains`, `chef-paul`, `testimonials`, `faq`, `service-area`, `contact`, `guidos`, `guidos/menu`, `guidos/order`, `privacy`, `terms`), plus `sitemap.ts`, `robots.ts`, and the `llms.txt` route handler. |
+| `src/app/` | Public routes, one directory per page (`about`, `catering`, `menus`, `weddings`, `events`, `chef-paul`, `testimonials`, `faq`, `service-area`, `contact`, `guidos`, `guidos/menu`, `guidos/order`, `privacy`, `terms`), plus `sitemap.ts`, `robots.ts`, and the `llms.txt` route handler. |
 | `src/app/api/` | `contact` and `guidos-order` POST endpoints: validate, persist to Convex, send Resend email. |
 | `src/app/admin/` | Admin console: dashboard plus modules for banner, content, FAQ, menus, testimonials, Guido's products, Guido's orders, inquiries, and settings. Each module is a server-component `page.tsx`, a client component, and a server-action `actions.ts`. |
 | `src/app/admin/_components/` | The shared admin UI kit (see [Admin console architecture](#admin-console-architecture)). |

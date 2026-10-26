@@ -26,12 +26,10 @@ The script uses sharp with `fit: 'cover'` and `position: 'attention'`, which cen
 | Source (`public/`) | Output (`public/og/`) | Used by |
 | --- | --- | --- |
 | `hero-main.webp` | `og-default.jpg` | Root layout default, `/contact`, `/catering`, and all `/guidos` routes |
-| `catering_menu_hero.webp` | `og-corporate.jpg` | `/corporate` |
 | `catering_menu_hero.webp` | `og-menus.jpg` | `/menus` |
 | `wedding_entree.webp` | `og-weddings.jpg` | `/weddings` |
-| `private_dinner.webp` | `og-private-events.jpg` | `/private-events` |
-| `copper_pots.webp` | `og-about.jpg` | `/about` and `/fountains` |
-| `macro_roulade.webp` | `og-family-style.jpg` | `/family-style` |
+| `private_dinner.webp` | `og-events.jpg` | `/events` |
+| `copper_pots.webp` | `og-about.jpg` | `/about` |
 | `chef_plating_sauce.webp` | `og-chef.jpg` | `/chef-paul` |
 
 There is no `og-guidos.jpg` yet because `public/guidos/` has no real hero photograph (only product shots and a placeholder SVG); the Guido's routes intentionally reuse `og-default.jpg`. When real Guido's photography lands, add a job entry and switch those routes over.
@@ -68,7 +66,7 @@ Design decisions worth knowing:
 
 `src/app/llms.txt/route.ts` serves a curated plain-text business summary for answer engines (Perplexity, ChatGPT browsing, Claude, and similar). It revalidates on the same 300-second ISR window as the pages and is composed from live CMS content:
 
-- Business summary, website, and the five service lines with URLs.
+- Business summary, website, and the two service lines (weddings and events) with URLs.
 - The full catering menu grouped by category with price labels, in the same order as `/menus` data.
 - Available Guido's products with sizes, prices, and limited-edition flags (unavailable products are excluded).
 - Service area, delivery terms, contact details, hours note, and booking terms.
@@ -78,12 +76,13 @@ Each CMS getter degrades independently: if Convex is unreachable, the affected s
 
 ## Sitemap and robots
 
-`src/app/sitemap.ts` lists all indexable routes with tiered priorities: conversion pages (home, `/catering`, `/contact`, `/menus`, `/weddings`, `/corporate`, `/guidos`, `/guidos/menu`) at 0.9 to 1.0, service pages at 0.8, utility pages at 0.6 to 0.7, legal pages at 0.3. `/menus` and `/guidos/menu` are marked `weekly` because their content is CMS-driven.
+`src/app/sitemap.ts` lists all indexable routes with tiered priorities: conversion pages (home, `/catering`, `/contact`, `/menus`, `/weddings`, `/events`, `/guidos`, `/guidos/menu`) at 0.9 to 1.0, the about pages and `/guidos/order` at 0.8, utility pages at 0.6 to 0.7, legal pages at 0.3. `/menus` and `/guidos/menu` are marked `weekly` because their content is CMS-driven.
 
 Two deliberate omissions:
 
 - **No `lastModified`.** Stamping every URL with the build time is fake freshness that Google detects and then ignores; omitting the field entirely is better than an inaccurate one. Do not add it back unless it can carry real per-page modification times.
 - **No `/quote`.** That route issues a permanent redirect (308) to `/contact` so link equity consolidates there; redirecting URLs do not belong in a sitemap.
+- **No retired service URLs.** `/corporate` and `/private-events` redirect to `/events`, and `/family-style` and `/fountains` redirect to `/catering`, all permanently from `next.config.ts`, after the catering offer narrowed to weddings and events.
 
 `src/app/robots.ts` allows everything except `/admin`, `/admin-login`, and `/api/`, and points at `https://meltingmoments.ca/sitemap.xml`.
 

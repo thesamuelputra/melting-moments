@@ -196,7 +196,7 @@ export default function ContactClient({ contactInfo }: { contactInfo: ContactInf
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>
                   <span id="event-type-label" style={{ display: 'block', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.62, marginBottom: '0.5rem' }}>Event Type *</span>
                   <CustomSelect labelId="event-type-label" required value={formData.eventType} onChange={(val) => { setFormData({...formData, eventType: val}); setStep1Error(''); }} placeholder="Select event type"
-                    options={[{ value: "corporate", label: "Corporate Function" }, { value: "wedding", label: "Wedding" }, { value: "private", label: "Private Gathering" }, { value: "fountain", label: "Chocolate Fountain Rental" }, { value: "ready-made", label: "Ready-Made Meals (Guido's)" }, { value: "other", label: "General Inquiry" }]} />
+                    options={[{ value: "wedding", label: "Wedding" }, { value: "event", label: "Event" }, { value: "ready-made", label: "Ready-Made Meals (Guido's)" }, { value: "other", label: "General Inquiry" }]} />
                   {step1Error && <div role="alert" style={{ color: '#B91C1C', fontSize: '0.85rem', marginTop: '0.5rem', animation: 'fadeIn 0.3s ease' }}>{step1Error}</div>}
                 </label>
                 <label style={{ display: 'block', marginBottom: '1.5rem' }}>

@@ -30,7 +30,7 @@ export async function GET(): Promise<Response> {
   lines.push('# Melting Moments Catering');
   lines.push('');
   lines.push(
-    `Melting Moments Catering is a full-service caterer based in Esquimalt (Victoria, BC, Canada), owned and run by Executive Chef Paul Silletta for 17+ years. Two brands under one kitchen: Melting Moments Catering (custom catering for weddings, corporate functions, and private events across Greater Victoria) and Guido's Gourmet (homemade ready-made Italian meals for delivery or pickup). Chef Paul plans every menu personally; menus are fully customizable, including vegan, vegetarian, gluten-free, and allergy-safe options.`
+    `Melting Moments Catering is a full-service caterer based in Esquimalt (Victoria, BC, Canada), owned and run by Executive Chef Paul Silletta for 17+ years. Two brands under one kitchen: Melting Moments Catering (custom catering for weddings and events across Greater Victoria) and Guido's Gourmet (homemade ready-made Italian meals for delivery or pickup). Chef Paul plans every menu personally; menus are fully customizable, including vegan, vegetarian, gluten-free, and allergy-safe options.`
   );
   lines.push('');
   lines.push(`Website: ${SITE.url}`);
@@ -38,10 +38,7 @@ export async function GET(): Promise<Response> {
 
   lines.push('## Services');
   lines.push(`- Wedding catering: ${SITE.url}/weddings`);
-  lines.push(`- Corporate catering & office luncheons: ${SITE.url}/corporate`);
-  lines.push(`- Private events & dinner parties: ${SITE.url}/private-events`);
-  lines.push(`- Family-style dining: ${SITE.url}/family-style`);
-  lines.push(`- Chocolate & beverage fountains: ${SITE.url}/fountains`);
+  lines.push(`- Event catering (corporate functions, private celebrations, yacht dining): ${SITE.url}/events`);
   lines.push('');
 
   lines.push('## Catering Menu');
