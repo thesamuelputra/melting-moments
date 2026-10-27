@@ -38,19 +38,28 @@ export default async function Home() {
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.55) 100%)' }}></div>
 
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%', padding: '6rem 2rem' }}>
+          {/* Each brand name is the way into its own side of the site. The
+              nav stays hidden over the hero, so without these the visitor
+              has to scroll to the chooser cards to pick a side. */}
           <div className="hero-brand-lockup">
-            <h1 className="haus-display hero-brand-name" aria-label="Melting Moments" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
-              Melting<br />Moments
-            </h1>
+            <Link href="/catering" className="hero-brand-link" aria-label="Melting Moments catering: weddings and events">
+              <h1 className="haus-display hero-brand-name" aria-label="Melting Moments" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
+                Melting<br />Moments
+              </h1>
+              <span className="hero-brand-note"><span className="hero-brand-note__text">Weddings and events<span className="hero-brand-arrow" aria-hidden="true">→</span></span></span>
+            </Link>
             <div className="hero-separator" aria-hidden="true"></div>
-            <span className="haus-display hero-brand-name" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
-              Guido&apos;s<br />Gourmet
-            </span>
+            <Link href="/guidos" className="hero-brand-link" aria-label="Guido's Gourmet: ready-made meals">
+              <span className="haus-display hero-brand-name" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
+                Guido&apos;s<br />Gourmet
+              </span>
+              <span className="hero-brand-note"><span className="hero-brand-note__text">Ready-made meals<span className="hero-brand-arrow" aria-hidden="true">→</span></span></span>
+            </Link>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 'var(--text-body)', maxWidth: '46ch', margin: '2rem auto 0 auto', lineHeight: 1.6 }}>
-            Catering for weddings and events across Vancouver Island, plus Guido&apos;s ready-made Italian, at home.
+          <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 'var(--text-body)', maxWidth: '46ch', margin: '2.5rem auto 0 auto', lineHeight: 1.6 }}>
+            Both from Chef Paul Silletta&apos;s kitchen in Victoria, BC.
           </p>
-          <Link href="/contact" className="btn-bone" style={{ marginTop: '2.25rem' }}>
+          <Link href="/contact" className="btn-bone" style={{ marginTop: '2rem' }}>
             Get a Quote
           </Link>
         </div>

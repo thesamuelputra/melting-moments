@@ -358,13 +358,30 @@ footer :focus-visible,
 ======================================================== */
 
 .hero-brand-lockup {
+  position: relative;
+  isolation: isolate;
+  width: fit-content;
+  margin-inline: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: clamp(1.5rem, 4vw, 3rem);
 }
+/* A soft pool of shade behind the names and captions. The photo is at its
+   brightest right where the Melting Moments caption lands, over the mash,
+   and a text shadow alone does not keep 10px type readable there. Sized to
+   the lockup, so it follows the type at every width. */
+.hero-brand-lockup::before {
+  content: '';
+  position: absolute;
+  inset: -35% -16% -45%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0) 100%);
+}
 
 .hero-brand-name {
+  display: block;
   font-size: clamp(2.5rem, 8vw, 7rem);
   text-align: center;
 }
@@ -375,6 +392,65 @@ footer :focus-visible,
   background-color: rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
   align-self: center;
+  /* The links either side carry a caption under the name, so a hairline
+     centred on the whole link would hang below the names. Padding its
+     margin box by the caption block (top margin, one line, underline)
+     keeps the visible line level with the names. */
+  margin-bottom: calc(1.1rem + 1.5 * var(--text-micro) + 4px);
+}
+
+/* Each side of the lockup is a link into its own brand. The caption under
+   the name says where it goes, so the affordance does not depend on hover
+   (there is none on a phone). Pointing at one side lets the other recede. */
+.hero-brand-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.35s ease;
+}
+.hero-brand-lockup:has(.hero-brand-link:is(:hover, :focus-visible)) .hero-brand-link:not(:hover, :focus-visible) {
+  opacity: 0.5;
+}
+.hero-brand-link:focus-visible {
+  outline-offset: 10px;
+}
+/* Keep both captions shorter than their names (they are, from 769px up), so
+   on the side-by-side layout each link is exactly as wide as its name and the
+   hairline sits midway between the two. A flex row rather than an inline box
+   keeps the parent's line height out of the caption's height, which the
+   hairline's margin above depends on. */
+.hero-brand-note {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.1rem;
+}
+.hero-brand-note__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 3px;
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 16px rgba(0, 0, 0, 0.45);
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+.hero-brand-link:hover .hero-brand-note__text,
+.hero-brand-link:focus-visible .hero-brand-note__text {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.6);
+}
+.hero-brand-arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+.hero-brand-link:hover .hero-brand-arrow,
+.hero-brand-link:focus-visible .hero-brand-arrow {
+  transform: translateX(4px);
 }
 
 /* ========================================================
@@ -720,6 +796,20 @@ footer :focus-visible,
   .hero-separator {
     width: clamp(40px, 10vw, 60px);
     height: 1px;
+    margin-bottom: 0;
+  }
+  .hero-brand-note {
+    margin-top: 0.75rem;
+  }
+  /* Stacked, the caption spans nearly the full width of the lockup, so the
+     pool widens to reach its ends. No hover on a phone, so the captions
+     start at full white. */
+  .hero-brand-lockup::before {
+    inset: -12% -45% -18%;
+    background: radial-gradient(closest-side, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.34) 60%, rgba(0, 0, 0, 0) 100%);
+  }
+  .hero-brand-note__text {
+    color: #fff;
   }
 
   /* Chooser cards stack on mobile */
