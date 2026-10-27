@@ -14,6 +14,18 @@ const instrumentSerif = Instrument_Serif({
   display: 'swap',
 });
 
+// The italic cut, for the italic accents on the Guido's page. Not preloaded,
+// so only pages that set italic serif text download it; the family name is
+// the same, so a plain font-style: italic picks it up.
+const instrumentSerifItalic = Instrument_Serif({
+  subsets: ['latin'],
+  weight: '400',
+  style: 'italic',
+  variable: '--font-serif-italic',
+  display: 'swap',
+  preload: false,
+});
+
 const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
@@ -95,7 +107,7 @@ export default async function RootLayout({
   });
 
   return (
-    <html lang="en" className={`${instrumentSerif.variable} ${inter.variable} ${dancingScript.variable}`}>
+    <html lang="en" className={`${instrumentSerif.variable} ${instrumentSerifItalic.variable} ${inter.variable} ${dancingScript.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
         <BannerWrapper data={banner} />
         <PublicShell>

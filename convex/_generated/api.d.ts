@@ -19,6 +19,7 @@ import type * as menuItems from "../menuItems.js";
 import type * as rateLimits from "../rateLimits.js";
 import type * as seed from "../seed.js";
 import type * as statuses from "../statuses.js";
+import type * as stockists from "../stockists.js";
 import type * as testimonials from "../testimonials.js";
 
 import type {
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   rateLimits: typeof rateLimits;
   seed: typeof seed;
   statuses: typeof statuses;
+  stockists: typeof stockists;
   testimonials: typeof testimonials;
 }>;
 

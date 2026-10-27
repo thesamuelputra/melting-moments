@@ -51,6 +51,7 @@ export default async function AdminDashboard() {
     settings,
     guidosProductCount,
     guidosOrderCounts,
+    stockistCount,
   ] = await Promise.all([
     fetchQuery(api.inquiries.counts, { adminSecret }),
     fetchQuery(api.inquiries.recent, { adminSecret, limit: 8 }),
@@ -62,6 +63,9 @@ export default async function AdminDashboard() {
     fetchQuery(api.businessSettings.getAll),
     fetchQuery(api.guidosProducts.count),
     fetchQuery(api.guidosOrders.counts, { adminSecret }),
+    // Guarded on its own so a deployment that has not picked up the
+    // stockists functions yet cannot take the whole dashboard down
+    fetchQuery(api.stockists.count).catch(() => null),
   ]);
 
   const bannerEnabled = settings['banner_enabled'] === 'true';
@@ -140,6 +144,7 @@ export default async function AdminDashboard() {
           { href: '/admin/inquiries', label: 'Inquiries', sub: `${inquiryCounts.new} new` },
           { href: '/admin/guidos-products', label: 'Guido\'s Products', sub: `${guidosProductCount} items` },
           { href: '/admin/guidos-orders', label: 'Guido\'s Orders', sub: `${guidosOrderCounts.received} new` },
+          { href: '/admin/stockists', label: 'Stockists', sub: stockistCount === null ? 'Where Guido\'s is sold' : `${stockistCount} on the map` },
           { href: '/admin/settings', label: 'Settings', sub: 'Business info' },
         ].map(({ href, label, sub, dotColor }) => (
           <Link

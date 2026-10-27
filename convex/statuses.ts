@@ -19,3 +19,9 @@ export const ORDER_STATUSES = [
   "picked_up",
 ] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+// Kinds of place that stock Guido's Gourmet (the /guidos map and the admin
+// Stockists module). Not a status, but kept here for the same reason: Next.js
+// code imports it without Convex server internals.
+export const STOCKIST_KINDS = ["restaurant", "grocery"] as const;
+export type StockistKind = (typeof STOCKIST_KINDS)[number];

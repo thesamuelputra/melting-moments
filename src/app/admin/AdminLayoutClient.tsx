@@ -18,6 +18,7 @@ const BREADCRUMBS: Array<{ match: (p: string) => boolean; crumbs: Array<{ label:
   { match: p => p.startsWith('/admin/testimonials'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'Content', href: undefined }, { label: 'Testimonials' }] },
   { match: p => p.startsWith('/admin/guidos-products'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Products' }] },
   { match: p => p.startsWith('/admin/guidos-orders'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Orders' }] },
+  { match: p => p.startsWith('/admin/stockists'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: "Guido's Gourmet", href: undefined }, { label: 'Stockists' }] },
   { match: p => p.startsWith('/admin/settings'), crumbs: [{ label: 'Dashboard', href: '/admin' }, { label: 'System', href: undefined }, { label: 'Settings' }] },
 ];
 
@@ -80,6 +81,12 @@ function buildNavItems(bannerEnabled: boolean): NavItem[] {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
         <path d="M9 11l3 3L22 4" />
         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+      </svg>
+    )},
+    { href: '/admin/stockists', label: 'Stockists', icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+        <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
+        <circle cx="12" cy="10" r="2.3" />
       </svg>
     )},
     { divider: 'System' },

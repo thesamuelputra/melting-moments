@@ -22,7 +22,7 @@ const LEAVES = [
 
 function LaurelSprig({ gold, flip }: { gold: string; flip?: boolean }) {
   return (
-    <svg viewBox="0 0 28 72" width="20" height="52" aria-hidden="true" style={{ transform: flip ? 'scaleX(-1)' : undefined, display: 'block' }}>
+    <svg viewBox="0 0 28 72" aria-hidden="true" style={{ width: 'calc(var(--g-word) * 0.3125)', height: 'auto', transform: flip ? 'scaleX(-1)' : undefined, display: 'block' }}>
       <path d="M4 70 C 2 48, 6 24, 18 4" fill="none" stroke={gold} strokeWidth="1.4" strokeLinecap="round" />
       {LEAVES.map((leaf, i) => (
         <g key={i} transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.r})`}>
@@ -34,11 +34,13 @@ function LaurelSprig({ gold, flip }: { gold: string; flip?: boolean }) {
 }
 
 /** The circular crest: a double gold ring, a tricolour swoosh across the top,
- *  and a serif G. Mirrors the monogram on the delivery van. */
-export function GuidosCrest({ tone = 'ink', size = 88 }: { tone?: Tone; size?: number }) {
+ *  and a serif G. Mirrors the monogram on the delivery van. A number is a
+ *  pixel size; a string is any CSS length, so the crest can scale with type. */
+export function GuidosCrest({ tone = 'ink', size = 88 }: { tone?: Tone; size?: number | string }) {
   const c = TONES[tone];
+  const sized = typeof size === 'number' ? { width: size, height: size } : {};
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-label="Guido's Gourmet" style={{ display: 'block' }}>
+    <svg viewBox="0 0 100 100" {...sized} role="img" aria-label="Guido's Gourmet" style={{ display: 'block', ...(typeof size === 'string' ? { width: size, height: size } : {}) }}>
       <circle cx="50" cy="50" r="46" fill="none" stroke={c.ring} strokeWidth="1.4" />
       <circle cx="50" cy="50" r="41.5" fill="none" stroke={c.ring} strokeWidth="0.7" />
       {/* Tricolour swoosh over the top, cream gap left showing at 12 o'clock */}
@@ -52,34 +54,36 @@ export function GuidosCrest({ tone = 'ink', size = 88 }: { tone?: Tone; size?: n
 /**
  * Full Guido's lockup: crest, laurel-flanked GUIDO'S, then GOURMET with side
  * rules, and an optional script tagline. Built entirely from SVG and web text
- * so it is crisp at any size and needs no raster asset.
+ * so it is crisp at any size and needs no raster asset. Every part is sized
+ * from wordSize, so the lockup keeps its proportions at any scale.
  */
 export default function GuidosWordmark({
   tone = 'ink',
   showCrest = true,
   tagline,
   style,
-  crestSize = 84,
   wordSize = 'clamp(2.4rem, 6vw, 4rem)',
 }: {
   tone?: Tone;
   showCrest?: boolean;
   tagline?: string;
   style?: CSSProperties;
-  crestSize?: number;
   wordSize?: string;
 }) {
   const c = TONES[tone];
   return (
-    <div className="g-wordmark" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.9rem', ...style }}>
-      {showCrest && <GuidosCrest tone={tone} size={crestSize} />}
+    <div
+      className="g-wordmark"
+      style={{ '--g-word': wordSize, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'calc(var(--g-word) * 0.16)', ...style } as CSSProperties}
+    >
+      {showCrest && <GuidosCrest tone={tone} size="calc(var(--g-word) * 1.1)" />}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--g-word) * 0.15)' }}>
         <LaurelSprig gold={c.gold} />
         <span
           style={{
-            fontFamily: "'Instrument Serif', Georgia, serif",
-            fontSize: wordSize,
+            fontFamily: 'var(--font-serif)',
+            fontSize: 'var(--g-word)',
             lineHeight: 0.9,
             letterSpacing: '0.04em',
             color: c.text,
@@ -91,12 +95,12 @@ export default function GuidosWordmark({
         <LaurelSprig gold={c.gold} flip />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <span style={{ width: 'clamp(20px, 4vw, 40px)', height: '1px', background: c.gold }} aria-hidden="true" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'calc(var(--g-word) * 0.19)' }}>
+        <span style={{ width: 'calc(var(--g-word) * 0.62)', height: '1px', background: c.gold }} aria-hidden="true" />
         <span
           style={{
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: 'clamp(0.7rem, 1.4vw, 0.95rem)',
+            fontFamily: 'var(--font-sans)',
+            fontSize: 'max(10px, calc(var(--g-word) * 0.148))',
             letterSpacing: '0.42em',
             textIndent: '0.42em',
             fontWeight: 500,
@@ -105,11 +109,11 @@ export default function GuidosWordmark({
         >
           GOURMET
         </span>
-        <span style={{ width: 'clamp(20px, 4vw, 40px)', height: '1px', background: c.gold }} aria-hidden="true" />
+        <span style={{ width: 'calc(var(--g-word) * 0.62)', height: '1px', background: c.gold }} aria-hidden="true" />
       </div>
 
       {tagline && (
-        <span className="g-script g-script--sm" style={{ color: c.gold, marginTop: '0.15rem' }}>
+        <span className="g-script" style={{ color: c.gold, fontSize: 'calc(var(--g-word) * 0.3)', marginTop: 'calc(var(--g-word) * 0.06)' }}>
           {tagline}
         </span>
       )}

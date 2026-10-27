@@ -106,6 +106,23 @@ export default defineSchema({
   }).index("by_section", ["section"])
     .index("by_uploadedAt", ["uploadedAt"]),
 
+  // Places that stock Guido's Gourmet, shown on the /guidos map and managed
+  // from the admin Stockists module
+  stockists: defineTable({
+    name: v.string(),
+    // "restaurant" | "grocery"; enforced at mutation args (STOCKIST_KINDS
+    // in convex/statuses.ts). The schema stays v.string() like the other
+    // enums so existing rows remain valid if the list grows.
+    kind: v.string(),
+    address: v.string(),
+    lat: v.float64(),
+    lng: v.float64(),
+    website: v.optional(v.string()),
+    note: v.optional(v.string()), // short line for visitors, e.g. what to look for
+    orderIndex: v.float64(),
+    isActive: v.boolean(),
+  }),
+
   // Guido's Gourmet orders
   guidosOrders: defineTable({
     customerName: v.string(),
