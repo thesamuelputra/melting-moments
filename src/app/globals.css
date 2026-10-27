@@ -379,13 +379,19 @@ footer :focus-visible,
   background: radial-gradient(closest-side, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0) 100%);
 }
 
+/* Colour and shadow live here rather than inline, so a house can warm its
+   own name when it is pointed at */
 .hero-brand-name {
   display: block;
   font-size: clamp(2.5rem, 8vw, 7rem);
   text-align: center;
+  color: #fff;
+  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.7s ease, color 0.8s ease;
 }
 
 .hero-separator {
+  position: relative;
   width: 1px;
   height: clamp(60px, 10vw, 120px);
   background-color: rgba(255, 255, 255, 0.4);
@@ -393,22 +399,20 @@ footer :focus-visible,
   align-self: center;
   /* The links either side carry a caption under the name, so a hairline
      centred on the whole link would hang below the names. Padding its
-     margin box by the caption block (top margin, one line, underline)
-     keeps the visible line level with the names. */
+     margin box by the caption block (top margin, one line, and the
+     caption's bottom padding and border) keeps the visible line level with
+     the names. */
   margin-bottom: calc(1.1rem + 1.5 * var(--text-micro) + 4px);
+  transition: background-color 0.8s ease;
 }
 
 /* Each side of the lockup is a link into its own brand. The caption under
    the name says where it goes, so the affordance does not depend on hover
-   (there is none on a phone). Pointing at one side lets the other recede. */
+   (there is none on a phone). */
 .hero-brand-link {
   display: block;
   color: inherit;
   text-decoration: none;
-  transition: opacity 0.35s ease;
-}
-.hero-brand-lockup:has(.hero-brand-link:is(:hover, :focus-visible)) .hero-brand-link:not(:hover, :focus-visible) {
-  opacity: 0.5;
 }
 .hero-brand-link:focus-visible {
   outline-offset: 10px;
@@ -437,189 +441,128 @@ footer :focus-visible,
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 16px rgba(0, 0, 0, 0.45);
   /* Transparent, but it holds the 1px the hairline's margin above counts on */
   border-bottom: 1px solid transparent;
-  position: relative;
-  transition: color 0.3s ease;
-}
-.hero-brand-link:hover .hero-brand-note__text,
-.hero-brand-link:focus-visible .hero-brand-note__text {
-  color: #fff;
-}
-.hero-brand-arrow {
-  display: inline-block;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-.hero-brand-link:hover .hero-brand-arrow,
-.hero-brand-link:focus-visible .hero-brand-arrow {
-  transform: translateX(4px);
+  transition: color 0.8s ease;
 }
 
-/* Each brand's own rule draws in under its caption: a fine bone line for
-   Melting Moments, the packaging tricolour for Guido's. */
-.hero-brand-note__text::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 1px;
-  background: rgba(246, 244, 235, 0.85);
-  transform: scaleX(0);
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.hero-brand-link--guidos .hero-brand-note__text::after {
-  bottom: -2px;
-  height: 2px;
-  background: linear-gradient(
-    to right,
-    var(--g-green) 0 33.33%,
-    var(--g-flag-white) 33.33% 66.66%,
-    var(--g-red) 66.66% 100%
-  );
-}
-/* One brand at a time. Keyboard focus shows its brand only while the
-   pointer is not on a name; once it is, the pointer wins, so tabbing to one
-   name and then pointing at the other never shows both brands at once. */
-.hero-brand-link:hover .hero-brand-note__text::after,
-.hero-brand-lockup:not(:has(.hero-brand-link:hover)) .hero-brand-link:focus-visible .hero-brand-note__text::after {
-  transform: scaleX(1);
-}
-.hero-brand-link--guidos:hover .hero-brand-arrow,
-.hero-brand-lockup:not(:has(.hero-brand-link:hover)) .hero-brand-link--guidos:focus-visible .hero-brand-arrow {
-  color: var(--g-gold-bright);
+/* Pointing at one name lets the other recede. Only the name dims, so the
+   other caption stays readable. One house leads at a time: keyboard focus
+   leads only while the pointer is off the names, and when focus is left on
+   one name and the pointer moves to the other, the pointer wins. */
+:is(.hero-brand-lockup:has(.hero-brand-link--mm:hover),
+    .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--mm:focus-visible)) .hero-brand-link--guidos .hero-brand-name,
+:is(.hero-brand-lockup:has(.hero-brand-link--guidos:hover),
+    .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--guidos:focus-visible)) .hero-brand-link--mm .hero-brand-name {
+  opacity: 0.5;
 }
 
-/* Each brand's mark rises in above its name: the Melting Moments icon
-   itself, and the Guido's crest on its cream paper. Out of the
-   flow so nothing moves, and deaf to the pointer so the empty space above a
-   name never counts as hovering it. */
-.hero-brand-link {
-  position: relative;
+/* The seam takes the house colours. The hairline between the names is the
+   one thing the two houses share, and it sits right at the point of choice.
+   Pointing at a name dresses it in the divider that house already uses: the
+   hairline and florette of the Melting Moments pages (drawn here in bone, for
+   the dark photo), or the green, white and red of the Guido's packaging. The
+   caption takes the house ink, bone or the gold of GOURMET, and Guido's warms
+   its name to cream paper. Side-by-side layout only; phones keep the plain
+   hairline. */
+.hero-seam {
+  display: none;
 }
-.hero-brand-mark {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 1.4rem);
-  display: grid;
-  place-items: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  opacity: 0;
-  transform: translate(-50%, 8px);
-  transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
-}
-.hero-brand-mark--mm {
-  width: 64px;
-  height: 64px;
-  overflow: hidden;
-  /* Centre the track as well as the item, or the oversized icon pins to
-     the top left corner and its frame shows on two edges */
-  place-content: center;
-  background-color: var(--clr-ink);
-}
-/* The icon file carries a thin white frame; drawn a little larger than the
-   tile, the frame falls outside it and only the black square shows. */
-.hero-brand-mark--mm img {
-  display: block;
-  width: 72px;
-  height: 72px;
-}
-.hero-brand-mark--guidos {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  background-color: var(--g-cream);
-}
-.hero-brand-link:hover .hero-brand-mark,
-.hero-brand-lockup:not(:has(.hero-brand-link:hover)) .hero-brand-link:focus-visible .hero-brand-mark {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
+@media (min-width: 769px) {
+  /* Pinned to the hairline's own pixel rather than centred with a
+     transform, which landed half a pixel off and drew the line soft */
+  .hero-seam {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    pointer-events: none;
+  }
+  .hero-seam--mm {
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      rgba(246, 244, 235, 0.85) 0 calc(50% - 14px),
+      transparent calc(50% - 14px) calc(50% + 14px),
+      rgba(246, 244, 235, 0.85) calc(50% + 14px)
+    );
+  }
+  .hero-seam__florette {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    transform: translate(-50%, -50%);
+    fill: var(--clr-bone);
+    overflow: visible;
+  }
+  /* The 3px tricolour rule from the Guido's packaging, stood on end */
+  .hero-seam--guidos {
+    left: -1px;
+    width: 3px;
+    background: linear-gradient(
+      to bottom,
+      var(--g-green) 0 33.33%,
+      var(--g-flag-white) 33.33% 66.66%,
+      var(--g-red) 66.66% 100%
+    );
+  }
 
-/* The line under the names speaks for whichever brand is being pointed at.
-   All three lines share one grid cell, so the swap never shifts the layout. */
-.hero-voice {
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  justify-items: center;
-  align-items: center;
-  max-width: 46ch;
-  margin: 2.5rem auto 0;
-}
-/* The brand lines sit below the lockup's own shade, over a lighter stretch
-   of the photo, so a second soft pool comes in with them. It stays out at
-   rest, so the hero is unchanged until a name is pointed at. */
-.hero-voice::before {
-  content: '';
-  position: absolute;
-  inset: -70% -12%;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.48), rgba(0, 0, 0, 0.36) 60%, rgba(0, 0, 0, 0) 100%);
-  opacity: 0;
-  transition: opacity 0.45s ease;
-}
-.hero-dark:has(.hero-brand-link:is(:hover, :focus-visible)) .hero-voice::before {
-  opacity: 1;
-}
-/* The outgoing line clears before the incoming one arrives, so two lines
-   never sit half visible on top of each other. A line takes the transition
-   of the state it is moving into: quick when leaving, a beat late when
-   arriving. */
-.hero-voice__line {
-  grid-area: 1 / 1;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.hero-voice__line--both {
-  color: rgba(255, 255, 255, 0.82);
-  font-size: var(--text-body);
-  line-height: 1.6;
-}
-/* Hidden brand lines are taken out of selection and find-in-page too, not
-   just faded, so copying the visible sentence never picks up a tagline. */
-.hero-voice__line--mm,
-.hero-voice__line--guidos {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(5px);
-  line-height: 1.2;
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
-}
-.hero-voice__line--mm {
-  font-family: var(--font-serif);
-  font-size: clamp(1.3rem, 2vw, 1.65rem);
-  color: var(--clr-bone);
-  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.45);
-}
-.hero-voice__line--guidos {
-  font-family: var(--font-script);
-  font-weight: 600;
-  /* Never under 24px, so the brand gold reads as large text over the photo */
-  font-size: clamp(1.5rem, 2.3vw, 1.9rem);
-  color: var(--g-gold-bright);
-  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.5);
-}
-.hero-voice__line--both {
-  transition: opacity 0.4s ease 0.15s, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
-}
-.hero-dark:has(.hero-brand-link:is(:hover, :focus-visible)) .hero-voice__line--both {
-  opacity: 0;
-  transform: translateY(-5px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.hero-dark:has(.hero-brand-link--mm:hover) .hero-voice__line--mm,
-.hero-dark:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--mm:focus-visible) .hero-voice__line--mm,
-.hero-dark:has(.hero-brand-link--guidos:hover) .hero-voice__line--guidos,
-.hero-dark:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--guidos:focus-visible) .hero-voice__line--guidos {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition: opacity 0.4s ease 0.15s, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, visibility 0s linear 0.15s;
-}
-/* The global reduced-motion rule zeroes durations but not delays */
-@media (prefers-reduced-motion: reduce) {
-  .hero-voice__line {
-    transition-delay: 0s !important;
+  /* A wide, soft shade behind the Guido's caption, with no visible edge,
+     so its gold stays readable over the photo */
+  .hero-brand-note {
+    position: relative;
+  }
+  .hero-brand-link--guidos .hero-brand-note::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 50%;
+    top: 50%;
+    width: calc(100% + 180px);
+    height: 130px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background: radial-gradient(
+      closest-side,
+      rgba(0, 0, 0, 0.52),
+      rgba(0, 0, 0, 0.46) 22%,
+      rgba(0, 0, 0, 0.3) 50%,
+      rgba(0, 0, 0, 0.12) 75%,
+      rgba(0, 0, 0, 0.03) 90%,
+      rgba(0, 0, 0, 0)
+    );
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  :is(.hero-brand-lockup:has(.hero-brand-link--mm:hover),
+      .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--mm:focus-visible)) .hero-separator,
+  :is(.hero-brand-lockup:has(.hero-brand-link--guidos:hover),
+      .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--guidos:focus-visible)) .hero-separator {
+    background-color: transparent;
+  }
+  :is(.hero-brand-lockup:has(.hero-brand-link--mm:hover),
+      .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--mm:focus-visible)) .hero-seam--mm,
+  :is(.hero-brand-lockup:has(.hero-brand-link--guidos:hover),
+      .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--guidos:focus-visible)) .hero-seam--guidos,
+  :is(.hero-brand-lockup:has(.hero-brand-link--guidos:hover),
+      .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--guidos:focus-visible)) .hero-brand-link--guidos .hero-brand-note::before {
+    opacity: 1;
+  }
+  :is(.hero-brand-lockup:has(.hero-brand-link--mm:hover),
+      .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--mm:focus-visible)) .hero-brand-link--mm .hero-brand-note__text {
+    color: var(--clr-bone);
+  }
+  :is(.hero-brand-lockup:has(.hero-brand-link--guidos:hover),
+      .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--guidos:focus-visible)) .hero-brand-link--guidos .hero-brand-note__text {
+    color: var(--g-gold-bright);
+  }
+  :is(.hero-brand-lockup:has(.hero-brand-link--guidos:hover),
+      .hero-brand-lockup:not(:has(.hero-brand-link:hover)):has(.hero-brand-link--guidos:focus-visible)) .hero-brand-link--guidos .hero-brand-name {
+    color: var(--g-cream);
   }
 }
 
@@ -925,11 +868,6 @@ footer :focus-visible,
   }
   .hero-brand-note__text {
     color: #fff;
-  }
-  /* Stacked, the space above each name is the hairline and the caption of
-     the brand above it, so the marks stay out. */
-  .hero-brand-mark {
-    display: none;
   }
 
   /* Product grid drops to 2 columns on mobile for easier browsing */

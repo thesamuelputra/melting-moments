@@ -2,7 +2,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getCmsContent, getTestimonials } from '@/lib/cms';
-import { GuidosCrest } from '@/components/guidos/GuidosWordmark';
 
 export const revalidate = 300;
 
@@ -10,6 +9,12 @@ export const metadata: Metadata = {
   title: "Melting Moments & Guido's Gourmet | Catering, Victoria BC",
   description: 'Bespoke catering and homemade Italian ready-made meals by Chef Paul Silletta in Victoria, BC. Weddings, events, and meal delivery.',
 };
+
+/* The Melting Moments florette, the eight teardrop petals of the divider
+   glyph used across the catering pages, drawn as paths so it renders the same
+   everywhere instead of falling back to a system dingbat font. */
+const FLORETTE_PETAL = 'M0 -0.35C-0.45 -1.35 -0.95 -2.6 -0.95 -3.4A0.95 0.95 0 0 1 0.95 -3.4C0.95 -2.6 0.45 -1.35 0 -0.35Z';
+const FLORETTE_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
 
 const SERVICES = [
   { href: '/weddings', name: 'Weddings', line: 'Bespoke menus and full-service catering for your day.' },
@@ -41,44 +46,36 @@ export default async function Home() {
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%', padding: '6rem 2rem' }}>
           {/* Each brand name is the way into its own side of the site; the
               nav stays hidden over the hero, so these are the only way in from
-              the top. Pointing at a name brings in that brand's own mark, and
-              the line beneath switches to that brand's voice. */}
+              the top. Pointing at a name dresses the hairline between them in
+              that house's own divider (see .hero-seam in globals.css). */}
           <div className="hero-brand-lockup">
             <Link href="/catering" className="hero-brand-link hero-brand-link--mm" aria-label="Melting Moments catering: weddings and events">
-              <span className="hero-brand-mark hero-brand-mark--mm" aria-hidden="true">
-                <Image src="/apple-touch-icon.png" alt="" width={72} height={72} />
-              </span>
-              <h1 className="haus-display hero-brand-name" aria-label="Melting Moments" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
+              <h1 className="haus-display hero-brand-name" aria-label="Melting Moments">
                 Melting<br />Moments
               </h1>
-              <span className="hero-brand-note"><span className="hero-brand-note__text">Weddings and events<span className="hero-brand-arrow" aria-hidden="true">→</span></span></span>
+              <span className="hero-brand-note"><span className="hero-brand-note__text">Weddings and events<span aria-hidden="true">→</span></span></span>
             </Link>
-            <div className="hero-separator" aria-hidden="true"></div>
-            <Link href="/guidos" className="hero-brand-link hero-brand-link--guidos" aria-label="Guido's Gourmet: ready-made meals">
-              <span className="hero-brand-mark hero-brand-mark--guidos" aria-hidden="true">
-                <GuidosCrest tone="ink" size={58} />
+            <div className="hero-separator" aria-hidden="true">
+              <span className="hero-seam hero-seam--mm">
+                <svg className="hero-seam__florette" viewBox="-5 -5 10 10" focusable="false">
+                  {FLORETTE_ANGLES.map((angle) => (
+                    <path key={angle} d={FLORETTE_PETAL} transform={`rotate(${angle})`} />
+                  ))}
+                  <circle r="0.7" />
+                </svg>
               </span>
-              <span className="haus-display hero-brand-name" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
+              <span className="hero-seam hero-seam--guidos" />
+            </div>
+            <Link href="/guidos" className="hero-brand-link hero-brand-link--guidos" aria-label="Guido's Gourmet: ready-made meals">
+              <span className="haus-display hero-brand-name">
                 Guido&apos;s<br />Gourmet
               </span>
-              <span className="hero-brand-note"><span className="hero-brand-note__text">Ready-made meals<span className="hero-brand-arrow" aria-hidden="true">→</span></span></span>
+              <span className="hero-brand-note"><span className="hero-brand-note__text">Ready-made meals<span aria-hidden="true">→</span></span></span>
             </Link>
           </div>
-          {/* All three lines share one grid cell, so swapping between them
-              never moves the button below. The two brand lines are taglines
-              that only show while a name is pointed at, so only the shared
-              line is read aloud. */}
-          <div className="hero-voice">
-            <p className="hero-voice__line hero-voice__line--both">
-              Both from Chef Paul Silletta&apos;s kitchen in Victoria, BC.
-            </p>
-            <p className="hero-voice__line hero-voice__line--mm" aria-hidden="true">
-              Catering, made by hand.
-            </p>
-            <p className="hero-voice__line hero-voice__line--guidos" aria-hidden="true">
-              When your hunger speaks Italian!
-            </p>
-          </div>
+          <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 'var(--text-body)', maxWidth: '46ch', margin: '2.5rem auto 0 auto', lineHeight: 1.6 }}>
+            Both from Chef Paul Silletta&apos;s kitchen in Victoria, BC.
+          </p>
           <Link href="/contact" className="btn-bone" style={{ marginTop: '2rem' }}>
             Get a Quote
           </Link>
