@@ -22,8 +22,9 @@ const inter = Inter({
 });
 
 // Reserved strictly for Guido's taglines (the packaging's handwritten voice).
-// Not preloaded: only /guidos uses it, so preloading on every route wastes the
-// hint. It still loads on demand (display swap) when a Guido's page renders it.
+// Not preloaded: only the Guido's pages and the homepage hero's Guido's line
+// use it, so preloading on every route wastes the hint. It still loads on
+// demand (display swap) wherever one of those taglines renders.
 const dancingScript = Dancing_Script({
   subsets: ['latin'],
   weight: ['500', '600', '700'],

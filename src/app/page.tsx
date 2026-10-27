@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getCmsContent, getTestimonials } from '@/lib/cms';
+import { GuidosCrest } from '@/components/guidos/GuidosWordmark';
 
 export const revalidate = 300;
 
@@ -38,27 +39,46 @@ export default async function Home() {
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.55) 100%)' }}></div>
 
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%', padding: '6rem 2rem' }}>
-          {/* Each brand name is the way into its own side of the site. The
-              nav stays hidden over the hero, so without these the visitor
-              has to scroll to the chooser cards to pick a side. */}
+          {/* Each brand name is the way into its own side of the site; the
+              nav stays hidden over the hero, so these are the only way in from
+              the top. Pointing at a name brings in that brand's own mark, and
+              the line beneath switches to that brand's voice. */}
           <div className="hero-brand-lockup">
-            <Link href="/catering" className="hero-brand-link" aria-label="Melting Moments catering: weddings and events">
+            <Link href="/catering" className="hero-brand-link hero-brand-link--mm" aria-label="Melting Moments catering: weddings and events">
+              <span className="hero-brand-mark hero-brand-mark--mm" aria-hidden="true">
+                <Image src="/apple-touch-icon.png" alt="" width={72} height={72} />
+              </span>
               <h1 className="haus-display hero-brand-name" aria-label="Melting Moments" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
                 Melting<br />Moments
               </h1>
               <span className="hero-brand-note"><span className="hero-brand-note__text">Weddings and events<span className="hero-brand-arrow" aria-hidden="true">→</span></span></span>
             </Link>
             <div className="hero-separator" aria-hidden="true"></div>
-            <Link href="/guidos" className="hero-brand-link" aria-label="Guido's Gourmet: ready-made meals">
+            <Link href="/guidos" className="hero-brand-link hero-brand-link--guidos" aria-label="Guido's Gourmet: ready-made meals">
+              <span className="hero-brand-mark hero-brand-mark--guidos" aria-hidden="true">
+                <GuidosCrest tone="ink" size={58} />
+              </span>
               <span className="haus-display hero-brand-name" style={{ color: 'white', textShadow: '0 2px 40px rgba(0,0,0,0.3)' }}>
                 Guido&apos;s<br />Gourmet
               </span>
               <span className="hero-brand-note"><span className="hero-brand-note__text">Ready-made meals<span className="hero-brand-arrow" aria-hidden="true">→</span></span></span>
             </Link>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 'var(--text-body)', maxWidth: '46ch', margin: '2.5rem auto 0 auto', lineHeight: 1.6 }}>
-            Both from Chef Paul Silletta&apos;s kitchen in Victoria, BC.
-          </p>
+          {/* All three lines share one grid cell, so swapping between them
+              never moves the button below. The two brand lines are taglines
+              that only show while a name is pointed at, so only the shared
+              line is read aloud. */}
+          <div className="hero-voice">
+            <p className="hero-voice__line hero-voice__line--both">
+              Both from Chef Paul Silletta&apos;s kitchen in Victoria, BC.
+            </p>
+            <p className="hero-voice__line hero-voice__line--mm" aria-hidden="true">
+              Catering, made by hand.
+            </p>
+            <p className="hero-voice__line hero-voice__line--guidos" aria-hidden="true">
+              When your hunger speaks Italian!
+            </p>
+          </div>
           <Link href="/contact" className="btn-bone" style={{ marginTop: '2rem' }}>
             Get a Quote
           </Link>
@@ -66,46 +86,9 @@ export default async function Home() {
       </header>
 
       {/* ================================================
-          CHOOSER: Two editorial cards
-          ================================================ */}
-      <section className="container" style={{ paddingTop: 'clamp(4rem, 8vw, 8rem)', paddingBottom: 'clamp(3rem, 6vw, 6rem)' }}>
-        <div className="chooser-grid">
-          {/* Catering Card */}
-          <Link href="/catering" className="chooser-card">
-            <div className="chooser-card__image">
-              <Image src="/copper_pots.webp" alt="Copper pots hanging in professional kitchen" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
-            </div>
-            <div className="chooser-card__content">
-              <div className="menu-index" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '1rem' }}>01 · Catering</div>
-              <h2 className="noire-serif" style={{ color: 'white', marginBottom: '1rem', fontSize: 'var(--text-secondary)' }}>Melting Moments Catering</h2>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--text-body)', maxWidth: '35ch', marginBottom: '2rem' }}>
-                Weddings and events across Vancouver Island.
-              </p>
-              <span className="btn-outline btn-outline--inverse">Explore Catering</span>
-            </div>
-          </Link>
-
-          {/* Guido's Card */}
-          <Link href="/guidos" className="chooser-card">
-            <div className="chooser-card__image">
-              <Image src="/macro_roulade.webp" alt="Italian ready-made meal" fill sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: 'cover' }} />
-            </div>
-            <div className="chooser-card__content">
-              <div className="menu-index" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '1rem' }}>02 · Ready-Made Meals</div>
-              <h2 className="noire-serif" style={{ color: 'white', marginBottom: '1rem', fontSize: 'var(--text-secondary)' }}>Guido&apos;s Gourmet</h2>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--text-body)', maxWidth: '35ch', marginBottom: '2rem' }}>
-                Homemade Italian meals, ready to heat and serve. Delivery available in Victoria.
-              </p>
-              <span className="btn-outline btn-outline--inverse">See the Menu</span>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* ================================================
           WHAT WE CATER
           ================================================ */}
-      <section className="container" style={{ paddingBottom: 'clamp(4rem, 8vw, 7rem)' }}>
+      <section className="container" style={{ paddingTop: 'clamp(4rem, 8vw, 8rem)', paddingBottom: 'clamp(4rem, 8vw, 7rem)' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>What We Cater</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2.5rem 3rem', borderTop: '1px solid rgba(0,0,0,0.12)', paddingTop: '3rem' }}>
           {SERVICES.map((s, i) => (
