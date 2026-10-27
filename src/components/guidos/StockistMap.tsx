@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent } from 'react';
-import { MAP_GEO, LAND_PATH, ROADS_PATH, PLACES } from './stockist-map-data';
-import { MAP_EXTENT, directionsUrl, project, unproject, type MapPoint } from './stockist-map-geometry';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { LAND_PATH, ROADS_PATH, PLACES } from './stockist-map-data';
+import { MAP_EXTENT, directionsUrl, project, type MapPoint } from './stockist-map-geometry';
 import { SITE } from '@/lib/seo';
 
 /* ===== Data ===== */
@@ -19,7 +19,9 @@ export type Stockist = {
   note?: string;
 };
 
-type Filter = 'all' | Stockist['kind'];
+type Kind = Stockist['kind'];
+type Filter = 'all' | Kind;
+type Place = Stockist & { num: number; p: MapPoint };
 
 const KITCHEN = {
   id: 'kitchen',
@@ -29,144 +31,172 @@ const KITCHEN = {
   lat: 48.43044,
   lng: -123.41584,
 };
+const KITCHEN_POINT = project(KITCHEN);
 
-const KIND_LABEL: Record<Stockist['kind'], string> = { restaurant: 'Restaurant', grocery: 'Grocer' };
-const KIND_PLURAL: Record<Filter, string> = { all: 'stockists', restaurant: 'restaurants', grocery: 'grocers' };
-const KIND_SINGULAR: Record<Filter, string> = { all: 'stockist', restaurant: 'restaurant', grocery: 'grocer' };
+const KIND_LABEL: Record<Kind, string> = { grocery: 'Grocer', restaurant: 'Restaurant' };
 
-// Names on the water and the land, placed only where they fit
-// Names on the water and the land. Each has a few spots to try, in order,
-// so a name still finds a place as the view frames a different area.
-type Named = { name: string; at: [number, number][]; rotate?: number };
-const WATER: Named[] = [
-  { name: 'Strait of Juan de Fuca', at: [[48.384, -123.41], [48.395, -123.4], [48.398, -123.33], [48.37, -123.55]] },
-  { name: 'Haro Strait', at: [[48.515, -123.255], [48.47, -123.265], [48.56, -123.27]] },
-  { name: 'Saanich Inlet', at: [[48.612, -123.497]], rotate: -82 },
-];
-const REGIONS: Named[] = [
-  { name: 'Vancouver Island', at: [[48.585, -123.66], [48.52, -123.63], [48.65, -123.76], [48.5, -123.74]] },
-  { name: 'Salt Spring Island', at: [[48.81, -123.5], [48.78, -123.47]] },
-];
+// Greater Victoria is framed first; anything further out is a tap away
+const inGreaterVictoria = ({ lat, lng }: { lat: number; lng: number }) =>
+  lat >= 48.38 && lat <= 48.6 && lng >= -123.62 && lng <= -123.25;
 
-const MIN_SPAN = 900; // map units (9 km): one pin still shows its neighbourhood
-const KITCHEN_ONLY_SPAN = 1500; // with no stockists yet, show the kitchen among the towns around it
-const TWEEN_MS = 520;
-const COMPACT_BELOW = 520; // plate width in px under which pins draw a size smaller
-// Matches the CSS breakpoint where the list drops below the map: from here
-// down, a caption under the map names the chosen place instead of a tag
-const STACKED_QUERY = '(max-width: 860px)';
+const HIT = 44; // every marker is at least this big to tap
+const MIN_SPAN = 900; // map units (9 km): one place still shows its neighbourhood
+const KITCHEN_ONLY_SPAN = 1500;
+const CLUSTER_SPAN = 160;
+const TWEEN_MS = 450;
+const FILTER_FROM = 7; // show the grocer and restaurant filter from this many places
 
-function subscribeStacked(onChange: () => void) {
-  const mq = window.matchMedia(STACKED_QUERY);
-  mq.addEventListener('change', onChange);
-  return () => mq.removeEventListener('change', onChange);
-}
-const isStacked = () => window.matchMedia(STACKED_QUERY).matches;
+/* ===== Geometry ===== */
 
-/* ===== Pure helpers ===== */
-
-type View = { x: number; y: number; w: number; h: number; scale: number; boxW: number; boxH: number };
 type Box = { w: number; h: number };
-type Pad = { top: number; right: number; bottom: number; left: number };
+type View = { x: number; y: number; w: number; h: number; scale: number; boxW: number; boxH: number };
 
-/** A view that fits the points inside the padding, never zooms in past
- *  minSpan, and stays inside the drawn area where it can. */
-function fitView(points: MapPoint[], box: Box, pad: Pad, minSpan: number): View {
+function fitView(points: MapPoint[], box: Box, minSpan: number): View {
+  const pad = { top: 64, right: 40, bottom: 40, left: 40 };
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of points) {
     minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
     minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
   }
-  const bw = Math.max(maxX - minX, 1);
-  const bh = Math.max(maxY - minY, 1);
-  const availW = Math.max(box.w - pad.left - pad.right, 40);
-  const availH = Math.max(box.h - pad.top - pad.bottom, 40);
-  const scale = Math.min(availW / bw, availH / bh, Math.min(box.w, box.h) / minSpan);
-  const w = box.w / scale;
-  const h = box.h / scale;
-  const cx = pad.left + availW / 2;
-  const cy = pad.top + availH / 2;
-  let x = (minX + maxX) / 2 - cx / scale;
-  let y = (minY + maxY) / 2 - cy / scale;
+  const availW = Math.max(box.w - pad.left - pad.right, 60);
+  const availH = Math.max(box.h - pad.top - pad.bottom, 60);
+  const scale = Math.min(availW / Math.max(maxX - minX, 1), availH / Math.max(maxY - minY, 1), Math.min(box.w, box.h) / minSpan);
+  const w = box.w / scale, h = box.h / scale;
+  let x = (minX + maxX) / 2 - (pad.left + availW / 2) / scale;
+  let y = (minY + maxY) / 2 - (pad.top + availH / 2) / scale;
   x = w >= MAP_EXTENT.w ? (MAP_EXTENT.w - w) / 2 : Math.min(Math.max(x, 0), MAP_EXTENT.w - w);
   y = h >= MAP_EXTENT.h ? (MAP_EXTENT.h - h) / 2 : Math.min(Math.max(y, 0), MAP_EXTENT.h - h);
   return { x, y, w, h, scale, boxW: box.w, boxH: box.h };
 }
 
-function padFor(box: Box): Pad {
-  const edge = Math.round(Math.min(box.w, box.h) * 0.1);
-  return { top: Math.max(56, edge), right: Math.max(44, edge), bottom: Math.max(72, edge + 24), left: Math.max(44, edge) };
-}
-
-/** Between two views of the same box: the centre moves in a straight line
- *  and the zoom eases in log space, so the move reads as one camera glide. */
+/** The camera glides: the centre moves in a line and the zoom eases in log space */
 function between(a: View, b: View, k: number): View {
-  const acx = a.x + a.w / 2, acy = a.y + a.h / 2;
-  const bcx = b.x + b.w / 2, bcy = b.y + b.h / 2;
   const scale = Math.exp(Math.log(a.scale) + (Math.log(b.scale) - Math.log(a.scale)) * k);
+  const cx = a.x + a.w / 2 + (b.x + b.w / 2 - (a.x + a.w / 2)) * k;
+  const cy = a.y + a.h / 2 + (b.y + b.h / 2 - (a.y + a.h / 2)) * k;
   const w = b.boxW / scale, h = b.boxH / scale;
-  const cx = acx + (bcx - acx) * k, cy = acy + (bcy - acy) * k;
   return { x: cx - w / 2, y: cy - h / 2, w, h, scale, boxW: b.boxW, boxH: b.boxH };
 }
-
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-type PinNode = { id: string; r: number; ax: number; ay: number; x: number; y: number; fixed?: boolean };
+/* ===== Markers on the map: places, the kitchen, and groups of places ===== */
 
-/** Fans out pins that would overlap, each tethered to its true spot, so a
- *  tight cluster spreads with hairline leaders instead of stacking. */
-function relaxPins(nodes: PinNode[], box: Box, edge: number): PinNode[] {
-  for (const n of nodes) { n.x = n.ax; n.y = n.ay; }
-  for (let it = 0; it < 320; it++) {
-    const spring = it < 240 ? 0.06 : 0;
-    for (let i = 0; i < nodes.length; i++) {
-      const a = nodes[i];
-      a.x += (a.ax - a.x) * spring;
-      a.y += (a.ay - a.y) * spring;
-      for (let j = i + 1; j < nodes.length; j++) {
-        const b = nodes[j];
-        let dx = b.x - a.x, dy = b.y - a.y;
-        let d = Math.hypot(dx, dy);
-        const min = a.r + b.r + 4;
-        if (d < min) {
-          if (d < 0.01) { const ang = (i * 7 + j * 3) * 0.9; dx = Math.cos(ang); dy = Math.sin(ang); d = 1; }
-          const push = (min - d) / 2, ux = dx / d, uy = dy / d;
-          const wa = a.fixed ? 0 : b.fixed ? 2 : 1;
-          const wb = b.fixed ? 0 : a.fixed ? 2 : 1;
-          a.x -= ux * push * wa; a.y -= uy * push * wa;
-          b.x += ux * push * wb; b.y += uy * push * wb;
+type Item = {
+  key: string;
+  type: 'place' | 'kitchen' | 'cluster';
+  ids: string[];
+  x: number;
+  y: number;
+  ax: number; // where it really is; differs when nudged clear of the kitchen
+  ay: number;
+  w: number;
+  first: number; // lowest number inside, for keyboard order
+};
+
+const clusterWidth = (n: number) => Math.max(HIT, 24 + `${n} places`.length * 7.4);
+type Spot = { x: number; y: number; w: number };
+const overlaps = (a: Spot, b: Spot) => Math.abs(a.x - b.x) < (a.w + b.w) / 2 + 2 && Math.abs(a.y - b.y) < HIT + 2;
+
+// "Show all places" sits in the map's top right corner (12px in, one tap target
+// tall, about 136px wide); while it shows, markers and town names keep clear of it
+const CORNER_W = 148;
+const cornerSpot = (box: Box): Spot => ({ x: box.w - 12 - CORNER_W / 2, y: 12 + HIT / 2, w: CORNER_W });
+
+/** Places whose tap areas would overlap become one "n places" marker. The
+ *  kitchen and the chosen place never join a group; anything on top of them
+ *  is nudged aside with a hairline back to where it really is. The kitchen is
+ *  left off when a zoom puts it out of frame, rather than parked at the edge. */
+function layoutItems(places: Place[], view: View, box: Box, chosenId?: string | null, keepCornerClear = false): Item[] {
+  const toPx = (p: MapPoint) => ({ x: (p.x - view.x) * view.scale, y: (p.y - view.y) * view.scale });
+  const inFrame = (q: { x: number; y: number }) => q.x >= 0 && q.x <= box.w && q.y >= 0 && q.y <= box.h;
+  const k = toPx(KITCHEN_POINT);
+  const kitchen: Item | null = inFrame(k)
+    ? { key: KITCHEN.id, type: 'kitchen', ids: [KITCHEN.id], x: k.x, y: k.y, ax: k.x, ay: k.y, w: HIT, first: 0 }
+    : null;
+
+  let items: Item[] = places
+    .map((pl) => ({ pl, q: toPx(pl.p) }))
+    .filter(({ q }) => inFrame(q))
+    .map(({ pl, q }) => ({ key: pl.id, type: 'place' as const, ids: [pl.id], x: q.x, y: q.y, ax: q.x, ay: q.y, w: HIT, first: pl.num }));
+
+  const nums = new Map(places.map((pl) => [pl.id, pl.num]));
+  const merge = (group: Item[]): Item => {
+    const ids = group.flatMap((g) => g.ids).sort((a, b) => (nums.get(a) ?? 0) - (nums.get(b) ?? 0));
+    const ax = group.reduce((s, g) => s + g.ax * g.ids.length, 0) / ids.length;
+    const ay = group.reduce((s, g) => s + g.ay * g.ids.length, 0) / ids.length;
+    return { key: `c:${ids.join(',')}`, type: 'cluster', ids, x: ax, y: ay, ax, ay, w: clusterWidth(ids.length), first: Math.min(...group.map((g) => g.first)) };
+  };
+
+  const fits = (it: Item, x: number, y: number) => x - it.w / 2 >= 4 && x + it.w / 2 <= box.w - 4 && y - HIT / 2 >= 4 && y + HIT / 2 <= box.h - 4;
+  // Keep a marker wholly inside the frame; says whether it had to move
+  const clampIn = (it: Item) => {
+    const x = Math.min(Math.max(it.x, it.w / 2 + 4), box.w - it.w / 2 - 4);
+    const y = Math.min(Math.max(it.y, HIT / 2 + 4), box.h - HIT / 2 - 4);
+    const moved = x !== it.x || y !== it.y;
+    it.x = x;
+    it.y = y;
+    return moved;
+  };
+  // Away from what it sits on, along the line between them. If that would leave
+  // the frame it goes the other way instead, so the edge cannot push it back.
+  const nudgeOff = (it: Item, from: Spot) => {
+    let dx = it.x - from.x, dy = it.y - from.y;
+    if (Math.hypot(dx, dy) < 1) { dx = 1; dy = 0; }
+    const needX = (it.w + from.w) / 2 + 4, needY = HIT + 4;
+    const t = Math.min(needX / Math.max(Math.abs(dx), 0.001), needY / Math.max(Math.abs(dy), 0.001));
+    const ways = [[dx, dy], [-dx, dy], [dx, -dy], [-dx, -dy]];
+    const [wx, wy] = ways.find(([sx, sy]) => fits(it, from.x + sx * t, from.y + sy * t)) ?? ways[0];
+    it.x = from.x + wx * t;
+    it.y = from.y + wy * t;
+  };
+
+  // The chosen place stands on its own, so it can always be seen
+  const at = chosenId ? items.findIndex((it) => it.ids[0] === chosenId) : -1;
+  const chosen = at >= 0 ? items.splice(at, 1)[0] : null;
+  const corner = keepCornerClear ? cornerSpot(box) : null;
+  for (const f of [kitchen, corner]) if (chosen && f && overlaps(chosen, f)) nudgeOff(chosen, f);
+  const fixed = [kitchen, chosen, corner].filter((it): it is Spot => !!it);
+
+  for (let pass = 0; pass < 8; pass++) {
+    let changed = false;
+    // Group anything that overlaps
+    const used = new Set<number>();
+    const next: Item[] = [];
+    for (let i = 0; i < items.length; i++) {
+      if (used.has(i)) continue;
+      const group = [items[i]];
+      used.add(i);
+      for (let grew = true; grew; ) {
+        grew = false;
+        for (let j = 0; j < items.length; j++) {
+          if (used.has(j)) continue;
+          if (group.some((g) => overlaps(g, items[j]))) { group.push(items[j]); used.add(j); grew = true; }
         }
       }
+      if (group.length > 1) changed = true;
+      next.push(group.length > 1 ? merge(group) : group[0]);
     }
-    for (const n of nodes) {
-      n.x = Math.min(Math.max(n.x, n.r + edge), box.w - n.r - edge);
-      n.y = Math.min(Math.max(n.y, n.r + edge), box.h - n.r - edge);
+    items = next;
+    // Nudge anything sitting on the kitchen, the chosen place or the corner out
+    // from under it, then back inside the frame; a move means another round
+    for (const it of items) {
+      for (const f of fixed) {
+        if (!overlaps(it, f)) continue;
+        nudgeOff(it, f);
+        changed = true;
+      }
+      if (clampIn(it)) changed = true;
     }
+    if (!changed) break;
   }
-  return nodes;
+  if (chosen) items.push(chosen);
+  const all = [...(kitchen ? [kitchen] : []), ...items.sort((a, b) => a.first - b.first)];
+  for (const it of all) clampIn(it);
+  return all;
 }
 
-function niceScaleKm(pxPerKm: number, targetPx: number): number {
-  let best = 0.5;
-  for (const s of [0.5, 1, 2, 5, 10, 20, 50]) if (s * pxPerKm <= targetPx) best = s;
-  return best;
-}
-
-function graticuleStep(spanDeg: number): number {
-  for (const m of [1, 2, 5, 10, 15, 30, 60]) if ((spanDeg * 60) / m <= 4.2) return m / 60;
-  return 1;
-}
-
-function formatDegrees(v: number, pos: string, neg: string): string {
-  const a = Math.abs(v);
-  let d = Math.floor(a + 1e-9);
-  let m = Math.round((a - d) * 60);
-  if (m === 60) { d += 1; m = 0; }
-  return `${d}°${m < 10 ? '0' : ''}${m}′${v >= 0 ? pos : neg}`;
-}
-
-/** A canvas that answers "is this point on land?" for label placement.
- *  Built once, on first use in the browser; the plate only draws there. */
+/** A canvas that answers "is this point on land?" for the town names. Built
+ *  once, on first use in the browser. */
 let landCanvas: { ctx: CanvasRenderingContext2D; path: Path2D } | null | undefined;
 function landTester() {
   if (landCanvas === undefined) {
@@ -176,68 +206,86 @@ function landTester() {
   return landCanvas;
 }
 
-/* ===== The crest, small, for the kitchen pin and its list row ===== */
-
-function KitchenCrest({ size }: { size: number }) {
-  return (
-    <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true">
-      <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(124,89,29,0.7)" strokeWidth="2.4" />
-      <circle cx="50" cy="50" r="41.5" fill="none" stroke="rgba(124,89,29,0.7)" strokeWidth="1.2" />
-      <path d="M15.2 37.4 A 37 37 0 0 1 43.6 13.6" fill="none" stroke="#1C6B4A" strokeWidth="6" strokeLinecap="round" />
-      <path d="M56.4 13.6 A 37 37 0 0 1 84.8 37.4" fill="none" stroke="#C13A2E" strokeWidth="6" strokeLinecap="round" />
-      <text x="50" y="68" textAnchor="middle" fill="#211C13" style={{ font: '400 50px var(--font-serif)' }}>G</text>
-    </svg>
-  );
+function townLabels(view: View, box: Box, items: Item[], keepCornerClear = false) {
+  const tester = landTester();
+  if (!tester) return [];
+  tester.ctx.setTransform(view.scale, 0, 0, view.scale, -view.x * view.scale, -view.y * view.scale);
+  type Rect = { x: number; y: number; w: number; h: number };
+  const taken: Rect[] = [...items, ...(keepCornerClear ? [cornerSpot(box)] : [])].map((it) => ({ x: it.x - it.w / 2 - 4, y: it.y - HIT / 2 - 4, w: it.w + 8, h: HIT + 8 }));
+  const hit = (r: Rect) => taken.some((t) => r.x < t.x + t.w && r.x + r.w > t.x && r.y < t.y + t.h && r.y + r.h > t.y);
+  const onLand = (r: Rect) => {
+    for (let i = 0; i <= 4; i++) for (let j = 0; j <= 2; j++) {
+      if (!tester.ctx.isPointInPath(tester.path, r.x + (r.w * i) / 4, r.y + (r.h * j) / 2, 'evenodd')) return false;
+    }
+    return true;
+  };
+  const max = Math.max(2, Math.round((box.w * box.h) / 60000));
+  const out: { name: string; x: number; y: number }[] = [];
+  for (const t of [...PLACES].sort((a, b) => b.population - a.population)) {
+    if (out.length >= max) break;
+    const p = project(t);
+    const x = (p.x - view.x) * view.scale, y = (p.y - view.y) * view.scale;
+    const w = t.name.length * 7 + 10, h = 16;
+    // Centred on the town first; then just above or below it, then beside it (a harbour can sit on the spot)
+    for (const [dx, dy] of [[0, 0], [0, -18], [0, 18], [w / 2 + 6, 0], [-(w / 2 + 6), 0]]) {
+      const r = { x: x + dx - w / 2, y: y + dy - h / 2, w, h };
+      if (r.x < 8 || r.y < 8 || r.x + r.w > box.w - 8 || r.y + r.h > box.h - 8) continue;
+      if (hit(r) || !onLand(r)) continue;
+      taken.push({ x: r.x - 12, y: r.y - 8, w: r.w + 24, h: r.h + 16 });
+      out.push({ name: t.name, x: x + dx, y: y + dy });
+      break;
+    }
+  }
+  return out;
 }
 
-/** The pin symbol for a kind: a disc for restaurants, a diamond for grocers,
- *  so the two read apart by shape as well as colour. */
-function KindMark({ kind, label }: { kind: Stockist['kind']; label?: string | number }) {
+/* ===== The marker, the same in the list, on the map and in the key ===== */
+
+function Mark({ kind, label, keyMark }: { kind: Kind | 'kitchen'; label?: string | number; keyMark?: boolean }) {
   return (
-    <span className={`g-mark g-mark--${kind}`} aria-hidden="true">
-      {label !== undefined && <span className="g-mark__num">{label}</span>}
+    <span className={`gg-mark gg-mark--${kind}${keyMark ? ' gg-mark--key' : ''}`} aria-hidden="true">
+      {label}
     </span>
   );
 }
 
 /* ===== Component ===== */
 
-type Numbered = Stockist & { p: MapPoint; num: number };
+type Frame = { type: 'home' } | { type: 'all' } | { type: 'ids'; ids: string[]; minSpan: number };
 
 export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
-  const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
-  const landId = `g-land-${uid}`;
-  const plateRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLOListElement>(null);
-
-  const [box, setBox] = useState<Box | null>(null);
-  const [filter, setFilter] = useState<Filter>('all');
-  const [hovered, setHovered] = useState<string | null>(null);
-  const [chosen, setChosen] = useState<string | null>(null);
-  const active = hovered ?? chosen;
-  const stacked = useSyncExternalStore(subscribeStacked, isStacked, () => false);
-
-  // Hover follows a real mouse only. A tap also sends mouse events, and on a
-  // phone those would pin the highlight on until another pin was tapped.
-  const hoverOn = (id: string) => (e: PointerEvent) => { if (e.pointerType === 'mouse') setHovered(id); };
-  const hoverOff = (e: PointerEvent) => { if (e.pointerType === 'mouse') setHovered(null); };
-
-  const kitchenPoint = useMemo(() => project(KITCHEN), []);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const figureRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const pinsRef = useRef<HTMLDivElement>(null);
 
   // Numbered in the order the owner set in the admin
-  const numbered: Numbered[] = useMemo(() => stockists.map((s, i) => ({ ...s, p: project(s), num: i + 1 })), [stockists]);
+  // Numbered the way the list shows them: grocers, then restaurants, each in the owner's order
+  const places: Place[] = useMemo(
+    () =>
+      [...stockists.filter((s) => s.kind === 'grocery'), ...stockists.filter((s) => s.kind !== 'grocery')]
+        .map((s, i) => ({ ...s, num: i + 1, p: project(s) })),
+    [stockists]
+  );
+  const byId = useMemo(() => new Map(places.map((p) => [p.id, p])), [places]);
 
-  const counts = useMemo(() => ({
-    all: numbered.length,
-    restaurant: numbered.filter((s) => s.kind === 'restaurant').length,
-    grocery: numbered.filter((s) => s.kind === 'grocery').length,
-  }), [numbered]);
-  const showFilter = counts.restaurant > 0 && counts.grocery > 0;
-  const visible = useMemo(() => (filter === 'all' ? numbered : numbered.filter((s) => s.kind === filter)), [numbered, filter]);
+  const counts = { grocery: places.filter((p) => p.kind === 'grocery').length, restaurant: places.filter((p) => p.kind === 'restaurant').length };
+  const showChips = places.length >= FILTER_FROM && counts.grocery > 0 && counts.restaurant > 0;
 
-  // Measure the plate; everything drawn in pixels follows its size
+  const [filter, setFilter] = useState<Filter>('all');
+  const shown = useMemo(() => (filter === 'all' ? places : places.filter((p) => p.kind === filter)), [places, filter]);
+
+  const [selected, setSelected] = useState<string | null>(null);
+  const [clusterList, setClusterList] = useState<string[] | null>(null);
+  const [frame, setFrame] = useState<Frame>({ type: 'home' });
+  const [box, setBox] = useState<Box | null>(null);
+  const [announce, setAnnounce] = useState('');
+  const [focusKey, setFocusKey] = useState<string>(KITCHEN.id);
+  const pendingFocus = useRef<string[] | null>(null);
+
+  // Measure the map; everything drawn in pixels follows its size
   useEffect(() => {
-    const el = plateRef.current;
+    const el = canvasRef.current;
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
@@ -247,18 +295,25 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
     return () => ro.disconnect();
   }, []);
 
-  const target = useMemo(
-    () => (box ? fitView([kitchenPoint, ...visible.map((s) => s.p)], box, padFor(box), visible.length ? MIN_SPAN : KITCHEN_ONLY_SPAN) : null),
-    [box, visible, kitchenPoint]
-  );
+  const target = useMemo(() => {
+    if (!box) return null;
+    if (frame.type === 'ids') {
+      const pts = frame.ids.map((id) => (id === KITCHEN.id ? KITCHEN_POINT : byId.get(id)?.p)).filter((p): p is MapPoint => !!p);
+      return fitView(pts.length ? pts : [KITCHEN_POINT], box, frame.minSpan);
+    }
+    if (shown.length === 0) return fitView([KITCHEN_POINT], box, KITCHEN_ONLY_SPAN);
+    const near = shown.filter(inGreaterVictoria);
+    const set = frame.type === 'all' || near.length === 0 ? shown : near;
+    return fitView([KITCHEN_POINT, ...set.map((p) => p.p)], box, MIN_SPAN);
+  }, [box, frame, shown, byId]);
 
-  // The view glides to each new fit; a resize or reduced motion jumps
+  // The view glides to each new frame; a resize or reduced motion jumps
   const [view, setView] = useState<View | null>(null);
-  const shown = useRef<View | null>(null);
-  useEffect(() => { shown.current = view; }, [view]);
+  const lastView = useRef<View | null>(null);
+  useEffect(() => { lastView.current = view; }, [view]);
   useEffect(() => {
     if (!target) return;
-    const from = shown.current;
+    const from = lastView.current;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let raf = 0;
     if (!from || reduce || from.boxW !== target.boxW || from.boxH !== target.boxH) {
@@ -275,411 +330,350 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
     return () => cancelAnimationFrame(raf);
   }, [target]);
 
-  const drawing = useMemo(() => {
-    if (!view || !box) return null;
-    const W = box.w, H = box.h;
-    const toPx = (p: MapPoint) => ({ x: (p.x - view.x) * view.scale, y: (p.y - view.y) * view.scale });
-    const compact = W < COMPACT_BELOW;
+  const settled = !!view && view === target;
+  const targetItems = useMemo(() => (target && box ? layoutItems(shown, target, box) : []), [target, box, shown]);
+  const outOfFrame = target ? shown.length - targetItems.reduce((n, it) => n + (it.type === 'kitchen' ? 0 : it.ids.length), 0) : 0;
+  const showAllButton = outOfFrame > 0;
+  const items = useMemo(() => (view && box ? layoutItems(shown, view, box, selected, showAllButton) : []), [view, box, shown, selected, showAllButton]);
+  const towns = useMemo(() => (settled && view && box ? townLabels(view, box, items, showAllButton) : []), [settled, view, box, items, showAllButton]);
 
-    // Graticule and the degree ticks in the plate margin
-    const tl = unproject({ x: view.x, y: view.y });
-    const br = unproject({ x: view.x + view.w, y: view.y + view.h });
-    const step = graticuleStep(Math.min(tl.lat - br.lat, br.lng - tl.lng));
-    let grat = '';
-    const ticks: { key: string; side: 'left' | 'top'; pos: number; text: string }[] = [];
-    for (let lat = Math.ceil(br.lat / step) * step; lat < tl.lat; lat += step) {
-      const y = project({ lat, lng: MAP_GEO.west }).y;
-      grat += `M${view.x} ${y}H${view.x + view.w}`;
-      const py = (y - view.y) * view.scale;
-      if (py > 30 && py < H - 30) ticks.push({ key: `la${lat.toFixed(4)}`, side: 'left', pos: py, text: formatDegrees(lat, 'N', 'S') });
-    }
-    for (let lng = Math.ceil(tl.lng / step) * step; lng < br.lng; lng += step) {
-      const x = project({ lat: MAP_GEO.south, lng }).x;
-      grat += `M${x} ${view.y}V${view.y + view.h}`;
-      const px = (x - view.x) * view.scale;
-      if (px > 30 && px < W - 30) ticks.push({ key: `lo${lng.toFixed(4)}`, side: 'top', pos: px, text: formatDegrees(lng, 'E', 'W') });
-    }
+  // Keep one marker in the tab order; follow it when the markers change
+  const rovingKey = items.some((it) => it.key === focusKey) ? focusKey : items[0]?.key;
 
-    // The piano-key border: alternating ink and paper per minute of arc,
-    // anchored to absolute minutes so the frame never shimmers as it refits
-    const band = 4;
-    const keys: { x: number; y: number; w: number; h: number }[] = [];
-    const xOf = (lng: number) => (project({ lat: MAP_GEO.south, lng }).x - view.x) * view.scale;
-    const yOf = (lat: number) => (project({ lat, lng: MAP_GEO.west }).y - view.y) * view.scale;
-    const pick = (pxPerMin: number) => { for (const o of [1, 2, 5, 10, 15, 30]) if (o * pxPerMin >= 9) return o; return 60; };
-    const ksX = pick(Math.abs(xOf(tl.lng + 1 / 60) - xOf(tl.lng)));
-    const ksY = pick(Math.abs(yOf(br.lat + 1 / 60) - yOf(br.lat)));
-    for (let m = Math.floor((tl.lng * 60) / ksX) * ksX; m < br.lng * 60; m += ksX) {
-      if (((Math.round(m / ksX) % 2) + 2) % 2) continue;
-      const x0 = Math.max(band, xOf(m / 60)), x1 = Math.min(W - band, xOf((m + ksX) / 60));
-      if (x1 > x0) { keys.push({ x: x0, y: 0, w: x1 - x0, h: band }); keys.push({ x: x0, y: H - band, w: x1 - x0, h: band }); }
-    }
-    for (let n = Math.floor((br.lat * 60) / ksY) * ksY; n < tl.lat * 60; n += ksY) {
-      if (((Math.round(n / ksY) % 2) + 2) % 2) continue;
-      const y0 = Math.max(band, yOf((n + ksY) / 60)), y1 = Math.min(H - band, yOf(n / 60));
-      if (y1 > y0) { keys.push({ x: 0, y: y0, w: band, h: y1 - y0 }); keys.push({ x: W - band, y: y0, w: band, h: y1 - y0 }); }
-    }
+  // After a zoom, put focus on the first place that was asked for
+  useEffect(() => {
+    if (!settled || !pendingFocus.current) return;
+    const want = pendingFocus.current;
+    pendingFocus.current = null;
+    const it = items.find((i) => i.ids.some((id) => want.includes(id)));
+    if (!it) return;
+    const raf = requestAnimationFrame(() => {
+      setFocusKey(it.key);
+      pinsRef.current?.querySelector<HTMLButtonElement>(`[data-key="${CSS.escape(it.key)}"]`)?.focus();
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [settled, items]);
 
-    // Names are placed once the view settles; mid-glide they would hop
-    // between spots, and the land test is the costly part of a frame
-    const settled = view === target;
+  const stacked = () => window.matchMedia('(max-width: 959px)').matches;
+  const smooth = (): ScrollBehavior => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 
-    // Pins, fanned out where they would overlap. Mid-glide, a pin whose spot
-    // is still outside the frame waits there instead of crowding the edge.
-    const kr = compact ? 16 : 18;
-    const sr = compact ? 10 : 11;
-    const onFrame = (q: { x: number; y: number }, r: number) => settled || (q.x > -r && q.x < W + r && q.y > -r && q.y < H + r);
-    const nodes: PinNode[] = [];
-    const kq = toPx(kitchenPoint);
-    if (onFrame(kq, kr)) nodes.push({ id: KITCHEN.id, r: kr, fixed: true, ax: kq.x, ay: kq.y, x: kq.x, y: kq.y });
-    for (const s of visible) {
-      const q = toPx(s.p);
-      if (onFrame(q, sr)) nodes.push({ id: s.id, r: sr, ax: q.x, ay: q.y, x: q.x, y: q.y });
+  const nameOf = (id: string) => (id === KITCHEN.id ? KITCHEN.name : byId.get(id)?.name ?? '');
+
+  /** Choose a place. From the list it is shown on the map, zooming in if it
+   *  is out of frame or inside a group; from the map its row is brought in. */
+  const choose = (id: string, from: 'list' | 'map', pointer: boolean) => {
+    const next = selected === id ? null : id;
+    // On the map the button just pressed can go: a group's list closes, or a
+    // place let go rejoins its group. Focus then follows the place to its marker.
+    if (from === 'map' && (clusterList || !next)) pendingFocus.current = [id];
+    setSelected(next);
+    setClusterList(null);
+    setAnnounce(next ? `${nameOf(next)} chosen.` : 'Nothing chosen.');
+    if (!next) return;
+    if (next !== KITCHEN.id && target && box) {
+      const holder = targetItems.find((it) => it.ids.includes(next));
+      if (!holder) setFrame({ type: 'ids', ids: [KITCHEN.id, next], minSpan: MIN_SPAN });
+      else if (holder.type === 'cluster') setFrame({ type: 'ids', ids: holder.ids, minSpan: CLUSTER_SPAN });
+    } else if (next === KITCHEN.id && !targetItems.some((it) => it.type === 'kitchen')) {
+      // Zoomed in elsewhere: go back to the view that holds the kitchen
+      setFrame({ type: 'home' });
     }
-    relaxPins(nodes, { w: W, h: H }, 8);
-
-    // Labels: water names in italic, a few island and town names, never on a
-    // pin, and towns only where they sit on land (water names only on water)
-    const tester = landTester();
-    tester?.ctx.setTransform(view.scale, 0, 0, view.scale, -view.x * view.scale, -view.y * view.scale);
-    const onLand = (px: number, py: number) => (tester ? tester.ctx.isPointInPath(tester.path, px, py, 'evenodd') : true);
-    type Rect = { x: number; y: number; w: number; h: number };
-    // Points spread over a label's box, about every 10px, for the land test
-    const spread = (r: Rect): [number, number][] => {
-      const nx = Math.max(2, Math.ceil(r.w / 10)), ny = Math.max(2, Math.ceil(r.h / 10));
-      const pts: [number, number][] = [];
-      for (let i = 0; i <= nx; i++) for (let j = 0; j <= ny; j++) pts.push([r.x + (r.w * i) / nx, r.y + (r.h * j) / ny]);
-      return pts;
-    };
-    const allLand = (r: Rect) => spread(r).every(([x, y]) => onLand(x, y));
-    const allWater = (r: Rect) => !spread(r).some(([x, y]) => onLand(x, y));
-    const taken: Rect[] = nodes.map((n) => ({ x: n.x - n.r - 6, y: n.y - n.r - 6, w: 2 * n.r + 12, h: 2 * n.r + 12 }));
-    const hit = (r: Rect) => taken.some((t) => r.x < t.x + t.w && r.x + r.w > t.x && r.y < t.y + t.h && r.y + r.h > t.y);
-    const inside = (r: Rect, bottomRoom: number) => r.x >= 14 && r.y >= 30 && r.x + r.w <= W - 14 && r.y + r.h <= H - bottomRoom;
-    const labels: { key: string; kind: 'water' | 'region' | 'town' | 'kitchen'; x: number; y: number; text: string; rotate?: number }[] = [];
-
-    if (settled) {
-    for (const wtr of WATER) {
-      const tw = wtr.name.length * 7.4, th = 18;
-      for (const [lat, lng] of wtr.at) {
-        const q = toPx(project({ lat, lng }));
-        const rect = wtr.rotate ? { x: q.x - th / 2, y: q.y - tw / 2, w: th, h: tw } : { x: q.x - tw / 2, y: q.y - th / 2, w: tw, h: th };
-        if (!inside(rect, 64) || hit(rect) || !allWater(rect)) continue;
-        taken.push(rect);
-        labels.push({ key: `w-${wtr.name}`, kind: 'water', x: q.x, y: q.y, text: wtr.name, rotate: wtr.rotate });
-        break;
-      }
+    if (from === 'list' && pointer && stacked()) {
+      figureRef.current?.scrollIntoView({ block: 'start', behavior: smooth() });
     }
-    for (const rg of REGIONS) {
-      const tw = rg.name.length * 15.5 + 16, th = 20;
-      for (const [lat, lng] of rg.at) {
-        const q = toPx(project({ lat, lng }));
-        const rect = { x: q.x - tw / 2, y: q.y - th / 2, w: tw, h: th };
-        if (!inside(rect, 70) || hit(rect) || !allLand(rect)) continue;
-        taken.push(rect);
-        labels.push({ key: `r-${rg.name}`, kind: 'region', x: q.x, y: q.y, text: rg.name });
-        break;
-      }
+    if (from === 'map' && !stacked()) {
+      listRef.current?.querySelector<HTMLElement>(`[data-place="${CSS.escape(next)}"]`)?.scrollIntoView({ block: 'nearest', behavior: smooth() });
     }
-    // The kitchen gets its name beside the crest when there is room
-    {
-      const k = nodes.find((n) => n.id === KITCHEN.id);
-      if (k) {
-      const text = 'Guido’s kitchen';
-      const tw = text.length * 8.8 + 8, th = 14;
-      const spots = [[0, k.r + 14], [0, -(k.r + 14)], [k.r + tw / 2 + 8, 0], [-(k.r + tw / 2 + 8), 0]].map(([dx, dy]) => ({
-        x: k.x + dx,
-        y: k.y + dy,
-        rect: { x: k.x + dx - tw / 2, y: k.y + dy - th / 2, w: tw, h: th },
-      }));
-      const open = spots.filter((p) => inside(p.rect, 64) && !hit(p.rect));
-      // Clear of the shoreline if it can be, otherwise the first free side
-      const spot = open.find((p) => allLand(p.rect)) ?? open[0];
-      if (spot) {
-        taken.push(spot.rect);
-        labels.push({ key: 'kitchen', kind: 'kitchen', x: spot.x, y: spot.y, text });
-      }
-      }
-    }
-    const maxTowns = Math.max(3, Math.round((W * H) / 70000));
-    let towns = 0;
-    for (const t of [...PLACES].sort((a, b) => b.population - a.population)) {
-      if (towns >= maxTowns) break;
-      const node = toPx(project(t));
-      const tw = t.name.length * 8.6 + 8, th = 14;
-      // Centred on the town first, then just above, below, or to one side
-      for (const [dx, dy] of [[0, 0], [0, -16], [0, 16], [tw / 2 + 4, 0], [-tw / 2 - 4, 0]]) {
-        const q = { x: node.x + dx, y: node.y + dy };
-        const rect = { x: q.x - tw / 2, y: q.y - th / 2, w: tw, h: th };
-        if (!inside(rect, 70) || hit(rect)) continue;
-        if (!allLand(rect)) continue;
-        taken.push({ x: rect.x - 16, y: rect.y - 12, w: rect.w + 32, h: rect.h + 24 });
-        labels.push({ key: `t-${t.name}`, kind: 'town', x: q.x, y: q.y, text: t.name });
-        towns++;
-        break;
-      }
-    }
-    }
-
-    // Scale bar: a round number of km, about a fifth of the plate wide
-    const pxPerKm = view.scale * (1000 / MAP_GEO.metresPerUnit);
-    const km = niceScaleKm(pxPerKm, W * 0.22);
-
-    return { W, H, compact, grat, ticks, keys, band, nodes, labels, km, scaleBarPx: km * pxPerKm };
-  }, [view, target, box, visible, kitchenPoint]);
-
-  // The card for the active pin: the side that covers the fewest pins
-  const activeTag = useMemo(() => {
-    if (!drawing || !active || stacked) return null;
-    const node = drawing.nodes.find((n) => n.id === active);
-    if (!node) return null;
-    const s = active === KITCHEN.id ? null : numbered.find((x) => x.id === active);
-    const title = s ? s.name : KITCHEN.name;
-    const meta = s ? `${KIND_LABEL[s.kind]} · ${s.address}` : `${KITCHEN.note} · ${KITCHEN.address}`;
-    const w = Math.min(Math.max(title.length * 8.8, meta.length * 6.5) + 28, drawing.W - 24);
-    const h = 58;
-    const gap = node.r + 10;
-    const candidates = [
-      { x: node.x - w / 2, y: node.y - gap - h },
-      { x: node.x - w / 2, y: node.y + gap },
-      { x: node.x + gap, y: node.y - h / 2 },
-      { x: node.x - gap - w, y: node.y - h / 2 },
-    ].map((c) => ({ x: Math.min(Math.max(c.x, 12), drawing.W - 12 - w), y: Math.min(Math.max(c.y, 12), drawing.H - 12 - h) }));
-    const covers = (c: { x: number; y: number }) =>
-      drawing.nodes.filter((n) => n.id !== node.id && n.x + n.r > c.x && n.x - n.r < c.x + w && n.y + n.r > c.y && n.y - n.r < c.y + h).length +
-      (node.x + node.r > c.x && node.x - node.r < c.x + w && node.y + node.r > c.y && node.y - node.r < c.y + h ? 10 : 0);
-    const best = candidates.reduce((a, c) => (covers(c) < covers(a) ? c : a), candidates[0]);
-    return { x: best.x, y: best.y, title, meta };
-  }, [drawing, active, numbered, stacked]);
-
-  const selectFromPin = (id: string) => {
-    setChosen((cur) => (cur === id ? null : id));
-    // Stacked, the caption under the map names the place and the list sits
-    // further down, so the page stays put; beside the map, bring the row in
-    if (stacked) return;
-    const row = listRef.current?.querySelector<HTMLElement>(`[data-id="${CSS.escape(id)}"]`);
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    row?.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
   };
 
-  // Water lines sit closer to the shore when zoomed out, so a coast full of
-  // small islands stays an engraving rather than a thicket
-  const ringK = view ? Math.min(1, Math.max(0.55, 0.55 + (0.45 * (view.scale - 0.12)) / 0.5)) : 1;
+  const openCluster = (it: Item) => {
+    if (!target || !box) return;
+    const pts = it.ids.map((id) => byId.get(id)?.p).filter((p): p is MapPoint => !!p);
+    const zoomed = fitView(pts, box, CLUSTER_SPAN);
+    if (zoomed.scale > target.scale * 1.15) {
+      pendingFocus.current = it.ids;
+      setClusterList(null);
+      setFrame({ type: 'ids', ids: it.ids, minSpan: CLUSTER_SPAN });
+      setAnnounce(`Zoomed in to ${it.ids.length} places.`);
+    } else {
+      // Too close together to pull apart: list them under the map instead
+      setClusterList(it.ids);
+      setSelected(null);
+      setAnnounce(`${it.ids.length} places here, listed under the map.`);
+    }
+  };
 
-  const activeStockist = active && active !== KITCHEN.id ? numbered.find((s) => s.id === active) : null;
-  const statusText = `Showing ${visible.length} ${visible.length === 1 ? KIND_SINGULAR[filter] : KIND_PLURAL[filter]} and the kitchen.`;
+  const onPinsKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const keys = items.map((it) => it.key);
+    const at = keys.indexOf(rovingKey ?? '');
+    let next = -1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (at + 1) % keys.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (at - 1 + keys.length) % keys.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = keys.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    setFocusKey(keys[next]);
+    pinsRef.current?.querySelector<HTMLButtonElement>(`[data-key="${CSS.escape(keys[next])}"]`)?.focus();
+  };
+
+  const changeFilter = (f: Filter) => {
+    setFilter(f);
+    setFrame({ type: 'home' });
+    setClusterList(null);
+    if (selected && selected !== KITCHEN.id && f !== 'all' && byId.get(selected)?.kind !== f) setSelected(null);
+    const n = f === 'all' ? places.length : counts[f];
+    const noun = f === 'all' ? (n === 1 ? 'place' : 'places') : f === 'grocery' ? (n === 1 ? 'grocer' : 'grocers') : n === 1 ? 'restaurant' : 'restaurants';
+    setAnnounce(`Showing ${n} ${noun} and the kitchen.`);
+  };
+
+  const showAll = () => {
+    // The button goes once everything is in frame, so focus moves onto the map
+    pendingFocus.current = [KITCHEN.id];
+    setFrame({ type: 'all' });
+    setClusterList(null);
+    setAnnounce('Showing every place on the map.');
+  };
+
+  const isPointer = (e: MouseEvent) => e.detail > 0;
+  const chosen = selected === KITCHEN.id ? null : selected ? byId.get(selected) ?? null : null;
+  const groups: { kind: Kind; title: string; list: Place[] }[] = [
+    { kind: 'grocery', title: 'Grocers', list: shown.filter((p) => p.kind === 'grocery') },
+    { kind: 'restaurant', title: 'Restaurants', list: shown.filter((p) => p.kind === 'restaurant') },
+  ];
+
+  const placeLinks = (p: { name: string; address: string; website?: string }) => (
+    <>
+      <a href={directionsUrl(p.name, p.address)} target="_blank" rel="noopener noreferrer">
+        Directions<span className="gg-sr-only"> to {p.name} (opens in a new tab)</span>
+      </a>
+      {p.website && (
+        <a href={p.website} target="_blank" rel="noopener noreferrer">
+          Website<span className="gg-sr-only"> of {p.name} (opens in a new tab)</span>
+        </a>
+      )}
+    </>
+  );
+  const kitchenLinks = (
+    <>
+      <a href={directionsUrl('Guido’s Gourmet', SITE.addressFull)} target="_blank" rel="noopener noreferrer">
+        Directions<span className="gg-sr-only"> to Guido&rsquo;s kitchen (opens in a new tab)</span>
+      </a>
+      <Link href="/guidos/order?method=pickup">Request a pickup</Link>
+    </>
+  );
 
   return (
-    <div className="g-stockists__body">
-      <figure className="g-plate-figure">
-        <div className="g-plate-wrap" aria-hidden="true">
-          {drawing && (
-            <div className="g-plate-ticks">
-              {drawing.ticks.map((t) => (
-                <span
-                  key={t.key}
-                  className={`g-plate-tick g-plate-tick--${t.side}`}
-                  style={t.side === 'left' ? { top: `calc(var(--g-plate-margin) + ${t.pos.toFixed(1)}px)` } : { left: `calc(var(--g-plate-margin) + ${t.pos.toFixed(1)}px)` }}
-                >
-                  {t.text}
+    <div className="gg-where-body">
+      {/* The list: the main way in, complete without the map */}
+      <div ref={listRef}>
+        {showChips && (
+          <div className="gg-chips" role="group" aria-label="Show">
+            {(['all', 'grocery', 'restaurant'] as Filter[]).map((f) => (
+              <button key={f} type="button" aria-pressed={filter === f} onClick={() => changeFilter(f)}>
+                <span>
+                  {f === 'all' ? 'All' : f === 'grocery' ? 'Grocers' : 'Restaurants'}{' '}
+                  <span className="gg-chip-count">{f === 'all' ? places.length : counts[f]}</span>
                 </span>
-              ))}
-            </div>
-          )}
-          <div className={`g-plate${drawing?.compact ? ' is-compact' : ''}${active ? ' has-active' : ''}`} ref={plateRef}>
-            <svg className="g-plate__geo" viewBox={view ? `${view.x} ${view.y} ${view.w} ${view.h}` : `${MAP_EXTENT.w * 0.72} ${MAP_EXTENT.h * 0.74} 1500 1800`} preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <path id={landId} d={LAND_PATH} fillRule="evenodd" vectorEffect="non-scaling-stroke" />
-              </defs>
-              <rect x={-20000} y={-20000} width={60000} height={60000} className="g-plate__sea" />
-              {/* Engraved water lines: the coast stroked wide and cut back with
-                  the sea colour, ring by ring, so contours step out from shore */}
-              <g className="g-plate__rings">
-                {[[18, 0.16], [11, 0.3], [5, 0.5]].map(([d, o]) => (
-                  <g key={d}>
-                    <use href={`#${landId}`} className="g-plate__ring" style={{ strokeWidth: 2 * d * ringK + 0.9, strokeOpacity: o }} />
-                    <use href={`#${landId}`} className="g-plate__ring-cut" style={{ strokeWidth: 2 * d * ringK - 0.9 }} />
-                  </g>
-                ))}
-              </g>
-              {drawing && <path className="g-plate__grat" d={drawing.grat} />}
-              <use href={`#${landId}`} className="g-plate__land" />
-              <path className="g-plate__roads" d={ROADS_PATH} />
-            </svg>
-
-            {drawing && (
-              <>
-                <svg className="g-plate__over" viewBox={`0 0 ${drawing.W} ${drawing.H}`}>
-                  {drawing.nodes.map((n) =>
-                    Math.hypot(n.x - n.ax, n.y - n.ay) > n.r * 0.55 ? (
-                      <g key={`l-${n.id}`}>
-                        <line className="g-plate__leader" x1={n.ax} y1={n.ay} x2={n.x - Math.cos(Math.atan2(n.y - n.ay, n.x - n.ax)) * n.r} y2={n.y - Math.sin(Math.atan2(n.y - n.ay, n.x - n.ax)) * n.r} />
-                        <circle className="g-plate__anchor" cx={n.ax} cy={n.ay} r={2} />
-                      </g>
-                    ) : null
-                  )}
-                  <g className="g-plate__frame">
-                    <rect className="g-key-paper" x={0} y={0} width={drawing.W} height={drawing.band} />
-                    <rect className="g-key-paper" x={0} y={drawing.H - drawing.band} width={drawing.W} height={drawing.band} />
-                    <rect className="g-key-paper" x={0} y={0} width={drawing.band} height={drawing.H} />
-                    <rect className="g-key-paper" x={drawing.W - drawing.band} y={0} width={drawing.band} height={drawing.H} />
-                    {drawing.keys.map((k, i) => <rect key={i} className="g-key-ink" x={k.x} y={k.y} width={k.w} height={k.h} />)}
-                    {[[0, 0], [drawing.W - drawing.band, 0], [0, drawing.H - drawing.band], [drawing.W - drawing.band, drawing.H - drawing.band]].map(([x, y]) => (
-                      <rect key={`c${x}-${y}`} className="g-key-ink" x={x} y={y} width={drawing.band} height={drawing.band} />
-                    ))}
-                    <rect className="g-key-line" x={0.4} y={0.4} width={drawing.W - 0.8} height={drawing.H - 0.8} />
-                    <rect className="g-key-line" x={drawing.band} y={drawing.band} width={drawing.W - 2 * drawing.band} height={drawing.H - 2 * drawing.band} />
-                  </g>
-                </svg>
-
-                <div className="g-plate__labels">
-                  {drawing.labels.map((l) => (
-                    <span
-                      key={l.key}
-                      className={`g-plate__label g-plate__label--${l.kind}`}
-                      style={{ left: l.x, top: l.y, transform: l.rotate ? `translate(-50%, -50%) rotate(${l.rotate}deg)` : undefined }}
-                    >
-                      {l.text}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="g-plate__pins">
-                  {drawing.nodes.map((n) => {
-                    const s = n.id === KITCHEN.id ? null : visible.find((x) => x.id === n.id);
-                    return (
-                      <span
-                        key={n.id}
-                        className={`g-pin${s ? ` g-pin--${s.kind}` : ' g-pin--kitchen'}${active === n.id ? ' is-active' : ''}`}
-                        style={{ left: n.x, top: n.y }}
-                        onPointerEnter={hoverOn(n.id)}
-                        onPointerLeave={hoverOff}
-                        onClick={() => selectFromPin(n.id)}
-                      >
-                        {s ? <KindMark kind={s.kind} label={s.num} /> : <span className="g-pin__crest"><KitchenCrest size={drawing.compact ? 32 : 36} /></span>}
-                      </span>
-                    );
-                  })}
-                </div>
-
-                {activeTag && (
-                  <span className="g-plate__tag" style={{ left: activeTag.x, top: activeTag.y }}>
-                    <b>{activeTag.title}</b>
-                    <small>{activeTag.meta}</small>
-                  </span>
-                )}
-
-                <div className="g-plate__north">
-                  <svg width="10" height="26" viewBox="0 0 10 26"><path d="M5 0 L9 12 L5 10 L1 12 Z" fill="currentColor" /><path d="M5 10 L5 26" stroke="currentColor" strokeWidth="0.8" /></svg>
-                  N
-                </div>
-                <div className="g-plate__scale">
-                  <div className="g-plate__scale-bar" style={{ width: drawing.scaleBarPx }}><i /><i /><i /><i /></div>
-                  <div className="g-plate__scale-nums"><span>0</span><span>{drawing.km} km</span></div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        <p className="g-plate__caption" aria-hidden="true">
-          {activeStockist ? (
-            <><b>{activeStockist.num}. {activeStockist.name}</b> {KIND_LABEL[activeStockist.kind]} · {activeStockist.address}</>
-          ) : active === KITCHEN.id ? (
-            <><b>{KITCHEN.name}</b> {KITCHEN.note} · {KITCHEN.address}</>
-          ) : (
-            'Choose a pin to see the place.'
-          )}
-        </p>
-
-        <figcaption className="g-plate-cap">
-          <span className="g-legend">
-            <span><KindMark kind="restaurant" />Restaurant</span>
-            <span><KindMark kind="grocery" />Grocer</span>
-            <span><KitchenCrest size={16} />Guido&rsquo;s kitchen</span>
-          </span>
-          <span className="g-credit">
-            Map data{' '}
-            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
-              &copy; OpenStreetMap contributors<span className="sr-only"> (opens in a new tab)</span>
-            </a>
-            , ODbL
-          </span>
-        </figcaption>
-      </figure>
-
-      <div className="g-stock-list-wrap">
-        {showFilter && (
-          <div className="g-filter" role="group" aria-label="Show stockists">
-            {(['all', 'restaurant', 'grocery'] as Filter[]).map((f) => (
-              <button key={f} type="button" aria-pressed={filter === f} onClick={() => { setFilter(f); setChosen(null); }}>
-                {f !== 'all' && <KindMark kind={f} />}
-                {f === 'all' ? 'All' : f === 'restaurant' ? 'Restaurants' : 'Grocers'}
-                <span className="g-filter__count">{counts[f]}</span>
               </button>
             ))}
           </div>
         )}
-        <p className="sr-only" role="status">{showFilter ? statusText : ''}</p>
 
-        <ol
-          className="g-stock-list"
-          ref={listRef}
-          onPointerLeave={hoverOff}
-          onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setHovered(null); }}
-        >
-          <li
-            className={`g-stock g-stock--kitchen${active === KITCHEN.id ? ' is-active' : ''}`}
-            data-id={KITCHEN.id}
-            onPointerEnter={hoverOn(KITCHEN.id)}
-            onFocus={() => setHovered(KITCHEN.id)}
-          >
-            <span className="g-stock__mark"><KitchenCrest size={34} /></span>
-            <div>
-              <h3 className="g-stock__name">{KITCHEN.name}</h3>
-              <p className="g-stock__addr">{KITCHEN.address}</p>
-              <p className="g-stock__note">{KITCHEN.note}</p>
-            </div>
-            <div className="g-stock__side">
-              <span className="g-stock__kind g-stock__kind--kitchen">Kitchen</span>
-              <a className="g-textlink" href={directionsUrl('Guido’s Gourmet', `${SITE.street}, ${SITE.locality}, ${SITE.region}`)} target="_blank" rel="noopener noreferrer">
-                Directions<span className="sr-only"> to Guido&rsquo;s kitchen (opens in a new tab)</span>
-              </a>
-            </div>
-          </li>
-          {numbered.map((s) => (
-            <li
-              key={s.id}
-              className={`g-stock g-stock--${s.kind}${active === s.id ? ' is-active' : ''}`}
-              data-id={s.id}
-              hidden={filter !== 'all' && s.kind !== filter}
-              onPointerEnter={hoverOn(s.id)}
-              onFocus={() => setHovered(s.id)}
-            >
-              <span className="g-stock__mark"><KindMark kind={s.kind} label={s.num} /></span>
-              <div>
-                <h3 className="g-stock__name">{s.name}</h3>
-                <p className="g-stock__addr">{s.address}</p>
-                {s.note && <p className="g-stock__note">{s.note}</p>}
-              </div>
-              <div className="g-stock__side">
-                <span className="g-stock__kind">{KIND_LABEL[s.kind]}</span>
-                <a className="g-textlink" href={directionsUrl(s.name, s.address)} target="_blank" rel="noopener noreferrer">
-                  Directions<span className="sr-only"> to {s.name} (opens in a new tab)</span>
-                </a>
-                {s.website && (
-                  <a className="g-textlink" href={s.website} target="_blank" rel="noopener noreferrer">
-                    Website<span className="sr-only"> of {s.name} (opens in a new tab)</span>
-                  </a>
-                )}
-              </div>
+        <div className="gg-places-group">
+          <h3 className="gg-places-title">Pickup</h3>
+          <ul className="gg-places-list">
+            <li className={`gg-place${selected === KITCHEN.id ? ' is-selected' : ''}`} data-place={KITCHEN.id}>
+              <button type="button" className="gg-place-pick" aria-pressed={selected === KITCHEN.id} onClick={(e) => choose(KITCHEN.id, 'list', isPointer(e))}>
+                <Mark kind="kitchen" label="G" />
+                <span>
+                  <span className="gg-place-name">{KITCHEN.name}</span>
+                  <span className="gg-place-meta">{KITCHEN.address}</span>
+                  <span className="gg-sr-only">, show on the map</span>
+                </span>
+              </button>
+              <p className="gg-place-note">{KITCHEN.note}</p>
+              <p className="gg-place-links">{kitchenLinks}</p>
             </li>
-          ))}
-        </ol>
-        <p className="g-stock-ask">
-          Would you like Guido&rsquo;s in your shop or on your menu?{' '}
-          <Link className="g-textlink g-textlink--quiet" href="/contact">Get in touch</Link>
+          </ul>
+        </div>
+
+        {groups.map((g) =>
+          g.list.length === 0 ? null : (
+            <div className="gg-places-group" key={g.kind}>
+              <h3 className="gg-places-title">
+                {g.title}{' '}
+                <span className="gg-places-count">{g.list.length}</span>
+              </h3>
+              <ul className="gg-places-list">
+                {g.list.map((p) => (
+                  <li key={p.id} className={`gg-place${selected === p.id ? ' is-selected' : ''}`} data-place={p.id}>
+                    <button type="button" className="gg-place-pick" aria-pressed={selected === p.id} onClick={(e) => choose(p.id, 'list', isPointer(e))}>
+                      <Mark kind={p.kind} label={p.num} />
+                      <span>
+                        <span className="gg-place-name">{p.name}</span>
+                        <span className="gg-place-meta">{KIND_LABEL[p.kind]} &middot; {p.address}</span>
+                        <span className="gg-sr-only">, show on the map</span>
+                      </span>
+                    </button>
+                    {p.note && <p className="gg-place-note">{p.note}</p>}
+                    <p className="gg-place-links">{placeLinks(p)}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        )}
+
+        <p className="gg-places-ask">
+          Would you like Guido&rsquo;s in your shop or on your menu? <Link href="/contact">Get in touch</Link>
         </p>
+      </div>
+
+      {/* The map: a picture of the same list */}
+      <div className="gg-map" ref={figureRef}>
+        <div
+          className="gg-map-canvas"
+          ref={canvasRef}
+          role="group"
+          aria-label="Map of these places. Use the arrow keys to move between markers and Enter to choose one."
+        >
+          <svg
+            className="gg-map-svg"
+            aria-hidden="true"
+            focusable="false"
+            viewBox={view ? `${view.x} ${view.y} ${view.w} ${view.h}` : `${KITCHEN_POINT.x - 800} ${KITCHEN_POINT.y - 700} 1600 1400`}
+            preserveAspectRatio="xMidYMid slice"
+          >
+            {/* Water only where the map data reaches; a very wide view shows a plain margin beyond it */}
+            <rect className="gg-map-water" x={0} y={0} width={MAP_EXTENT.w} height={MAP_EXTENT.h} />
+            <path className="gg-map-land" d={LAND_PATH} fillRule="evenodd" vectorEffect="non-scaling-stroke" />
+            <path className="gg-map-roads" d={ROADS_PATH} />
+            <rect className="gg-map-edge" x={0} y={0} width={MAP_EXTENT.w} height={MAP_EXTENT.h} vectorEffect="non-scaling-stroke" />
+          </svg>
+
+          {box && (
+            <svg className="gg-map-leaders" aria-hidden="true" focusable="false" viewBox={`0 0 ${box.w} ${box.h}`}>
+              {items.map((it) =>
+                Math.hypot(it.x - it.ax, it.y - it.ay) > 6 ? (
+                  <g key={`l-${it.key}`}>
+                    <line x1={it.ax} y1={it.ay} x2={it.x} y2={it.y} />
+                    <circle cx={it.ax} cy={it.ay} r={2.5} />
+                  </g>
+                ) : null
+              )}
+            </svg>
+          )}
+
+          <div className="gg-map-towns" aria-hidden="true">
+            {towns.map((t) => (
+              <span key={t.name} className="gg-map-town" style={{ left: t.x, top: t.y }}>{t.name}</span>
+            ))}
+          </div>
+
+          <div className="gg-map-pins" ref={pinsRef} onKeyDown={onPinsKey}>
+            {items.map((it) => {
+              const tab = it.key === rovingKey ? 0 : -1;
+              const style = { left: it.x, top: it.y };
+              if (it.type === 'cluster') {
+                const isSel = !!selected && it.ids.includes(selected);
+                return (
+                  <button
+                    key={it.key}
+                    type="button"
+                    data-key={it.key}
+                    className={`gg-map-pin gg-map-cluster${isSel ? ' is-selected' : ''}`}
+                    style={style}
+                    tabIndex={tab}
+                    aria-label={`${it.ids.length} places: ${it.ids.map((id) => nameOf(id)).join(', ')}. Show them`}
+                    onFocus={() => setFocusKey(it.key)}
+                    onClick={() => openCluster(it)}
+                  >
+                    <Mark kind="grocery" label={`${it.ids.length} places`} />
+                  </button>
+                );
+              }
+              const id = it.ids[0];
+              const p = it.type === 'kitchen' ? null : byId.get(id);
+              return (
+                <button
+                  key={it.key}
+                  type="button"
+                  data-key={it.key}
+                  className={`gg-map-pin${selected === id ? ' is-selected' : ''}`}
+                  style={style}
+                  tabIndex={tab}
+                  aria-pressed={selected === id}
+                  aria-label={p ? `${p.num}, ${p.name}, ${KIND_LABEL[p.kind].toLowerCase()}` : `${KITCHEN.name}, pickup`}
+                  onFocus={() => setFocusKey(it.key)}
+                  onClick={(e) => choose(id, 'map', isPointer(e))}
+                >
+                  {p ? <Mark kind={p.kind} label={p.num} /> : <Mark kind="kitchen" label="G" />}
+                </button>
+              );
+            })}
+          </div>
+
+          {showAllButton && (
+            <button type="button" className="gg-map-all" onClick={showAll}>
+              Show all places
+            </button>
+          )}
+        </div>
+
+        {/* What is chosen, in words, at every width. With no places yet the list
+            already says all there is about the kitchen, so there is no panel. */}
+        {places.length > 0 && (
+          <div className="gg-map-panel">
+            {clusterList ? (
+              <>
+                <p className="gg-map-panel-meta">{clusterList.length} places here</p>
+                <ul className="gg-place-links" style={{ flexDirection: 'column', gap: 0 }}>
+                  {clusterList.map((id) => (
+                    <li key={id}>
+                      <button type="button" className="gg-textlink" style={{ minHeight: 44, background: 'none', border: 0, padding: 0, font: 'inherit', cursor: 'pointer' }} onClick={(e) => choose(id, 'map', isPointer(e))}>
+                        {byId.get(id)?.num}. {nameOf(id)}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : selected === KITCHEN.id ? (
+              <>
+                <p className="gg-map-panel-name">{KITCHEN.name}</p>
+                <p className="gg-map-panel-meta">{KITCHEN.note} &middot; {KITCHEN.address}</p>
+                <p className="gg-place-links">{kitchenLinks}</p>
+              </>
+            ) : chosen ? (
+              <>
+                <p className="gg-map-panel-name">{chosen.num}. {chosen.name}</p>
+                <p className="gg-map-panel-meta">{KIND_LABEL[chosen.kind]} &middot; {chosen.address}</p>
+                {chosen.note && <p className="gg-map-panel-note">{chosen.note}</p>}
+                <p className="gg-place-links">{placeLinks(chosen)}</p>
+              </>
+            ) : (
+              <p className="gg-map-panel-hint">Choose a place in the list or on the map to see it here.</p>
+            )}
+          </div>
+        )}
+        <p className="gg-sr-only" aria-live="polite">{announce}</p>
+
+        <div className="gg-map-foot">
+          {places.length > 0 && (
+            <ul className="gg-legend" aria-label="Key">
+              <li><Mark kind="kitchen" label="G" keyMark />Guido&rsquo;s kitchen</li>
+              {(['grocery', 'restaurant'] as Kind[]).filter((k) => counts[k] > 0).map((k) => (
+                <li key={k}><Mark kind={k} keyMark />{KIND_LABEL[k]}</li>
+              ))}
+            </ul>
+          )}
+          <p className="gg-credit">
+            Map data{' '}
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+              &copy; OpenStreetMap contributors<span className="gg-sr-only"> (opens in a new tab)</span>
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -32,8 +32,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
       // Let modifier-key clicks pass through (open in new tab etc)
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
-      // Skip if same page or mid-transition
-      if (href === pathname || isNavigating.current) return;
+      // Skip if same page (a jump within it, such as /guidos#stockists, included) or mid-transition
+      if (href.split('#')[0] === pathname || isNavigating.current) return;
 
       // A followed link is a fresh push, wherever the visitor has been before.
       // Cleared here rather than below, because the reduced-motion path returns
@@ -72,7 +72,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
     return () => document.removeEventListener('click', handleClick, true);
   }, [pathname, router]);
 
-  // A new page starts at the top. Going back does not: that lands the visitor
+  // A new page starts at the top, unless the link named a spot on it (a #hash),
+  // which the router has already scrolled to. Going back does not: that lands the visitor
   // where they were, which is the whole point of going back, so leave the
   // browser's own restoration alone rather than fighting it to zero.
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
       prevPathname.current = pathname;
       const wasPop = cameFromHistory.current;
       cameFromHistory.current = false;
-      if (!wasPop) window.scrollTo(0, 0);
+      if (!wasPop && !window.location.hash) window.scrollTo(0, 0);
     }
   }, [pathname]);
 

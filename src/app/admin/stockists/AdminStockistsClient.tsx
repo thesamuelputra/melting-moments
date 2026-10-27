@@ -335,7 +335,7 @@ function StockistsManager({ initialStockists }: { initialStockists: Stockist[] |
           </div>
           {items.length > 1 && (
             <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.4)', marginTop: '0.2rem' }}>
-              Drag to change the order. The site lists and numbers them the same way.
+              Drag to change the order. The site lists grocers first and then restaurants, each in this order, and numbers them down the list.
             </p>
           )}
         </div>

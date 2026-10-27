@@ -1,8 +1,7 @@
 /**
  * The Guido's menu as built into the site, shown whenever the CMS has no
- * products yet or cannot be reached. Shared by the Guido's landing page and
- * the menu page fallback; kept out of the client components so server code
- * can read it too.
+ * products yet or cannot be reached. Shared by the Guido's landing, menu and
+ * order pages.
  */
 export type FallbackProduct = {
   name: string;

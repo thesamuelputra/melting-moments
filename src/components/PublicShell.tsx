@@ -17,7 +17,8 @@ export default function PublicShell({ children }: { children: React.ReactNode })
   return (
     <>
       <Preloader />
-      <a href="#main-content" className="skip-nav">Skip to main content</a>
+      {/* On Guido's pages the content starts below the Guido's bar, so skip that too */}
+      <a href={pathname.startsWith('/guidos') ? '#gg-content' : '#main-content'} className="skip-nav">Skip to main content</a>
       <GlobalNav />
       <main id="main-content">
         <PageTransition>

@@ -1,18 +1,25 @@
 import type { Viewport } from 'next';
+import GuidosBar from '@/components/guidos/GuidosBar';
+import './guidos.css';
 
 /**
- * Scopes the Guido's Gourmet identity to the /guidos subtree. Everything the
- * sub-brand restyles hangs off the .brand-guidos class, so the Melting Moments
- * pages are never touched. The shared nav and footer read the pathname to
- * match this skin while a visitor is inside the section.
+ * Scopes the Guido's Gourmet look to the /guidos subtree. Its styles live in
+ * guidos.css, which only these routes load, and every class starts with gg-,
+ * so the Melting Moments pages are never touched. The shared nav and footer
+ * read the pathname to switch to their Guido's versions.
  */
 
-// Override the global dark theme-color so mobile browser chrome matches the
-// cream/green Guido's palette instead of the Melting Moments near-black.
+// The browser chrome matches the slim cream bar at the top of the page
 export const viewport: Viewport = {
-  themeColor: '#123F2E',
+  themeColor: '#EDE4CE',
 };
 
 export default function GuidosLayout({ children }: { children: React.ReactNode }) {
-  return <div className="brand-guidos g-paper" style={{ minHeight: '60vh' }}>{children}</div>;
+  return (
+    <div className="gg" style={{ paddingTop: 'var(--nav-height)', minHeight: '60vh' }}>
+      <GuidosBar />
+      {/* Where "Skip to main content" lands on these pages, past the Guido's bar */}
+      <div id="gg-content" tabIndex={-1}>{children}</div>
+    </div>
+  );
 }

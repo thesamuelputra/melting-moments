@@ -1,0 +1,720 @@
+/* ========================================================
+   GUIDO'S GOURMET
+   Set like the printed menu of a good neighbourhood Italian
+   place: cream paper, serif headings set left, plain facts in
+   Inter, colour used in calm planes. The logo appears once
+   with presence, the tricolour once as the cap on the bar,
+   and the Italian line once, in the footer.
+   Loaded only on /guidos routes; every class starts with gg-.
+======================================================== */
+
+.gg,
+.gg-footer {
+  --gg-white: var(--g-flag-white);
+  --gg-soft: var(--g-ink-soft);
+  --gg-edge: rgba(33, 28, 19, 0.56); /* field and control outlines: 3.5:1 on the cream page */
+  --gg-land: #FAF6EC;
+  --gg-water: #CED7C4;
+}
+.gg {
+  background: var(--g-cream);
+  color: var(--g-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+.gg :where(h1, h2, h3, p, ul, ol, dl, dd, figure, fieldset, blockquote) { margin: 0; }
+.gg :where(ul, ol) { padding: 0; list-style: none; }
+.gg :where(a) { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
+.gg :focus-visible { outline: 2px solid var(--g-ink); outline-offset: 3px; }
+.gg [hidden] { display: none !important; }
+
+.gg-wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+@media (min-width: 700px) { .gg-wrap { padding: 0 40px; } }
+
+.gg-section { padding: clamp(72px, 9vw, 128px) 0; }
+
+.gg-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Type ===== */
+
+.gg-display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.75rem, 1.8rem + 3.4vw, 4.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+.gg-h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.125rem, 1.6rem + 1.9vw, 3.25rem);
+  line-height: 1.06;
+  letter-spacing: -0.005em;
+}
+.gg-lede { font-size: 1.125rem; line-height: 1.6; color: var(--gg-soft); max-width: 34em; }
+@media (max-width: 599px) { .gg-lede { font-size: 1.0625rem; } }
+
+/* ===== Buttons and links ===== */
+
+.gg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid var(--g-green);
+  border-radius: 2px;
+  background: var(--g-green);
+  color: var(--g-flag-white);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.gg-btn:hover { background: var(--g-green-deep); border-color: var(--g-green-deep); }
+.gg-btn:focus-visible { border-radius: 2px; }
+.gg-btn--small { min-height: 44px; padding: 0 16px; }
+.gg-btn--light { background: var(--g-cream); border-color: var(--g-cream); color: var(--g-green-deep); }
+.gg-btn--light:hover { background: var(--g-flag-white); border-color: var(--g-flag-white); }
+.gg-btn[aria-current="page"] { background: transparent; color: var(--g-ink); border-color: var(--gg-edge); }
+.gg-btn:disabled { opacity: 0.7; cursor: wait; }
+
+.gg-textlink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+.gg-textlink:hover { text-decoration-thickness: 2px; }
+.gg-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 36px; }
+
+/* ===== The parent brand's bar, slim on Guido's pages =====
+   The tricolour caps it the way it caps every package. */
+
+.global-nav.gg-sitebar { border-bottom: 0 !important; }
+.gg-sitebar-cap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, var(--g-green) 0 33.34%, var(--g-flag-white) 33.34% 66.67%, var(--g-red) 66.67% 100%);
+}
+.gg-sitebar-links { display: flex; align-items: center; gap: 28px; }
+.gg-sitebar-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.875rem;
+  color: var(--g-ink-soft);
+  text-decoration: none;
+}
+.gg-sitebar-links a:hover,
+.gg-sitebar-links a[aria-current] { color: var(--g-ink); text-decoration: underline; text-underline-offset: 0.45em; }
+
+/* ===== Guido's own bar ===== */
+
+.gg-bar { background: var(--g-cream); border-bottom: 1px solid var(--g-line); }
+.gg-bar-inner { display: flex; align-items: center; gap: 0 32px; min-height: 72px; }
+.gg-bar-name { display: inline-flex; align-items: center; min-height: 48px; color: var(--g-ink); text-decoration: none; }
+.gg-bar-nav { margin-left: auto; }
+.gg-bar-links { display: flex; align-items: center; gap: 32px; }
+.gg-bar-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  color: var(--g-ink);
+  text-decoration: none;
+}
+.gg-bar-links a:hover,
+.gg-bar-links a[aria-current="page"] { text-decoration: underline; text-underline-offset: 0.45em; }
+@media (min-width: 700px) {
+  .gg-bar {
+    position: sticky;
+    top: calc(var(--banner-height) + var(--nav-height));
+    z-index: 900;
+  }
+}
+@media (max-width: 699px) {
+  .gg-bar-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name cta" "nav nav";
+    column-gap: 12px;
+    min-height: 0;
+    padding-top: 10px;
+  }
+  .gg-bar-name { grid-area: name; }
+  .gg-bar-cta { grid-area: cta; }
+  .gg-bar-nav { grid-area: nav; margin-left: 0; }
+  .gg-bar-links { gap: 24px; }
+}
+
+/* ===== Landing: the cover ===== */
+
+.gg-hero { display: grid; }
+.gg-hero-plane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 44px 20px 40px;
+  background: var(--g-cream-2);
+}
+.gg-hero-main { padding: 48px 20px 56px; background: var(--g-green-deep); color: var(--g-cream); }
+.gg-hero-main :focus-visible { outline-color: var(--g-cream); }
+.gg-hero-main .gg-display { color: var(--g-cream); max-width: 11em; }
+.gg-hero-main .gg-lede { color: rgba(244, 238, 222, 0.86); margin-top: 22px; }
+.gg-hero-main .gg-textlink { color: var(--g-cream); }
+.gg-hero-facts { margin-top: 40px; max-width: 34em; font-size: 0.9375rem; }
+.gg-hero-facts div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 2px 16px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(244, 238, 222, 0.22);
+}
+.gg-hero-facts dt { font-weight: 600; }
+.gg-hero-facts dd { color: rgba(244, 238, 222, 0.86); }
+.gg-hero-facts a { color: var(--g-cream); display: inline-block; padding: 6px 0; margin: -6px 0; text-decoration: underline; text-decoration-color: rgba(244, 238, 222, 0.45); }
+.gg-hero-facts a:hover { text-decoration-color: currentColor; }
+@media (max-width: 419px) { .gg-hero-facts div { grid-template-columns: 1fr; } }
+@media (min-width: 700px) {
+  .gg-hero-plane { padding: 64px 40px; }
+  .gg-hero-main { padding: 72px 40px 80px; }
+}
+@media (min-width: 960px) {
+  .gg-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 620px; }
+  .gg-hero-plane { padding: 80px 48px; }
+  .gg-hero-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 88px max(40px, calc((100vw - 1280px) / 2 + 40px)) 96px 72px;
+  }
+}
+
+/* ===== The menu, set like a printed card ===== */
+
+.gg-split { display: grid; gap: 36px; }
+.gg-split-head p { margin-top: 16px; color: var(--gg-soft); max-width: 24em; }
+.gg-split-head .gg-textlink { margin-top: 10px; }
+@media (min-width: 960px) { .gg-split { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 64px; } }
+
+/* Courses flow down two columns and balance themselves, whatever the
+   owner adds or takes away */
+.gg-menu { column-gap: 64px; }
+@media (min-width: 640px) { .gg-menu { columns: 2; } }
+.gg-course { break-inside: avoid; padding-bottom: 36px; }
+.gg-course-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.gg-dish {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 20px;
+  align-items: baseline;
+  padding: 5px 0;
+}
+.gg-dish-name { font-family: var(--font-serif); font-weight: 400; font-size: 1.3125rem; line-height: 1.25; }
+.gg-dish-price { font-size: 0.9375rem; font-variant-numeric: tabular-nums lining-nums; text-align: right; white-space: nowrap; }
+.gg-dish-note { grid-column: 1 / -1; font-size: 0.875rem; line-height: 1.45; color: var(--gg-soft); }
+.gg-dish-note--limited { color: var(--g-gold); }
+.gg-dish.is-sold-out .gg-dish-name,
+.gg-dish.is-sold-out .gg-dish-price { color: var(--gg-soft); }
+.gg-dish.is-sold-out .gg-dish-price { font-size: 0.875rem; }
+
+/* The full menu page: sizes as quiet rows, prices still flush right */
+.gg-menu--full { column-gap: 112px; }
+.gg-menu--full .gg-course { padding-bottom: 56px; }
+.gg-menu--full .gg-course-title { font-size: 2rem; font-style: normal; margin-bottom: 14px; }
+.gg-menu--full .gg-dish { padding: 10px 0; }
+.gg-menu--full .gg-dish-name { font-size: 1.5rem; }
+.gg-menu--full .gg-dish-price { font-size: 1rem; }
+.gg-sizes { grid-column: 1 / -1; margin-top: 4px; }
+.gg-sizes div { display: flex; justify-content: space-between; gap: 20px; align-items: baseline; padding: 2px 0; }
+.gg-sizes dt { font-size: 0.9375rem; color: var(--gg-soft); }
+.gg-sizes dd { font-size: 1rem; font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+
+/* A photo, once the owner adds one, sits as a small square beside the
+   dish, so a few photos never make the columns uneven */
+.gg-dish.has-photo { grid-template-columns: 96px minmax(0, 1fr) auto; column-gap: 18px; }
+.gg-dish.has-photo .gg-dish-thumb { grid-row: 1 / span 3; align-self: start; }
+.gg-dish.has-photo .gg-sizes,
+.gg-dish.has-photo .gg-dish-note { grid-column: 2 / -1; }
+.gg-dish-thumb {
+  position: relative;
+  display: block;
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--g-cream-2);
+}
+@media (max-width: 419px) {
+  .gg-dish.has-photo { grid-template-columns: 72px minmax(0, 1fr) auto; column-gap: 14px; }
+  .gg-dish-thumb { width: 72px; height: 72px; }
+}
+
+/* ===== Our story ===== */
+
+.gg-story { padding-bottom: clamp(72px, 9vw, 128px); }
+.gg-story-inner { display: grid; gap: 24px; padding-top: clamp(56px, 7vw, 96px); border-top: 1px solid var(--g-line); }
+.gg-story-quote {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 1.45rem + 2.1vw, 3.125rem);
+  line-height: 1.12;
+  max-width: 20em;
+}
+.gg-story p { color: var(--gg-soft); font-size: 1.0625rem; max-width: 34em; }
+.gg-story .gg-textlink { margin-top: -8px; }
+
+/* ===== Where to find Guido's ===== */
+
+.gg-where-head { display: grid; gap: 16px; margin-bottom: 44px; }
+.gg-where-head p { color: var(--gg-soft); max-width: 34em; }
+@media (min-width: 960px) {
+  .gg-where-head { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: end; }
+}
+.gg-where-body { display: grid; gap: 40px; }
+@media (min-width: 960px) {
+  .gg-where-body { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: start; }
+  .gg-map {
+    position: sticky;
+    top: calc(var(--banner-height) + var(--nav-height) + var(--gg-bar-height) + 24px);
+    /* A long panel on a short screen scrolls inside the column rather than off the bottom
+       for good; the side padding keeps focus rings clear of the column's edge */
+    max-height: calc(100svh - var(--banner-height) - var(--nav-height) - var(--gg-bar-height) - 48px);
+    overflow-y: auto;
+    padding: 0 6px;
+    margin: 0 -6px;
+  }
+}
+
+.gg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.gg-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--gg-edge);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--g-ink);
+  font: 500 0.9375rem/1.2 var(--font-sans);
+  cursor: pointer;
+}
+.gg-chips button[aria-pressed="true"] { background: var(--g-ink); border-color: var(--g-ink); color: var(--g-cream); }
+.gg-chip-count { margin-left: 2px; font-weight: 400; opacity: 0.85; }
+
+.gg-places-group + .gg-places-group { margin-top: 36px; }
+.gg-places-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--g-line);
+}
+.gg-places-count { font-family: var(--font-sans); font-size: 0.875rem; color: var(--gg-soft); margin-left: 4px; }
+.gg-places-list { margin: 0 -12px; }
+.gg-place {
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid var(--g-line);
+  border-radius: 2px;
+}
+.gg-place.is-selected { background: var(--g-cream-2); }
+.gg-place-pick {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: start;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.gg-place-pick .gg-mark { margin: 4px auto 0; }
+.gg-place-name { display: block; font-family: var(--font-serif); font-size: 1.3125rem; line-height: 1.25; padding-top: 6px; }
+.gg-place-meta { display: block; font-size: 0.9375rem; line-height: 1.45; color: var(--gg-soft); margin-top: 2px; }
+.gg-place-pick:hover .gg-place-name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+.gg-place-note { padding-left: 56px; margin-top: 6px; font-size: 0.9375rem; }
+.gg-place-links { display: flex; flex-wrap: wrap; gap: 0 20px; padding-left: 56px; margin-top: 2px; }
+.gg-place-links a { display: inline-flex; align-items: center; min-height: 44px; font-size: 0.9375rem; font-weight: 500; }
+.gg-places-ask a {
+  color: var(--g-ink);
+  font-weight: 500;
+  /* Inline padding widens the tap area without pushing the lines apart */
+  padding: 10px 0;
+  text-decoration: underline;
+  text-decoration-color: rgba(33, 28, 19, 0.35);
+}
+.gg-places-ask a:hover { text-decoration-color: currentColor; }
+.gg-places-ask { margin-top: 28px; font-size: 0.9375rem; color: var(--gg-soft); }
+
+/* Markers, shared by the list, the map and the key. Shape and the number
+   or letter carry the meaning; colour only repeats it. */
+.gg-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--g-green);
+  color: var(--g-flag-white);
+  font: 600 0.8125rem/1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--g-flag-white);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.gg-mark--restaurant { background: var(--g-red); border-radius: 5px; }
+.gg-mark--kitchen { background: var(--g-ink); font: 400 1.125rem/1 var(--font-serif); }
+.gg-mark--key { width: 16px; height: 16px; box-shadow: none; font-size: 0.625rem; }
+.gg-mark--key.gg-mark--restaurant { border-radius: 3px; }
+
+/* ===== The map: flat land and water, a few towns, the places ===== */
+
+.gg-map-canvas {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: var(--g-cream-2); /* beyond the edge of the map data */
+  border-radius: 2px;
+  touch-action: manipulation;
+}
+@media (min-width: 600px) { .gg-map-canvas { aspect-ratio: 4 / 3; } }
+@media (min-width: 960px) {
+  .gg-map-canvas {
+    aspect-ratio: auto;
+    /* Short enough on a laptop screen to leave the panel, key and credit in view */
+    height: clamp(320px, calc(100svh - var(--banner-height) - var(--nav-height) - var(--gg-bar-height) - 230px), 640px);
+  }
+}
+.gg-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.gg-map-water { fill: var(--gg-water); }
+/* Covers the coastline stroke where the land data is cut at the map's edge */
+.gg-map-edge { fill: none; stroke: var(--g-cream-2); stroke-width: 4; }
+.gg-map-land { fill: var(--gg-land); stroke: rgba(28, 107, 74, 0.45); stroke-width: 1; stroke-linejoin: round; }
+.gg-map-roads { fill: none; stroke: rgba(33, 28, 19, 0.14); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.gg-map-leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.gg-map-leaders line { stroke: var(--g-ink); stroke-width: 1; opacity: 0.55; }
+.gg-map-leaders circle { fill: var(--g-ink); }
+.gg-map-towns { position: absolute; inset: 0; pointer-events: none; }
+.gg-map-town {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--gg-soft);
+  white-space: nowrap;
+  text-shadow: 0 0 3px var(--gg-land), 0 0 3px var(--gg-land);
+}
+.gg-map-pins { position: absolute; inset: 0; }
+.gg-map-pin {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+.gg-map-pin.is-selected { z-index: 2; }
+.gg-map-pin.is-selected .gg-mark { transform: scale(1.2); box-shadow: 0 0 0 2px var(--g-flag-white), 0 0 0 4px var(--g-ink); }
+/* The site-wide focus rule squares buttons off; markers keep their own shape */
+.gg-map-pin:focus-visible { outline: 2px solid var(--g-ink); outline-offset: 0; z-index: 3; border-radius: 50%; }
+.gg-map-cluster { width: auto; min-width: 44px; margin-left: 0; transform: translateX(-50%); border-radius: 22px; }
+.gg-map-cluster:focus-visible { border-radius: 22px; }
+.gg-map-cluster .gg-mark {
+  width: auto;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 15px;
+  background: var(--g-flag-white);
+  color: var(--g-ink);
+  box-shadow: 0 0 0 1.5px var(--g-ink);
+  white-space: nowrap;
+}
+.gg-map-all {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 4;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--gg-edge);
+  border-radius: 2px;
+  background: var(--g-flag-white);
+  color: var(--g-ink);
+  font: 500 0.875rem/1.2 var(--font-sans);
+  cursor: pointer;
+}
+.gg-map-all:hover { background: var(--g-cream); }
+
+/* What is chosen, said in words under the map at every width */
+.gg-map-panel { min-height: 92px; margin-top: 14px; padding: 14px 16px; background: var(--g-cream-2); border-radius: 2px; }
+.gg-map-panel-name { font-family: var(--font-serif); font-size: 1.375rem; line-height: 1.25; }
+.gg-map-panel-meta { font-size: 0.9375rem; color: var(--gg-soft); }
+.gg-map-panel-note { margin-top: 4px; font-size: 0.9375rem; }
+.gg-map-panel-hint { color: var(--gg-soft); font-size: 0.9375rem; padding-top: 4px; }
+.gg-map-panel .gg-place-links { padding-left: 0; }
+.gg-map-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px 24px;
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--gg-soft);
+}
+.gg-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.gg-legend li { display: inline-flex; align-items: center; gap: 8px; min-height: 28px; }
+.gg-credit a { display: inline-flex; align-items: center; min-height: 24px; color: var(--g-ink); }
+
+/* ===== Page heads for the menu and the order page ===== */
+
+.gg-pagehead { padding-top: clamp(56px, 7vw, 104px); padding-bottom: clamp(40px, 5vw, 64px); }
+.gg-pagehead .gg-lede { margin-top: 22px; }
+.gg-jump { margin-top: 32px; border-top: 1px solid var(--g-line); border-bottom: 1px solid var(--g-line); }
+.gg-jump ul { display: flex; flex-wrap: wrap; gap: 0 28px; }
+.gg-jump a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 44px;
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+.gg-jump a:hover { text-decoration: underline; }
+.gg-menu-page { padding-bottom: clamp(56px, 7vw, 96px); }
+
+/* ===== Order ===== */
+
+.gg-order { display: grid; gap: 56px; padding-bottom: clamp(72px, 9vw, 128px); }
+@media (min-width: 960px) {
+  .gg-order { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: 96px; align-items: start; }
+}
+.gg-form { max-width: 40rem; }
+.gg-form-intro { font-size: 0.9375rem; color: var(--gg-soft); margin-bottom: 28px; }
+.gg-field { margin-bottom: 28px; }
+.gg-field > label:not(.gg-choice),
+.gg-field > legend { display: block; font-weight: 500; margin-bottom: 8px; padding: 0; }
+.gg-opt { font-weight: 400; color: var(--gg-soft); }
+.gg-hint { font-size: 0.9375rem; color: var(--gg-soft); margin: -4px 0 10px; }
+.gg-input {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  font: 400 1rem/1.5 var(--font-sans);
+  color: var(--g-ink);
+  background: var(--g-flag-white);
+  border: 1px solid var(--gg-edge);
+  border-radius: 2px;
+}
+textarea.gg-input { resize: vertical; }
+.gg-input::placeholder { color: rgba(33, 28, 19, 0.62); }
+.gg-input:focus { outline: 2px solid var(--g-green); outline-offset: 1px; border-color: var(--g-ink); }
+.gg-input[aria-invalid="true"] { border-color: var(--g-red); box-shadow: inset 0 0 0 1px var(--g-red); }
+.gg-error { margin-top: 8px; font-size: 0.9375rem; font-weight: 500; color: #9E2F25; }
+.gg-row2 { display: grid; gap: 0 20px; }
+@media (min-width: 600px) { .gg-row2 { grid-template-columns: 1fr 1fr; } }
+fieldset.gg-field { border: 0; padding: 0; min-width: 0; }
+.gg-choice {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: start;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  background: var(--g-flag-white);
+  border: 1px solid var(--gg-edge);
+  border-radius: 2px;
+}
+.gg-choice input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--g-green); }
+.gg-choice strong { display: block; font-weight: 500; }
+.gg-choice-detail { display: block; font-size: 0.9375rem; color: var(--gg-soft); }
+.gg-choice:has(input:checked) { border-color: var(--g-ink); box-shadow: inset 0 0 0 1px var(--g-ink); }
+.gg-choice:has(input:focus-visible) { outline: 2px solid var(--g-green); outline-offset: 2px; }
+.gg-submit { margin-top: 8px; }
+.gg-submit p { margin-top: 14px; font-size: 0.9375rem; color: var(--gg-soft); }
+.gg-alert {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(193, 58, 46, 0.45);
+  border-radius: 2px;
+  background: rgba(193, 58, 46, 0.06);
+}
+.gg-done { padding: 28px 24px; background: var(--g-cream-2); border-radius: 2px; }
+.gg-done h2 { font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; }
+.gg-done h2:focus { outline: none; }
+.gg-done p { margin-top: 10px; color: var(--gg-soft); max-width: 34em; }
+
+.gg-aside h2 { font-family: var(--font-serif); font-weight: 400; font-size: 1.75rem; line-height: 1.15; margin-bottom: 8px; }
+.gg-steps { counter-reset: gg-step; }
+.gg-steps li { position: relative; padding: 18px 0 18px 44px; border-bottom: 1px solid var(--g-line); }
+.gg-steps li::before {
+  counter-increment: gg-step;
+  content: counter(gg-step);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  font: 400 1.5rem/1.2 var(--font-serif);
+  color: var(--gg-soft);
+}
+.gg-steps strong { display: block; font-weight: 600; }
+.gg-steps span { display: block; color: var(--gg-soft); font-size: 0.9375rem; margin-top: 2px; }
+.gg-ref { margin-top: 36px; border-top: 1px solid var(--g-line); border-bottom: 1px solid var(--g-line); }
+.gg-ref summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  font: 400 1.375rem/1.2 var(--font-serif);
+  cursor: pointer;
+  list-style: none;
+}
+.gg-ref summary::-webkit-details-marker { display: none; }
+/* The sign is decoration: the second content line keeps it out of the summary's spoken name */
+.gg-ref summary::after { content: "+"; content: "+" / ""; font: 400 1.5rem/1 var(--font-sans); color: var(--gg-soft); }
+.gg-ref[open] summary::after { content: "\2212"; content: "\2212" / ""; }
+.gg-ref-body { padding: 4px 0 20px; }
+.gg-ref .gg-course { padding-bottom: 18px; }
+.gg-ref .gg-course-title { font-size: 1.125rem; margin-bottom: 2px; }
+.gg-ref .gg-dish { padding: 2px 0; }
+.gg-ref .gg-dish-name { font-family: var(--font-sans); font-size: 0.9375rem; }
+.gg-ref .gg-dish-price,
+.gg-ref .gg-sizes dt,
+.gg-ref .gg-sizes dd { font-size: 0.875rem; }
+.gg-call { margin-top: 24px; color: var(--gg-soft); }
+.gg-call a { color: var(--g-ink); font-weight: 500; display: inline-block; padding: 10px 0; }
+
+/* ===== Footer on Guido's pages: one deep green plane ===== */
+
+.gg-footer { background: var(--g-green-deep); color: var(--g-cream); font-family: var(--font-sans); font-size: 1rem; line-height: 1.6; }
+.gg-footer :where(h2, p, ul, dl, dd) { margin: 0; }
+.gg-footer :where(ul) { padding: 0; list-style: none; }
+.gg-footer :focus-visible { outline: 2px solid var(--g-cream); outline-offset: 3px; }
+:where(.gg-footer) a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
+.gg-footer-band { display: grid; gap: 48px; padding-top: clamp(72px, 9vw, 120px); padding-bottom: clamp(56px, 7vw, 96px); }
+@media (min-width: 960px) { .gg-footer-band { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 96px; } }
+.gg-footer-line {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2.375rem, 1.5rem + 3.3vw, 4.25rem);
+  line-height: 1.04;
+  max-width: 11em;
+}
+.gg-footer-band h2 { font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.1; }
+.gg-facts { margin: 22px 0 32px; }
+.gg-facts div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(244, 238, 222, 0.22);
+}
+.gg-facts dt { font-weight: 600; }
+.gg-facts dd { color: rgba(244, 238, 222, 0.86); }
+@media (max-width: 419px) { .gg-facts div { grid-template-columns: 1fr; } }
+.gg-footer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px 32px;
+  padding-top: clamp(48px, 6vw, 64px);
+  border-top: 1px solid rgba(244, 238, 222, 0.22);
+}
+.gg-footer-brand,
+.gg-footer-visit { grid-column: 1 / -1; }
+@media (min-width: 600px) { .gg-footer-brand, .gg-footer-visit { grid-column: auto; } }
+@media (min-width: 960px) { .gg-footer-grid { grid-template-columns: minmax(0, 4fr) repeat(3, minmax(0, 2.5fr)); gap: 48px; } }
+.gg-footer-brand p { margin-top: 18px; font-size: 0.9375rem; color: rgba(244, 238, 222, 0.82); max-width: 22em; }
+.gg-footer-grid h2 { font-size: 0.9375rem; font-weight: 600; margin-bottom: 6px; }
+.gg-footer-grid li { display: flex; align-items: center; min-height: 44px; font-size: 0.9375rem; line-height: 1.35; color: rgba(244, 238, 222, 0.86); }
+.gg-footer-grid li a { display: inline-flex; align-items: center; min-height: 44px; color: var(--g-cream); text-decoration: none; }
+.gg-footer-grid li a:hover { text-decoration: underline; }
+.gg-footer address { font-style: normal; }
+.gg-footer-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: clamp(48px, 6vw, 72px);
+  padding: 8px 0 20px;
+  border-top: 1px solid rgba(244, 238, 222, 0.22);
+  font-size: 0.875rem;
+  color: rgba(244, 238, 222, 0.82);
+}
+.gg-footer-base ul { display: flex; gap: 24px; }
+.gg-footer-base a { display: inline-flex; align-items: center; min-height: 44px; color: var(--g-cream); text-decoration: none; }
+.gg-footer-base a:hover { text-decoration: underline; }
+.gg-footer-base p { display: flex; align-items: center; min-height: 44px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gg *,
+  .gg-footer * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* The slim site bar is 48px tall: the 4px cap and one 44px row. Stating it
+   here means the page lays out right before the bar measures itself. The
+   Guido's bar under it sticks from 700px. Anything scrolled into view (a
+   jump link, a focused field or marker) stops clear of both. */
+:root:has(.gg) {
+  --nav-height: 48px;
+  --gg-bar-height: 0px;
+  scroll-padding-top: calc(var(--banner-height) + var(--nav-height) + var(--gg-bar-height) + 16px);
+}
+@media (min-width: 700px) { :root:has(.gg) { --gg-bar-height: 73px; } }
+
+.gg-where { padding-bottom: clamp(72px, 9vw, 128px); }
+.gg-where-inner { padding-top: clamp(56px, 7vw, 96px); border-top: 1px solid var(--g-line); }
+
+/* The stockist section takes focus when "Where to buy" jumps to it, so the next
+   Tab carries on from there; it is not a control, so no ring is drawn round it */
+.gg-where:focus { outline: none; }
+#gg-content:focus { outline: none; }
