@@ -21,7 +21,7 @@ Two brands share the codebase: Melting Moments Catering (most routes) and Guido'
 Public routes are static with ISR:
 
 - Every public page, and the `/llms.txt` route handler, exports `export const revalidate = 300`.
-- All public-page Convex reads go through `unstable_cache` in `src/lib/cms.ts` with `{ revalidate: 300, tags: ['cms'] }`. The tag constant is `CMS_TAG = 'cms'`. The getters are `getSettings` (business settings), `getTestimonials`, `getMenuItems`, `getFaqs`, and `getGuidosProducts`.
+- All public-page Convex reads go through `unstable_cache` in `src/lib/cms.ts` with `{ revalidate: 300, tags: ['cms'] }`. The tag constant is `CMS_TAG = 'cms'`. The getters are `getSettings` (business settings), `getTestimonials`, `getMenuItems`, `getFaqs`, `getGuidosProducts`, and `getStockists`.
 - `getSettings` is outage-safe: a Convex failure returns `{}` and every page renders its hardcoded fallback copy instead of a 500. The other getters are wrapped in `.catch(() => [])` at their call sites.
 
 Admin saves that touch public content invalidate the cache immediately:
@@ -48,7 +48,7 @@ Route-level redirects: `/quote` calls `permanentRedirect('/contact')` (308, deli
 | `src/proxy.ts` | Middleware: security headers (including CSP), admin route protection with sliding session renewal, per-IP rate limiting for the form APIs, and the guidosgourmet.ca host redirect. |
 | `src/app/` | Public routes, one directory per page (`about`, `catering`, `menus`, `weddings`, `events`, `chef-paul`, `testimonials`, `faq`, `service-area`, `contact`, `guidos`, `guidos/menu`, `guidos/order`, `privacy`, `terms`), plus `sitemap.ts`, `robots.ts`, and the `llms.txt` route handler. |
 | `src/app/api/` | `contact` and `guidos-order` POST endpoints: validate, persist to Convex, send Resend email. |
-| `src/app/admin/` | Admin console: dashboard plus modules for banner, content, FAQ, menus, testimonials, Guido's products, Guido's orders, inquiries, and settings. Each module is a server-component `page.tsx`, a client component, and a server-action `actions.ts`. |
+| `src/app/admin/` | Admin console: dashboard plus modules for banner, content, FAQ, menus, testimonials, Guido's products, Guido's orders, stockists, inquiries, and settings. Each module is a server-component `page.tsx`, a client component, and a server-action `actions.ts`. |
 | `src/app/admin/_components/` | The shared admin UI kit (see [Admin console architecture](#admin-console-architecture)). |
 | `src/app/admin-login/` | Login page and the `login`/`logout` server actions, including the login rate limiter. |
 | `src/components/` | Public-site shell: `PublicShell` (nav, footer, and page transition wrapper; renders admin routes bare), `GlobalNav`, `Footer`, `BannerWrapper`/`AnnouncementBanner` (CMS-driven announcement banner), `GuidosImage` (product image with placeholder fallback), `PageTransition`, `Preloader`. |
@@ -113,6 +113,10 @@ Retained schema for the removed media module: `storageId` (Convex `_storage` ref
 ### guidosOrders
 
 Guido's Gourmet orders submitted through `/guidos/order`. Indexes: `by_status`, `by_submittedAt`. Fields: `customerName`, `customerEmail`, `customerPhone`, `items` (free-text order summary), `deliveryMethod` (`delivery` or `pickup`, enforced at args), `deliveryAddress?`, `notes?`, `status` (`received`, `preparing`, `ready`, `delivered`, `picked_up`, via `ORDER_STATUSES`), `submittedAt`.
+
+### stockists
+
+The restaurants and grocers that carry Guido's Gourmet, managed in the admin's Stockists module. Fields: `name`, `kind` (`grocery` or `restaurant`, enforced at args via `STOCKIST_KINDS`), `address`, `lat`, `lng`, `website?`, `note?` (a short line for visitors), `orderIndex`, `isActive`. `stockists.listActive` is public-read and returns the visible rows in the admin's order; the admin-gated `list` includes hidden ones. The Where to Buy section on `/guidos` (the list and map in `src/components/guidos/StockistMap.tsx`) renders only while at least one stockist is visible, so until then the page shows its other sections alone. The map is drawn from OpenStreetMap data baked into `src/components/guidos/stockist-map-data.ts` by `scripts/build-stockist-map.py`; it needs no map provider or key.
 
 ## Backend conventions
 

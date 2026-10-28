@@ -658,7 +658,7 @@ export default function AdminGuidosProductsClient({
             value={draft.priceFrom}
             onChange={(v) => patchDraft({ priceFrom: v })}
             error={errors.priceFrom}
-            help="The price on the menu card. For a dish with sizes this is the smallest size’s price. Add size variants below to derive it automatically."
+            help="Shown as “From $X” on the menu. Add size variants below to derive it automatically."
           />
         )}
 
@@ -738,7 +738,7 @@ export default function AdminGuidosProductsClient({
                 ? isRenderableImage(draft.image.trim())
                   ? draft.image.trim()
                   : 'Not a usable image reference'
-                : 'No image selected. The dish is listed without a photo.'}
+                : 'No image selected. The site shows a neutral placeholder.'}
             </p>
           </div>
           {imageOptions.length > 0 && (
@@ -799,7 +799,7 @@ export default function AdminGuidosProductsClient({
           label="Limited edition"
           checked={draft.isLimitedEdition}
           onChange={(v) => patchDraft({ isLimitedEdition: v })}
-          help="Adds a “Limited edition” note under the dish on the public menu."
+          help="Shows the LIMITED badge on the public menu."
         />
       </SlidePanel>
 

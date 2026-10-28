@@ -36,6 +36,13 @@ export function isInsideCoverage({ lat, lng }: LatLng): boolean {
 /** Where an empty map, or a new pin with no address yet, starts out */
 export const GREATER_VICTORIA: MapPoint = project({ lat: 48.45, lng: -123.4 });
 
+/** Roughly the Capital Region's urban core, Langford to Oak Bay. The public
+ *  map frames these places first, and the heading over it says "around
+ *  Victoria" only when every place falls inside. */
+export function inGreaterVictoria({ lat, lng }: LatLng): boolean {
+  return lat >= 48.38 && lat <= 48.6 && lng >= -123.62 && lng <= -123.25;
+}
+
 export const COVERAGE_DESCRIPTION ='south Vancouver Island, from Sooke and Victoria up to Nanaimo and the southern Gulf Islands';
 
 /**

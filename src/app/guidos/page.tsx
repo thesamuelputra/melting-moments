@@ -1,11 +1,13 @@
+import fs from 'fs';
+import path from 'path';
 import Link from 'next/link';
-import type { Metadata } from 'next';
+import GuidosImage from '@/components/GuidosImage';
 import GuidosWordmark from '@/components/guidos/GuidosWordmark';
-import MenuCourses from '@/components/guidos/MenuCourses';
+import GuidosOrnament from '@/components/guidos/GuidosOrnament';
 import StockistMap, { type Stockist } from '@/components/guidos/StockistMap';
-import { describeCourses, toCourses, type ProductLike } from '@/components/guidos/menu-data';
-import { getGuidosProducts, getStockists } from '@/lib/cms';
-import { GUIDOS_FALLBACK_PRODUCTS } from '@/lib/guidos-fallback-products';
+import { inGreaterVictoria } from '@/components/guidos/stockist-map-geometry';
+import type { Metadata } from 'next';
+import { getStockists } from '@/lib/cms';
 import { GUIDOS_DELIVERY_FEE, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
 
 export const revalidate = 300;
@@ -13,7 +15,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   // Guido's carries its own brand, so bypass the Melting Moments title template.
   title: { absolute: "Guido's Gourmet | Ready-Made Italian Meals, Victoria BC" },
-  description: 'Homemade Italian meals ready to heat and serve. Lasagnes, pot pies, soups, pasta, and desserts. Delivery available in Victoria, BC, and sold at local grocers and restaurants.',
+  description: 'Homemade Italian meals ready to heat and serve. Lasagnes, pot pies, soups, pasta, and desserts. Delivery available in Victoria, BC.',
   openGraph: {
     url: '/guidos',
     siteName: "Guido's Gourmet",
@@ -23,48 +25,55 @@ export const metadata: Metadata = {
   },
 };
 
-/* ===== How the stockists are described ===== */
+const featuredProducts = [
+  { name: 'Beef Bolognese Lasagne', price: 'From $27.00', image: '/guidos/beef-bolognese-lasagne.webp' },
+  { name: 'Tiramisu Cans', price: 'From $9.95', image: '/guidos/tiramisu-cans.webp' },
+  { name: 'Turkey Pot Pie', price: 'From $9.00', image: '/guidos/turkey-pot-pie.webp' },
+];
 
-type Place = { name: string; kind: 'restaurant' | 'grocery'; address: string; lat: number; lng: number };
+// Only pass image paths whose file actually exists, so missing photos render the
+// placeholder without hitting the image optimizer; photos appear automatically
+// once the files are added and the site is redeployed.
+const publicImage = (image: string) =>
+  fs.existsSync(path.join(process.cwd(), 'public', image)) ? image : undefined;
 
-// Roughly the Capital Region's urban core, Langford to Oak Bay
-const inGreaterVictoria = (p: Place) => p.lat >= 48.38 && p.lat <= 48.6 && p.lng >= -123.62 && p.lng <= -123.25;
+const COUNT_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 
-const countOf = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-
-/** Words for the stockists that match what is really on the map: which
- *  kinds of place there are, how many, and how far they spread. */
-function describePlaces(places: Place[]) {
-  const grocers = places.filter((p) => p.kind === 'grocery').length;
-  const restaurants = places.length - grocers;
-  const where = places.every(inGreaterVictoria) ? 'around Victoria' : 'in Victoria and beyond';
-  if (places.length === 1) {
-    const only = places[0];
-    return {
-      tally: `${only.name}, ${only.address}`,
-      intro: `Pick up from Paul’s kitchen in ${SITE.locality} by appointment, or find Guido’s at ${only.name.replace(/[.!?]+$/, '')}.`,
-    };
-  }
-  const tally =
-    [grocers ? countOf(grocers, 'grocer', 'grocers') : '', restaurants ? countOf(restaurants, 'restaurant', 'restaurants') : '']
-      .filter(Boolean)
-      .join(' and ') + ` ${where}`;
-  const kinds = grocers && restaurants ? 'these grocers and restaurants' : grocers ? 'these grocers' : 'these restaurants';
-  return { tally, intro: `Pick up from Paul’s kitchen in ${SITE.locality} by appointment, or find Guido’s at ${kinds}.` };
+/** The section heading: grocers sell the meals and restaurants have them on
+ *  the menu, each named when there is one and counted when there are more. */
+function whereToBuyLine(stockists: Stockist[]) {
+  const name = (s: Stockist) => s.name.replace(/[.!?]+$/, '');
+  const part = (list: Stockist[], verb: string, plural: string) =>
+    list.length === 0
+      ? null
+      : list.length === 1
+        ? { text: `${verb} at ${name(list[0])}`, list, counted: false }
+        : { text: `${verb} at ${COUNT_WORDS[list.length] ?? list.length} ${plural}`, list, counted: true };
+  const parts = [
+    part(stockists.filter((s) => s.kind === 'grocery'), 'Sold', 'grocers'),
+    part(stockists.filter((s) => s.kind === 'restaurant'), 'on the menu', 'restaurants'),
+  ].filter((p) => p !== null);
+  // The area follows a count and covers only the places counted, so it never
+  // reads as the address of a place named on its own
+  const counted = parts.filter((p) => p.counted).flatMap((p) => p.list);
+  const where = !parts[parts.length - 1].counted
+    ? ''
+    : counted.every(inGreaterVictoria)
+      ? ' around Victoria'
+      : counted.some(inGreaterVictoria)
+        ? ' in Victoria and beyond'
+        : ' outside Victoria';
+  const line = parts.map((p) => p.text).join(' and ') + where + '.';
+  return line.charAt(0).toUpperCase() + line.slice(1);
 }
 
-/* ===== Page ===== */
-
 export default async function GuidosPage() {
-  const [items, rawStockists] = await Promise.all([
-    getGuidosProducts().catch(() => []),
-    getStockists().catch(() => []),
-  ]);
-
-  const products: ProductLike[] = items.length > 0 ? items : GUIDOS_FALLBACK_PRODUCTS;
-  const courses = toCourses(products);
-
-  const stockists: Stockist[] = rawStockists.map((s) => ({
+  const stockists: Stockist[] = (
+    await getStockists().catch((e) => {
+      console.error('[cms] Convex unavailable; Where to Buy left off this render', e);
+      return [];
+    })
+  ).map((s) => ({
     id: s._id,
     name: s.name,
     kind: s.kind === 'restaurant' ? 'restaurant' : 'grocery',
@@ -74,91 +83,118 @@ export default async function GuidosPage() {
     website: s.website,
     note: s.note,
   }));
-  const words = stockists.length > 0 ? describePlaces(stockists) : null;
+  // Where to Buy shows only while a stockist is visible, and then Delivery becomes 04
+  const hasStockists = stockists.length > 0;
 
   return (
-    <>
+    <div>
       <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: "Guido's Gourmet", path: '/guidos' }])} />
 
-      {/* The cover: the logo with room around it, and plainly what this is */}
-      <section className="gg-hero" aria-labelledby="gg-hero-title">
-        <div className="gg-hero-plane" aria-hidden="true">
-          <GuidosWordmark tagline="When your hunger speaks Italian!" wordSize="clamp(56px, 3rem + 3.6vw, 104px)" />
-        </div>
-        <div className="gg-hero-main">
-          <h1 id="gg-hero-title" className="gg-display">
-            <span className="gg-sr-only">Guido&rsquo;s Gourmet. </span>
-            Homemade Italian meals, ready to heat and serve.
-          </h1>
-          <p className="gg-lede">
-            {describeCourses(courses)}, made by Chef Paul Silletta in his kitchen in {SITE.locality} since 2009.
-          </p>
-          <div className="gg-actions">
-            <Link className="gg-btn gg-btn--light" href="/guidos/order">Request an order</Link>
-            <Link className="gg-textlink" href="/guidos/menu">See the full menu</Link>
+      {/* Hero: the brand lockup, spoken plainly on cream paper */}
+      <section className="container" style={{ paddingTop: 'calc(80px + 4vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', textAlign: 'center' }}>
+        {/* The wordmark below is a decorative SVG, so carry the page heading in a
+            visually-hidden h1 for assistive tech and search engines. */}
+        <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}>
+          Guido&apos;s Gourmet, Ready-Made Italian Meals
+        </h1>
+        <div className="g-eyebrow" style={{ marginBottom: '2rem' }}>Est. 2009 &middot; Victoria BC</div>
+        <GuidosWordmark tagline="When your hunger speaks Italian!" style={{ margin: '0 auto' }} />
+        <p style={{ marginTop: '1.75rem', fontSize: 'var(--text-body)', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--g-ink-soft)', fontWeight: 500 }}>
+          Italian Heritage &middot; Ready-Made Meals
+        </p>
+      </section>
+
+      {/* Hero image, with the packaging tricolour capping it */}
+      <section className="container" style={{ marginTop: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 24px 60px rgba(18,63,46,0.10)' }}>
+          <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
+            {/* The tricolour caps the image (as it caps every package), so all
+                three stripes sit on the photo and read as one flag */}
+            <span className="g-tricolor" aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }} />
+            <GuidosImage
+              src={publicImage('/guidos/guidos-hero.webp')}
+              alt="Italian ready-made meals by Guido's Gourmet"
+              fill
+              sizes="(max-width: 768px) 100vw, 1000px"
+              style={{ objectFit: 'cover' }}
+              priority
+            />
           </div>
-          <dl className="gg-hero-facts">
-            <div>
-              <dt>Delivery</dt>
-              <dd>{GUIDOS_DELIVERY_FEE} flat, anywhere in Victoria</dd>
-            </div>
-            <div>
-              <dt>Pickup</dt>
-              <dd>By appointment in {SITE.locality}</dd>
-            </div>
-            {words && (
-              <div>
-                <dt>{stockists.length === 1 ? 'Stockist' : 'Stockists'}</dt>
-                <dd><a href="#stockists">{words.tally}</a></dd>
+        </div>
+      </section>
+
+      {/* Our roots */}
+      <section className="container spacer-massive" style={{ textAlign: 'center', maxWidth: '720px' }}>
+        <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>01 &middot; Our Roots</div>
+        <p className="noire-serif" style={{ fontSize: 'var(--text-secondary)', lineHeight: 1.35, marginBottom: '1.75rem' }}>
+          We started in a family kitchen. Seventeen years later, the recipes are the same. The portions are bigger.
+        </p>
+        <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)', maxWidth: '52ch', margin: '0 auto 1.5rem' }}>
+          Good food at a fair price. Order online or visit by appointment. Everything is made fresh by Chef Paul Silletta using traditional Italian recipes passed down through generations.
+        </p>
+        <p className="g-script g-script--sm">Chef crafted. Handmade. Made with love.</p>
+      </section>
+
+      <div className="spacer-large">
+        <GuidosOrnament />
+      </div>
+
+      {/* Featured */}
+      <section className="container spacer-massive">
+        <div className="g-eyebrow" style={{ marginBottom: '2rem' }}>02 &middot; Featured</div>
+        <div className="product-grid">
+          {featuredProducts.map((product) => (
+            <Link href="/guidos/menu" key={product.name} className="g-card">
+              <div className="g-card__media">
+                <GuidosImage
+                  src={publicImage(product.image)}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  style={{ objectFit: 'cover' }}
+                />
               </div>
-            )}
-          </dl>
+              <div className="g-card__body">
+                <span className="g-card__name">{product.name}</span>
+                <span className="g-card__price">{product.price}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 'clamp(2.5rem, 5vw, 4rem)' }}>
+          <Link href="/guidos/menu" className="btn-outline">View Full Menu</Link>
         </div>
       </section>
 
-      {/* The menu, set like the printed card */}
-      <section className="gg-section" aria-labelledby="gg-menu-title">
-        <div className="gg-wrap gg-split">
-          <div className="gg-split-head">
-            <h2 id="gg-menu-title" className="gg-h2">The menu</h2>
-            <p>Prices are for the smallest size. Family and party sizes are on the full menu.</p>
-            <Link className="gg-textlink" href="/guidos/menu">Full menu and sizes</Link>
-          </div>
-          <MenuCourses courses={courses} variant="card" />
-        </div>
-      </section>
+      {/* Where to buy: the shops and restaurants the owner lists in the admin, with the kitchen for pickups */}
+      {hasStockists && (
+        <section id="stockists" className="container spacer-massive g-where" aria-labelledby="g-where-title">
+          <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>03 &middot; Where to Buy</div>
+          <h2 id="g-where-title" className="noire-serif" style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', lineHeight: 1.25, maxWidth: '24em', textWrap: 'balance', marginBottom: '1rem' }}>
+            {whereToBuyLine(stockists)}
+          </h2>
+          <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)', maxWidth: '52ch', marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
+            Or pick up from our kitchen in {SITE.locality}, by appointment.
+          </p>
+          <StockistMap stockists={stockists} />
+        </section>
+      )}
 
-      {/* Where it comes from */}
-      <section className="gg-story" aria-labelledby="gg-story-title">
-        <div className="gg-wrap">
-          <div className="gg-story-inner">
-            <h2 id="gg-story-title" className="gg-story-quote">
-              We started in a family kitchen. Seventeen years later, the recipes are the same. The portions are bigger.
-            </h2>
-            <p>
-              Good food at a fair price. Order online or visit by appointment. Everything is made fresh by Chef Paul Silletta using traditional Italian recipes passed down through generations.
-            </p>
-            <Link className="gg-textlink" href="/chef-paul">Meet Chef Paul</Link>
-          </div>
+      {/* Delivery, on the deep-green block */}
+      <section className="g-block spacer-massive">
+        <div className="container" style={{ textAlign: 'center', maxWidth: '720px' }}>
+          <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>{hasStockists ? '04' : '03'} &middot; Delivery</div>
+          <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>
+            Flat rate: {GUIDOS_DELIVERY_FEE} anywhere in Victoria.
+          </h2>
+          <p style={{ opacity: 0.75, marginBottom: '0.4rem' }}>Pickup by appointment.</p>
+          <p style={{ opacity: 0.75, marginBottom: '1.75rem' }}>614 Grenville Ave, Esquimalt.</p>
+          <p className="g-script" style={{ marginBottom: '2.25rem' }}>Quando la fame parla, parla Italiano!</p>
+          <Link href="/guidos/order" className="btn-outline btn-outline--inverse">
+            Order Now
+          </Link>
         </div>
       </section>
-
-      {/* Where to find it. The tabIndex lets "Where to buy" bring focus here, not just the scroll. */}
-      <section className="gg-where" id="stockists" tabIndex={-1} aria-labelledby="gg-where-title">
-        <div className="gg-wrap">
-          <div className="gg-where-inner">
-            <div className="gg-where-head">
-              <h2 id="gg-where-title" className="gg-h2">Where to find Guido&rsquo;s</h2>
-              <p>
-                {words
-                  ? words.intro
-                  : 'Grocers and restaurants that carry our meals will be listed here.'}
-              </p>
-            </div>
-            <StockistMap stockists={stockists} />
-          </div>
-        </div>
-      </section>
-    </>
+    </div>
   );
 }

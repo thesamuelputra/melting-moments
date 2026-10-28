@@ -1,0 +1,312 @@
+/* ========================================================
+   GUIDO'S GOURMET  ·  where to buy
+   The stockist list and map on /guidos, in the same cream,
+   gold and green as the rest of the section. The page only
+   shows it once the owner has listed a place in the admin.
+======================================================== */
+
+.g-where {
+  --g-land: #FAF6EC;
+  --g-water: #CED7C4;
+  /* With the page's scroll padding below, a jump to #stockists lands 24px under the fixed bar */
+  scroll-margin-top: 8px;
+  /* A long email or link in a note breaks rather than running off a phone screen */
+  overflow-wrap: break-word;
+}
+.g-where ul { list-style: none; }
+/* Anything scrolled into view while the section is on the page (a focused
+   control, the row a marker brings in, the map on a phone) stops clear of the
+   fixed bar. Without a stockist there is no section, and the rule lies idle. */
+:root:has(.g-where) { scroll-padding-top: calc(var(--banner-height) + var(--nav-height) + 16px); }
+
+.g-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Stacked: the list, then the map, then the line for shop owners. Side by
+   side, that line stays under the list and the map runs the full height. */
+.g-where-body { display: grid; gap: 2.5rem; }
+@media (min-width: 960px) {
+  .g-where-body {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-rows: auto 1fr;
+    gap: 0 3.5rem;
+    align-items: start;
+  }
+  .g-map {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: calc(var(--banner-height) + var(--nav-height) + 24px);
+    /* Anything taller than the screen, such as a long group of places, scrolls
+       inside the column rather than off the bottom for good; the padding keeps
+       focus rings clear of the column's edges */
+    max-height: calc(100svh - var(--banner-height) - var(--nav-height) - 48px);
+    overflow-y: auto;
+    padding: 0 6px 6px;
+    margin: 0 -6px;
+  }
+  .g-places-ask { grid-column: 1; grid-row: 2; margin-top: 1.75rem; }
+}
+
+/* The grocer and restaurant filter, set like the category tabs on the menu page */
+.g-where-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.75rem;
+  margin-bottom: 1.75rem;
+}
+.g-where-tabs .category-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  color: var(--g-ink-soft);
+  border-bottom: 2px solid transparent;
+}
+/* A short label such as All still gets a full tap target */
+.g-where-tabs .category-tab::before { content: ''; position: absolute; inset: 0 -11px; }
+.g-where-tabs .category-tab:hover { color: var(--g-ink); }
+.g-where-tabs .category-tab[aria-pressed="true"] { color: var(--g-ink); border-bottom-color: var(--g-green); }
+
+/* The list: the main way in, complete without the map */
+.g-places-group + .g-places-group { margin-top: 2.25rem; }
+.g-places-title {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--g-line);
+}
+.g-places-list { margin: 0 -12px; }
+.g-place {
+  position: relative;
+  padding: 12px 12px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+/* The rule under each row stays straight, in line with the title's, while
+   the chosen row's tint keeps its rounded corners */
+.g-place::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 1px;
+  background: var(--g-line);
+}
+.g-place.is-selected { background: var(--g-cream-2); }
+/* The tint alone is too faint to mark the choice, so the row's marker takes
+   the same ring as the chosen marker on the map */
+.g-place.is-selected .g-mark { box-shadow: 0 0 0 2px var(--g-flag-white), 0 0 0 4px var(--g-ink); }
+.g-place-pick {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: start;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.g-place-pick .g-mark { margin: 4px auto 0; }
+.g-place-name { display: block; font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.2; padding-top: 6px; color: var(--g-ink); }
+.g-place-meta { display: block; font-size: 0.875rem; line-height: 1.45; color: var(--g-ink-soft); margin-top: 3px; }
+.g-place-pick:hover .g-place-name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+.g-place-note { padding-left: 56px; margin-top: 6px; font-size: 0.875rem; line-height: 1.5; }
+.g-place-links { display: flex; flex-wrap: wrap; gap: 0 1.25rem; padding-left: 56px; margin-top: 2px; }
+.g-place-links a,
+.g-places-ask a {
+  color: var(--g-ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgba(33, 28, 19, 0.35);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+.g-place-links a:hover,
+.g-places-ask a:hover { text-decoration-color: currentColor; }
+.g-place-links a { display: inline-flex; align-items: center; min-height: 44px; font-size: 0.875rem; }
+.g-places-ask { font-size: 0.875rem; line-height: 1.6; color: var(--g-ink-soft); }
+/* Inline padding widens the tap area without pushing the lines apart */
+.g-places-ask a { padding: 14px 0; }
+
+/* Markers, shared by the list, the map and the key. Shape and the number
+   or letter carry the meaning; colour only repeats it. */
+.g-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--g-green);
+  color: var(--g-flag-white);
+  font: 600 0.8125rem/1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--g-flag-white);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.g-mark--restaurant { background: var(--g-red); border-radius: 5px; }
+.g-mark--kitchen { background: var(--g-ink); font: 400 1.125rem/1 var(--font-serif); }
+.g-mark--key { width: 16px; height: 16px; box-shadow: none; font-size: 0.625rem; }
+.g-mark--key.g-mark--restaurant { border-radius: 3px; }
+
+/* ===== The map: flat land and water, a few towns, the places ===== */
+
+.g-map-canvas {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: var(--g-cream-2); /* beyond the edge of the map data */
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+  touch-action: manipulation;
+}
+@media (min-width: 600px) { .g-map-canvas { aspect-ratio: 4 / 3; } }
+@media (max-width: 959px) {
+  /* A phone held sideways still sees the whole map under the bar */
+  .g-map-canvas { max-height: max(240px, calc(100svh - var(--banner-height) - var(--nav-height) - 32px)); }
+}
+@media (min-width: 960px) {
+  .g-map-canvas {
+    aspect-ratio: auto;
+    /* Short enough on a laptop screen to leave the key and the credit in view
+       under it, even where the two wrap onto separate rows */
+    height: clamp(320px, calc(100svh - var(--banner-height) - var(--nav-height) - 130px), 600px);
+  }
+}
+.g-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.g-map-water { fill: var(--g-water); }
+/* Covers the coastline stroke where the land data is cut at the map's edge */
+.g-map-edge { fill: none; stroke: var(--g-cream-2); stroke-width: 4; }
+.g-map-land { fill: var(--g-land); stroke: rgba(28, 107, 74, 0.45); stroke-width: 1; stroke-linejoin: round; }
+.g-map-roads { fill: none; stroke: rgba(33, 28, 19, 0.14); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.g-map-leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.g-map-leaders line { stroke: var(--g-ink); stroke-width: 1; opacity: 0.55; }
+.g-map-leaders circle { fill: var(--g-ink); }
+.g-map-towns { position: absolute; inset: 0; pointer-events: none; }
+.g-map-town {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--g-ink-soft);
+  white-space: nowrap;
+  text-shadow: 0 0 3px var(--g-land), 0 0 3px var(--g-land);
+}
+.g-map-pins { position: absolute; inset: 0; }
+.g-map-pin {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+.g-map-pin.is-selected { z-index: 2; }
+.g-map-pin.is-selected .g-mark { transform: scale(1.2); box-shadow: 0 0 0 2px var(--g-flag-white), 0 0 0 4px var(--g-ink); }
+/* The site-wide focus rule squares buttons off; markers keep their own shape,
+   with a light band so the ring stands apart from a chosen marker's */
+.g-map-pin:focus-visible { outline: 2px solid var(--g-ink); outline-offset: 2px; box-shadow: 0 0 0 2px var(--g-flag-white); z-index: 3; border-radius: 50%; }
+.g-map-cluster { width: auto; min-width: 44px; margin-left: 0; transform: translateX(-50%); border-radius: 22px; }
+.g-map-cluster:focus-visible { border-radius: 22px; }
+.g-map-cluster .g-mark {
+  width: auto;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 15px;
+  background: var(--g-flag-white);
+  color: var(--g-ink);
+  box-shadow: 0 0 0 1.5px var(--g-ink);
+  white-space: nowrap;
+}
+/* The pill matches the outline buttons elsewhere in the section */
+.g-map-all {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 4;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(28, 107, 74, 0.4);
+  border-radius: 40px;
+  background: var(--g-flag-white);
+  color: var(--g-green);
+  font: 400 var(--text-micro)/1 var(--font-sans);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.g-map-all:hover,
+.g-map-all:focus-visible { background: var(--g-green); border-color: var(--g-green); color: var(--g-cream); }
+
+/* What is chosen, said in words under the map. On a wide screen the chosen
+   row sits beside the map and says it already, so there the panel only lists
+   a group of places too close together to pull apart. */
+.g-map-panel {
+  margin-top: 14px;
+  padding: 14px 18px;
+  background-color: rgba(255, 255, 255, 0.35);
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+}
+.g-map-panel-name { font-family: var(--font-serif); font-size: 1.375rem; line-height: 1.25; }
+.g-map-panel-meta { font-size: 0.875rem; color: var(--g-ink-soft); }
+.g-map-panel-note { margin-top: 4px; font-size: 0.875rem; }
+.g-map-panel .g-place-links { padding-left: 0; }
+@media (min-width: 960px) {
+  .g-map-panel:not(.g-map-panel--group) { display: none; }
+}
+.g-textlink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--g-ink);
+  font: 500 0.875rem/1.4 var(--font-sans);
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: rgba(33, 28, 19, 0.35);
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+}
+.g-textlink:hover { text-decoration-color: currentColor; }
+.g-map-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px 24px;
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--g-ink-soft);
+}
+.g-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.g-legend li { display: inline-flex; align-items: center; gap: 8px; min-height: 28px; }
+.g-credit a { display: inline-flex; align-items: center; min-height: 24px; color: var(--g-ink); text-decoration: underline; text-decoration-color: rgba(33, 28, 19, 0.35); text-underline-offset: 0.22em; }

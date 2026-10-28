@@ -137,7 +137,7 @@ export default function GlobalNav() {
   const navRef = useRef<HTMLElement>(null);
 
   // Publish the bar's real height as --nav-height so the sticky sub-bars (the
-  // menus rail, the Guido's bar) can pin flush underneath it.
+  // menus rail, the Guido's category filters) can pin flush underneath it.
   // That height depends on the loaded font, so it is measured rather than
   // assumed; a hardcoded guess left a hairline of the page showing through
   // between the two bars, and scrolling text sliced through the seam.
@@ -266,8 +266,8 @@ export default function GlobalNav() {
   // visibility:hidden removes the invisible nav's controls from the tab order (it still animates)
   const navVisibility = visible ? 'visible' as const : 'hidden' as const;
 
-  // Context-aware CTA: "Get a Quote" for catering, an order request for Guido's
-  const ctaLabel = isGuidosPage ? 'Request an order' : 'Get a Quote';
+  // Context-aware CTA: "Get a Quote" for catering, "Order Now" for Guido's
+  const ctaLabel = isGuidosPage ? 'Order Now' : 'Get a Quote';
   const ctaHref = isGuidosPage ? '/guidos/order' : '/contact';
 
   const topLinkStyle = (isActive: boolean) => ({
@@ -279,20 +279,16 @@ export default function GlobalNav() {
     <>
       <nav
         ref={navRef}
-        className={`global-nav${isGuidosPage ? ' brand-guidos gg-sitebar' : ''}`}
+        className={`global-nav${isGuidosPage ? ' brand-guidos' : ''}`}
         aria-label="Main navigation"
         style={{
           color: isGuidosPage ? 'var(--g-ink)' : 'var(--clr-ink)',
-          // On Guido's pages the parent brand steps back to a slim cream bar,
-          // with Guido's own bar underneath it (src/components/guidos/GuidosBar)
-          ...(isGuidosPage ? { height: '48px', boxSizing: 'border-box' as const } : {}),
           // Opaque while the menu is open as well as when scrolled: the bar
           // floats over the panel, so a transparent one would be an invisible
           // strip that swallows taps and lets the menu's own list scroll up
           // behind it.
-          backgroundColor: isGuidosPage
-            ? 'var(--g-cream-2)'
-            : scrolled || isOpen ? 'var(--clr-bone)' : 'transparent',
+          backgroundColor:
+            scrolled || isOpen ? (isGuidosPage ? 'var(--g-cream)' : 'var(--clr-bone)') : 'transparent',
           borderBottom: scrolled && !isOpen && !isGuidosPage ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
           position: 'fixed',
           top: 'var(--banner-height, 0px)',
@@ -303,7 +299,7 @@ export default function GlobalNav() {
           // close button and wordmark inside this bar cannot rise above the
           // panel on their own: the whole bar has to sit on top.
           zIndex: 10001,
-          padding: isGuidosPage ? '4px clamp(20px, 5vw, 40px) 0' : '1.25rem clamp(1.5rem, 5vw, 4rem)',
+          padding: '1.25rem clamp(1.5rem, 5vw, 4rem)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -312,24 +308,21 @@ export default function GlobalNav() {
           pointerEvents: navPointerEvents,
           visibility: navVisibility,
       }}>
-          {/* Guido's signature: the tricolour caps the page the way it caps
-              every package, once */}
-          {isGuidosPage && <span className="gg-sitebar-cap" aria-hidden="true" />}
+          {/* Guido's signature: the packaging tricolour as a hairline under the
+              bar, fading in with the cream background on scroll */}
+          {isGuidosPage && (
+            <span
+              className="g-tricolor"
+              aria-hidden="true"
+              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%', opacity: scrolled ? 1 : 0, transition: 'opacity 0.4s ease' }}
+            />
+          )}
           {/* The wordmark is the way home from every page, so it gets a full
               tap target. The bar already stands 61px tall, so growing the link
               to 44px inside it costs no layout. */}
-          <Link href="/" aria-label="Melting Moments home" style={{ fontWeight: 600, letterSpacing: '-0.02em', zIndex: 10001, fontSize: isGuidosPage ? '0.875rem' : '0.85rem', display: 'flex', alignItems: 'center', minHeight: '44px', marginTop: isGuidosPage ? 0 : '-12px', marginBottom: isGuidosPage ? 0 : '-12px' }}>Melting Moments</Link>
+          <Link href="/" aria-label="Melting Moments home" style={{ fontWeight: 600, letterSpacing: '-0.02em', zIndex: 10001, fontSize: '0.85rem', display: 'flex', alignItems: 'center', minHeight: '44px', marginTop: '-12px', marginBottom: '-12px' }}>Melting Moments</Link>
 
-          {/* Desktop Navigation. On Guido's pages: plain links to each side
-              of the business, since Guido's own bar carries its pages */}
-          {isGuidosPage ? (
-            <div className="nav-links-desktop gg-sitebar-links">
-              <Link href="/catering" aria-current={isCateringSection ? 'true' : undefined}>Catering</Link>
-              <Link href="/guidos" aria-current="true">Guido&rsquo;s Gourmet</Link>
-              <Link href="/about" aria-current={isAboutSection ? 'true' : undefined}>About</Link>
-              <Link href="/contact" aria-current={isContactPage ? 'page' : undefined}>Contact</Link>
-            </div>
-          ) : (
+          {/* Desktop Navigation */}
           <div className="nav-links-desktop" style={{ display: 'flex', gap: '2rem', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', alignItems: 'center' }}>
               <NavDropdown label="Catering" items={cateringItems} active={isCateringSection} currentPath={pathname} />
               <NavDropdown label="Guido's" items={guidosItems} active={isGuidosPage} currentPath={pathname} />
@@ -337,7 +330,6 @@ export default function GlobalNav() {
               <Link href="/contact" aria-current={isContactPage ? 'page' : undefined} style={topLinkStyle(isContactPage)}>Contact</Link>
               <Link href={ctaHref} className="btn-solid" style={{ minHeight: 'auto', padding: '0.6rem 1.2rem', fontSize: '0.75rem' }}>{ctaLabel}</Link>
           </div>
-          )}
 
           {/* Mobile Hamburger Button */}
           <button
@@ -345,7 +337,7 @@ export default function GlobalNav() {
             className="nav-hamburger"
             onClick={() => setIsOpen(!isOpen)}
             aria-expanded={isOpen}
-            aria-label={isGuidosPage ? 'Melting Moments menu' : 'Toggle navigation menu'}
+            aria-label="Toggle navigation menu"
             style={{
                 display: 'none',
                 flexDirection: 'column',

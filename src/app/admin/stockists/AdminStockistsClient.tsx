@@ -338,6 +338,14 @@ function StockistsManager({ initialStockists }: { initialStockists: Stockist[] |
               Drag to change the order. The site lists grocers first and then restaurants, each in this order, and numbers them down the list.
             </p>
           )}
+          {/* Kept mounted so a screen reader hears the line when the last stockist is hidden */}
+          <div role="status">
+            {items.length > 0 && items.every((s) => !s.isActive) && (
+              <p style={{ fontSize: '0.75rem', color: 'rgba(0,0,0,0.55)', marginTop: '0.2rem' }}>
+                No stockist is visible, so the Where to Buy section is off the Guido&apos;s page until you show one again.
+              </p>
+            )}
+          </div>
         </div>
         {!cmsUnreachable && (
           <button className="admin-btn admin-btn--primary" onClick={openCreate} disabled={saving}>+ Add Stockist</button>
@@ -353,7 +361,7 @@ function StockistsManager({ initialStockists }: { initialStockists: Stockist[] |
       ) : items.length === 0 ? (
         <EmptyState
           title="No stockists yet"
-          body="Add each restaurant or grocer that carries Guido's. They appear on the map on the Guido's page as soon as you save, alongside your own kitchen for pickups."
+          body="Add each restaurant or grocer that carries Guido's. As soon as you save the first one, a Where to Buy section appears on the Guido's page, with a map that also shows your own kitchen for pickups."
           action={<button className="admin-btn admin-btn--primary" onClick={openCreate}>+ Add Stockist</button>}
         />
       ) : (

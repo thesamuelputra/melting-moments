@@ -567,8 +567,99 @@ footer :focus-visible,
 }
 
 /* ========================================================
-   MENU RAIL AND FOOTER NAV
+   PRODUCT GRID (Guido's catalog)
 ======================================================== */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.product-card {
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.product-card:hover {
+  opacity: 0.85;
+}
+
+.product-card__image {
+  position: relative;
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background-color: var(--clr-charcoal);
+}
+
+.product-card__image img {
+  transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.product-card:hover .product-card__image img {
+  transform: scale(1.03);
+}
+
+.product-card--sold-out {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Category filter tabs.
+   The tab rules sit above the mobile block below on purpose: both selectors
+   carry the same specificity, so whichever is written last wins. Declared
+   after it, the base padding here quietly cancelled the mobile tap target. */
+.category-tab {
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(17, 17, 17, 0.66); /* 0.4 failed WCAG contrast (2.6:1) */
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.category-tab:hover {
+  color: var(--clr-ink);
+}
+
+.category-tabs {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: clamp(2rem, 4vw, 4rem);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 1rem;
+}
+.category-tabs::-webkit-scrollbar { display: none; }
+
+/* Mobile: keep the filter rail reachable while browsing. Full-bleed and
+   pinned flush under the fixed nav, so the two read as one bar of chrome.
+   Opaque, in the page's own paper colour: a translucent fill let body text
+   read through the rail, and --clr-bone is remapped to the cream inside
+   .brand-guidos, so this stays correct on the Guido's menu too. */
+@media (max-width: 900px) {
+  .category-tabs {
+    position: sticky;
+    top: calc(var(--banner-height) + var(--nav-height));
+    z-index: 90;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 0 clamp(1.25rem, 5vw, 4rem);
+    background: var(--clr-bone);
+    border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+  }
+  /* Tap target: the tab itself carries the rail's vertical padding */
+  .category-tab {
+    padding: 1rem 0;
+  }
+}
 
 /* Sticky section rail for the catering menu on mobile: anchors, not
    filters; mirrors the desktop sticky index. */
@@ -778,12 +869,25 @@ footer :focus-visible,
   .hero-brand-note__text {
     color: #fff;
   }
+
+  /* Product grid drops to 2 columns on mobile for easier browsing */
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
 }
 
 @media (min-width: 769px) {
   .nav-hamburger { display: none; }
   .nav-mobile-panel { display: none; }
   #mobile-menu-btn { display: none !important; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* ========================================================
@@ -1018,10 +1122,12 @@ footer :focus-visible,
 }
 
 /* ========================================================
-   GUIDO'S GOURMET  ·  shared sub-brand pieces
-   The palette, the logo, and the few rules the shared nav
-   needs on Guido's pages. The pages themselves are styled
-   in src/app/guidos/guidos.css, which only loads there.
+   GUIDO'S GOURMET  ·  scoped sub-brand identity
+   Warm cream paper, the Italian tricolour as a hairline
+   signature, gold as the single accent, deep-green blocks.
+   Everything lives under .brand-guidos so none of it leaks
+   into the Melting Moments pages. The execution stays quiet;
+   only the material changes.
 ======================================================== */
 
 /* Palette lives at :root so the shared nav and footer (rendered outside the
@@ -1038,13 +1144,13 @@ footer :focus-visible,
   --g-red: #C13A2E;
   --g-green: #1C6B4A;
   --g-green-deep: #123F2E;
+  --g-green-deeper: #0E3324; /* footer, a step below the delivery block so the seam divides them */
 
   /* Gold: a text-safe bronze on cream (and the darker cream-2 panel), a brighter tone for dark grounds */
   --g-gold: #7C591D;
   --g-gold-bright: #C2A24E;
 }
 
-/* The shared nav and its phone panel while a visitor is on Guido's pages */
 .brand-guidos {
   background-color: var(--g-cream);
   color: var(--g-ink);
@@ -1053,29 +1159,54 @@ footer :focus-visible,
      (dividers, masks, outline-button hovers pick this up) */
   --clr-bone: var(--g-cream);
 }
-/* The phone menu's button takes the shape of the Guido's buttons */
-.brand-guidos .btn-solid {
-  background-color: var(--g-green);
-  border-color: var(--g-green);
-  border-radius: 2px;
-  color: var(--g-flag-white);
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.brand-guidos .btn-solid:hover,
-.brand-guidos .btn-solid:focus-visible {
-  background-color: var(--g-green-deep);
-  border-color: var(--g-green-deep);
-  color: var(--g-flag-white);
-}
-/* A plain hairline: no ornament on Guido's pages */
-.brand-guidos .noire-divider { background-color: var(--g-line); }
-.brand-guidos .noire-divider::after { content: none; }
 
-/* The laurel wordmark and its script tagline */
-.g-wordmark { display: inline-block; line-height: 0; }
-.g-wordmark svg { display: block; height: auto; }
+/* Faint paper grain so the cream reads as stock, not flat fill. Whisper level.
+   The texture scrolls with the page (the default). It is deliberately NOT a
+   viewport-fixed background: background-attachment: fixed forces the browser to
+   repaint the noise across the whole viewport on every scroll frame, which
+   stutters badly. A normal scrolling background composites smoothly. The tile
+   is a small 140px pattern at 3.5% opacity, so whether it scrolls or stays is
+   imperceptible. */
+.brand-guidos.g-paper {
+  background-image:
+    radial-gradient(ellipse 120% 80% at 50% -10%, rgba(255, 252, 244, 0.6), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, repeat;
+}
+
+/* Tricolour hairline: the signature cue */
+.g-tricolor {
+  height: 3px;
+  width: 100%;
+  border: 0;
+  margin: 0;
+  background: linear-gradient(
+    to right,
+    var(--g-green) 0 33.33%,
+    var(--g-flag-white) 33.33% 66.66%,
+    var(--g-red) 66.66% 100%
+  );
+}
+/* Short centered rule for section breaks */
+.g-tricolor--rule {
+  height: 3px;
+  width: clamp(72px, 10vw, 120px);
+  margin: 0 auto;
+  border-radius: 2px;
+}
+
+/* Eyebrow: gold, tracked, uppercase */
+.brand-guidos .g-eyebrow,
+.g-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--g-gold);
+  font-weight: 600;
+}
+
+/* Script tagline: the handwritten voice, used only for taglines */
 .g-script {
   font-family: var(--font-script);
   font-weight: 600;
@@ -1083,4 +1214,148 @@ footer :focus-visible,
   letter-spacing: 0.01em;
   line-height: 1.1;
   font-size: clamp(1.6rem, 3.6vw, 2.9rem);
+}
+.g-script--sm {
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+}
+
+/* Display serif on cream keeps the site's serif, warmed to g-ink */
+.brand-guidos .haus-display,
+.brand-guidos .noire-serif {
+  color: var(--g-ink);
+}
+
+/* Deep-green full-bleed block (replaces the ink haus block) */
+.g-block {
+  background-color: var(--g-green-deep);
+  color: var(--g-cream);
+  padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+  position: relative;
+}
+.g-block .g-eyebrow { color: var(--g-gold-bright); }
+.g-block .g-script { color: var(--g-gold-bright); } /* the dark gold fails contrast on deep green */
+.g-block .noire-serif,
+.g-block .haus-display { color: var(--g-cream); }
+
+/* Product card on cream */
+.brand-guidos .product-card {
+  background-color: transparent;
+}
+.g-card {
+  display: block;
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.35);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+}
+.g-card:hover,
+.g-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(18, 63, 46, 0.12);
+  border-color: rgba(138, 99, 32, 0.4);
+}
+.g-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: var(--g-cream-2);
+}
+.g-card__body {
+  padding: 1.1rem 1.25rem 1.35rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.g-card__name {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1.15;
+  color: var(--g-ink);
+  /* A flex item will not shrink below its own content unless told to, so a
+     long name shouldered the nowrap price out through the card's
+     overflow: hidden and the price vanished off the edge. */
+  min-width: 0;
+}
+.g-card__price {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--g-gold);
+  white-space: nowrap;
+}
+
+/* Two cards to a row leaves each body about 165px wide: too narrow to seat a
+   serif name and a price on one line without the name breaking into a column
+   of single words. Give each its own line instead. */
+@media (max-width: 600px) {
+  .g-card__body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+}
+
+/* Buttons recoloured to the Guido's palette (geometry unchanged) */
+.brand-guidos .btn-solid {
+  background-color: var(--g-green);
+  border-color: var(--g-green);
+  color: var(--g-cream);
+}
+.brand-guidos .btn-solid:hover,
+.brand-guidos .btn-solid:focus-visible {
+  background-color: transparent;
+  color: var(--g-green);
+  border-color: var(--g-green);
+}
+.brand-guidos .btn-outline {
+  border-color: rgba(28, 107, 74, 0.4);
+  color: var(--g-green);
+}
+.brand-guidos .btn-outline:hover,
+.brand-guidos .btn-outline:focus-visible,
+.brand-guidos .btn-outline.active {
+  background-color: var(--g-green);
+  color: var(--g-cream);
+  border-color: var(--g-green);
+}
+/* Inverse buttons sitting on the deep-green block */
+.g-block .btn-outline,
+.brand-guidos .btn-outline--inverse {
+  color: var(--g-cream);
+  border-color: rgba(244, 238, 222, 0.4);
+}
+.g-block .btn-outline:hover,
+.g-block .btn-outline:focus-visible,
+.brand-guidos .btn-outline--inverse:hover,
+.brand-guidos .btn-outline--inverse:focus-visible {
+  background-color: var(--g-cream);
+  color: var(--g-green-deep);
+  border-color: var(--g-cream);
+}
+
+/* Menu-index / eyebrow default colour inside the theme */
+.brand-guidos .menu-index {
+  color: var(--g-ink-soft);
+}
+
+/* Divider dot recoloured to gold */
+.brand-guidos .noire-divider { background-color: var(--g-line); }
+.brand-guidos .noire-divider::after {
+  content: "\275D";
+  color: var(--g-gold);
+  background-color: var(--g-cream);
+}
+
+/* The laurel wordmark component */
+.g-wordmark { display: inline-block; line-height: 0; }
+.g-wordmark svg { display: block; height: auto; }
+
+/* Reduced motion: the card lift and any reveals settle instantly */
+@media (prefers-reduced-motion: reduce) {
+  .g-card,
+  .g-card:hover,
+  .g-card:focus-visible { transition: none; transform: none; }
 }

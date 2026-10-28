@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   },
 };
 
+// Segment config lives here because page.tsx is a client component
 export const revalidate = 300;
 
 export default function GuidosOrderLayout({
@@ -23,6 +24,7 @@ export default function GuidosOrderLayout({
 }) {
   return (
     <>
+      {/* Breadcrumbs live here because page.tsx is a client component */}
       <JsonLd
         data={breadcrumbList([
           { name: 'Home', path: '/' },

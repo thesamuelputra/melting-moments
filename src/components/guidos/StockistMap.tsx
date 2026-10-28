@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { LAND_PATH, ROADS_PATH, PLACES } from './stockist-map-data';
-import { MAP_EXTENT, directionsUrl, project, type MapPoint } from './stockist-map-geometry';
+import { MAP_EXTENT, directionsUrl, inGreaterVictoria, project, type MapPoint } from './stockist-map-geometry';
 import { SITE } from '@/lib/seo';
+import './stockist-map.css';
 
 /* ===== Data ===== */
 
@@ -35,10 +36,6 @@ const KITCHEN_POINT = project(KITCHEN);
 
 const KIND_LABEL: Record<Kind, string> = { grocery: 'Grocer', restaurant: 'Restaurant' };
 
-// Greater Victoria is framed first; anything further out is a tap away
-const inGreaterVictoria = ({ lat, lng }: { lat: number; lng: number }) =>
-  lat >= 48.38 && lat <= 48.6 && lng >= -123.62 && lng <= -123.25;
-
 const HIT = 44; // every marker is at least this big to tap
 const MIN_SPAN = 900; // map units (9 km): one place still shows its neighbourhood
 const KITCHEN_ONLY_SPAN = 1500;
@@ -64,8 +61,11 @@ function fitView(points: MapPoint[], box: Box, minSpan: number): View {
   const w = box.w / scale, h = box.h / scale;
   let x = (minX + maxX) / 2 - (pad.left + availW / 2) / scale;
   let y = (minY + maxY) / 2 - (pad.top + availH / 2) / scale;
-  x = w >= MAP_EXTENT.w ? (MAP_EXTENT.w - w) / 2 : Math.min(Math.max(x, 0), MAP_EXTENT.w - w);
-  y = h >= MAP_EXTENT.h ? (MAP_EXTENT.h - h) / 2 : Math.min(Math.max(y, 0), MAP_EXTENT.h - h);
+  // Stop a few screen pixels short of the edge of the map data, so the cut
+  // coastline and the stroke that hides it stay outside the frame
+  const inset = 3 / scale;
+  x = w >= MAP_EXTENT.w - 2 * inset ? (MAP_EXTENT.w - w) / 2 : Math.min(Math.max(x, inset), MAP_EXTENT.w - w - inset);
+  y = h >= MAP_EXTENT.h - 2 * inset ? (MAP_EXTENT.h - h) / 2 : Math.min(Math.max(y, inset), MAP_EXTENT.h - h - inset);
   return { x, y, w, h, scale, boxW: box.w, boxH: box.h };
 }
 
@@ -98,8 +98,8 @@ type Spot = { x: number; y: number; w: number };
 const overlaps = (a: Spot, b: Spot) => Math.abs(a.x - b.x) < (a.w + b.w) / 2 + 2 && Math.abs(a.y - b.y) < HIT + 2;
 
 // "Show all places" sits in the map's top right corner (12px in, one tap target
-// tall, about 136px wide); while it shows, markers and town names keep clear of it
-const CORNER_W = 148;
+// tall, about 166px wide); while it shows, markers and town names keep clear of it
+const CORNER_W = 178;
 const cornerSpot = (box: Box): Spot => ({ x: box.w - 12 - CORNER_W / 2, y: 12 + HIT / 2, w: CORNER_W });
 
 /** Places whose tap areas would overlap become one "n places" marker. The
@@ -243,7 +243,7 @@ function townLabels(view: View, box: Box, items: Item[], keepCornerClear = false
 
 function Mark({ kind, label, keyMark }: { kind: Kind | 'kitchen'; label?: string | number; keyMark?: boolean }) {
   return (
-    <span className={`gg-mark gg-mark--${kind}${keyMark ? ' gg-mark--key' : ''}`} aria-hidden="true">
+    <span className={`g-mark g-mark--${kind}${keyMark ? ' g-mark--key' : ''}`} aria-hidden="true">
       {label}
     </span>
   );
@@ -258,8 +258,8 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
   const figureRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const pinsRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  // Numbered in the order the owner set in the admin
   // Numbered the way the list shows them: grocers, then restaurants, each in the owner's order
   const places: Place[] = useMemo(
     () =>
@@ -354,6 +354,13 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
     return () => cancelAnimationFrame(raf);
   }, [settled, items]);
 
+  // A group listed under the map can open below the fold, so bring it into view
+  useEffect(() => {
+    if (!clusterList) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    panelRef.current?.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+  }, [clusterList]);
+
   const stacked = () => window.matchMedia('(max-width: 959px)').matches;
   const smooth = (): ScrollBehavior => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 
@@ -419,9 +426,11 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
 
   const changeFilter = (f: Filter) => {
     setFilter(f);
-    setFrame({ type: 'home' });
     setClusterList(null);
-    if (selected && selected !== KITCHEN.id && f !== 'all' && byId.get(selected)?.kind !== f) setSelected(null);
+    // A chosen place the filter still shows stays chosen, and stays in frame even out of town
+    const kept = selected && selected !== KITCHEN.id && (f === 'all' || byId.get(selected)?.kind === f) ? byId.get(selected) : undefined;
+    if (selected && selected !== KITCHEN.id && !kept) setSelected(null);
+    setFrame(kept && !inGreaterVictoria(kept) ? { type: 'ids', ids: [KITCHEN.id, kept.id], minSpan: MIN_SPAN } : { type: 'home' });
     const n = f === 'all' ? places.length : counts[f];
     const noun = f === 'all' ? (n === 1 ? 'place' : 'places') : f === 'grocery' ? (n === 1 ? 'grocer' : 'grocers') : n === 1 ? 'restaurant' : 'restaurants';
     setAnnounce(`Showing ${n} ${noun} and the kitchen.`);
@@ -445,11 +454,11 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
   const placeLinks = (p: { name: string; address: string; website?: string }) => (
     <>
       <a href={directionsUrl(p.name, p.address)} target="_blank" rel="noopener noreferrer">
-        Directions<span className="gg-sr-only"> to {p.name} (opens in a new tab)</span>
+        Directions<span className="g-sr-only"> to {p.name} (opens in a new tab)</span>
       </a>
       {p.website && (
         <a href={p.website} target="_blank" rel="noopener noreferrer">
-          Website<span className="gg-sr-only"> of {p.name} (opens in a new tab)</span>
+          Website<span className="g-sr-only"> of {p.name} (opens in a new tab)</span>
         </a>
       )}
     </>
@@ -457,103 +466,93 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
   const kitchenLinks = (
     <>
       <a href={directionsUrl('Guido’s Gourmet', SITE.addressFull)} target="_blank" rel="noopener noreferrer">
-        Directions<span className="gg-sr-only"> to Guido&rsquo;s kitchen (opens in a new tab)</span>
+        Directions<span className="g-sr-only"> to Guido&rsquo;s kitchen (opens in a new tab)</span>
       </a>
-      <Link href="/guidos/order?method=pickup">Request a pickup</Link>
+      <Link href="/guidos/order">Order ahead</Link>
     </>
   );
 
   return (
-    <div className="gg-where-body">
+    <div className="g-where-body">
       {/* The list: the main way in, complete without the map */}
       <div ref={listRef}>
         {showChips && (
-          <div className="gg-chips" role="group" aria-label="Show">
+          <div className="g-where-tabs" role="group" aria-label="Places to show">
             {(['all', 'grocery', 'restaurant'] as Filter[]).map((f) => (
-              <button key={f} type="button" aria-pressed={filter === f} onClick={() => changeFilter(f)}>
-                <span>
-                  {f === 'all' ? 'All' : f === 'grocery' ? 'Grocers' : 'Restaurants'}{' '}
-                  <span className="gg-chip-count">{f === 'all' ? places.length : counts[f]}</span>
-                </span>
+              <button key={f} type="button" className="category-tab" aria-pressed={filter === f} onClick={() => changeFilter(f)}>
+                {f === 'all' ? 'All' : f === 'grocery' ? 'Grocers' : 'Restaurants'}
               </button>
             ))}
           </div>
         )}
 
-        <div className="gg-places-group">
-          <h3 className="gg-places-title">Pickup</h3>
-          <ul className="gg-places-list">
-            <li className={`gg-place${selected === KITCHEN.id ? ' is-selected' : ''}`} data-place={KITCHEN.id}>
-              <button type="button" className="gg-place-pick" aria-pressed={selected === KITCHEN.id} onClick={(e) => choose(KITCHEN.id, 'list', isPointer(e))}>
+        <div className="g-places-group">
+          <h3 className="menu-index g-places-title">Pickup</h3>
+          <ul className="g-places-list">
+            <li className={`g-place${selected === KITCHEN.id ? ' is-selected' : ''}`} data-place={KITCHEN.id}>
+              <button type="button" className="g-place-pick" aria-pressed={selected === KITCHEN.id} onClick={(e) => choose(KITCHEN.id, 'list', isPointer(e))}>
                 <Mark kind="kitchen" label="G" />
                 <span>
-                  <span className="gg-place-name">{KITCHEN.name}</span>
-                  <span className="gg-place-meta">{KITCHEN.address}</span>
-                  <span className="gg-sr-only">, show on the map</span>
+                  <span className="g-place-name">{KITCHEN.name}</span>
+                  <span className="g-place-meta">{KITCHEN.address}</span>
+                  <span className="g-sr-only">, show on the map</span>
                 </span>
               </button>
-              <p className="gg-place-note">{KITCHEN.note}</p>
-              <p className="gg-place-links">{kitchenLinks}</p>
+              <p className="g-place-note">{KITCHEN.note}</p>
+              <p className="g-place-links">{kitchenLinks}</p>
             </li>
           </ul>
         </div>
 
         {groups.map((g) =>
           g.list.length === 0 ? null : (
-            <div className="gg-places-group" key={g.kind}>
-              <h3 className="gg-places-title">
-                {g.title}{' '}
-                <span className="gg-places-count">{g.list.length}</span>
-              </h3>
-              <ul className="gg-places-list">
+            <div className="g-places-group" key={g.kind}>
+              <h3 className="menu-index g-places-title">{g.title}</h3>
+              <ul className="g-places-list">
                 {g.list.map((p) => (
-                  <li key={p.id} className={`gg-place${selected === p.id ? ' is-selected' : ''}`} data-place={p.id}>
-                    <button type="button" className="gg-place-pick" aria-pressed={selected === p.id} onClick={(e) => choose(p.id, 'list', isPointer(e))}>
+                  <li key={p.id} className={`g-place${selected === p.id ? ' is-selected' : ''}`} data-place={p.id}>
+                    <button type="button" className="g-place-pick" aria-pressed={selected === p.id} onClick={(e) => choose(p.id, 'list', isPointer(e))}>
                       <Mark kind={p.kind} label={p.num} />
                       <span>
-                        <span className="gg-place-name">{p.name}</span>
-                        <span className="gg-place-meta">{KIND_LABEL[p.kind]} &middot; {p.address}</span>
-                        <span className="gg-sr-only">, show on the map</span>
+                        <span className="g-place-name">{p.name}</span>
+                        <span className="g-place-meta">{KIND_LABEL[p.kind]} &middot; {p.address}</span>
+                        <span className="g-sr-only">, show on the map</span>
                       </span>
                     </button>
-                    {p.note && <p className="gg-place-note">{p.note}</p>}
-                    <p className="gg-place-links">{placeLinks(p)}</p>
+                    {p.note && <p className="g-place-note">{p.note}</p>}
+                    <p className="g-place-links">{placeLinks(p)}</p>
                   </li>
                 ))}
               </ul>
             </div>
           )
         )}
-
-        <p className="gg-places-ask">
-          Would you like Guido&rsquo;s in your shop or on your menu? <Link href="/contact">Get in touch</Link>
-        </p>
       </div>
 
       {/* The map: a picture of the same list */}
-      <div className="gg-map" ref={figureRef}>
+      <div className="g-map" ref={figureRef}>
         <div
-          className="gg-map-canvas"
+          className="g-map-canvas"
           ref={canvasRef}
           role="group"
           aria-label="Map of these places. Use the arrow keys to move between markers and Enter to choose one."
         >
           <svg
-            className="gg-map-svg"
+            className="g-map-svg"
             aria-hidden="true"
             focusable="false"
             viewBox={view ? `${view.x} ${view.y} ${view.w} ${view.h}` : `${KITCHEN_POINT.x - 800} ${KITCHEN_POINT.y - 700} 1600 1400`}
             preserveAspectRatio="xMidYMid slice"
           >
             {/* Water only where the map data reaches; a very wide view shows a plain margin beyond it */}
-            <rect className="gg-map-water" x={0} y={0} width={MAP_EXTENT.w} height={MAP_EXTENT.h} />
-            <path className="gg-map-land" d={LAND_PATH} fillRule="evenodd" vectorEffect="non-scaling-stroke" />
-            <path className="gg-map-roads" d={ROADS_PATH} />
-            <rect className="gg-map-edge" x={0} y={0} width={MAP_EXTENT.w} height={MAP_EXTENT.h} vectorEffect="non-scaling-stroke" />
+            <rect className="g-map-water" x={0} y={0} width={MAP_EXTENT.w} height={MAP_EXTENT.h} />
+            <path className="g-map-land" d={LAND_PATH} fillRule="evenodd" vectorEffect="non-scaling-stroke" />
+            <path className="g-map-roads" d={ROADS_PATH} />
+            <rect className="g-map-edge" x={0} y={0} width={MAP_EXTENT.w} height={MAP_EXTENT.h} vectorEffect="non-scaling-stroke" />
           </svg>
 
           {box && (
-            <svg className="gg-map-leaders" aria-hidden="true" focusable="false" viewBox={`0 0 ${box.w} ${box.h}`}>
+            <svg className="g-map-leaders" aria-hidden="true" focusable="false" viewBox={`0 0 ${box.w} ${box.h}`}>
               {items.map((it) =>
                 Math.hypot(it.x - it.ax, it.y - it.ay) > 6 ? (
                   <g key={`l-${it.key}`}>
@@ -565,13 +564,13 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
             </svg>
           )}
 
-          <div className="gg-map-towns" aria-hidden="true">
+          <div className="g-map-towns" aria-hidden="true">
             {towns.map((t) => (
-              <span key={t.name} className="gg-map-town" style={{ left: t.x, top: t.y }}>{t.name}</span>
+              <span key={t.name} className="g-map-town" style={{ left: t.x, top: t.y }}>{t.name}</span>
             ))}
           </div>
 
-          <div className="gg-map-pins" ref={pinsRef} onKeyDown={onPinsKey}>
+          <div className="g-map-pins" ref={pinsRef} onKeyDown={onPinsKey}>
             {items.map((it) => {
               const tab = it.key === rovingKey ? 0 : -1;
               const style = { left: it.x, top: it.y };
@@ -582,7 +581,7 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
                     key={it.key}
                     type="button"
                     data-key={it.key}
-                    className={`gg-map-pin gg-map-cluster${isSel ? ' is-selected' : ''}`}
+                    className={`g-map-pin g-map-cluster${isSel ? ' is-selected' : ''}`}
                     style={style}
                     tabIndex={tab}
                     aria-label={`${it.ids.length} places: ${it.ids.map((id) => nameOf(id)).join(', ')}. Show them`}
@@ -600,7 +599,7 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
                   key={it.key}
                   type="button"
                   data-key={it.key}
-                  className={`gg-map-pin${selected === id ? ' is-selected' : ''}`}
+                  className={`g-map-pin${selected === id ? ' is-selected' : ''}`}
                   style={style}
                   tabIndex={tab}
                   aria-pressed={selected === id}
@@ -615,23 +614,23 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
           </div>
 
           {showAllButton && (
-            <button type="button" className="gg-map-all" onClick={showAll}>
+            <button type="button" className="g-map-all" onClick={showAll}>
               Show all places
             </button>
           )}
         </div>
 
-        {/* What is chosen, in words, at every width. With no places yet the list
-            already says all there is about the kitchen, so there is no panel. */}
-        {places.length > 0 && (
-          <div className="gg-map-panel">
+        {/* What is chosen, in words, once something is. On a wide screen only a
+            group too close to pull apart shows here (see the stylesheet). */}
+        {(clusterList || selected === KITCHEN.id || chosen) && (
+          <div ref={panelRef} className={`g-map-panel${clusterList ? ' g-map-panel--group' : ''}`}>
             {clusterList ? (
               <>
-                <p className="gg-map-panel-meta">{clusterList.length} places here</p>
-                <ul className="gg-place-links" style={{ flexDirection: 'column', gap: 0 }}>
+                <p className="g-map-panel-meta">{clusterList.length} places here</p>
+                <ul className="g-place-links" style={{ flexDirection: 'column', gap: 0 }}>
                   {clusterList.map((id) => (
                     <li key={id}>
-                      <button type="button" className="gg-textlink" style={{ minHeight: 44, background: 'none', border: 0, padding: 0, font: 'inherit', cursor: 'pointer' }} onClick={(e) => choose(id, 'map', isPointer(e))}>
+                      <button type="button" className="g-textlink" onClick={(e) => choose(id, 'map', isPointer(e))}>
                         {byId.get(id)?.num}. {nameOf(id)}
                       </button>
                     </li>
@@ -640,41 +639,43 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
               </>
             ) : selected === KITCHEN.id ? (
               <>
-                <p className="gg-map-panel-name">{KITCHEN.name}</p>
-                <p className="gg-map-panel-meta">{KITCHEN.note} &middot; {KITCHEN.address}</p>
-                <p className="gg-place-links">{kitchenLinks}</p>
+                <p className="g-map-panel-name">{KITCHEN.name}</p>
+                <p className="g-map-panel-meta">{KITCHEN.note} &middot; {KITCHEN.address}</p>
+                <p className="g-place-links">{kitchenLinks}</p>
               </>
             ) : chosen ? (
               <>
-                <p className="gg-map-panel-name">{chosen.num}. {chosen.name}</p>
-                <p className="gg-map-panel-meta">{KIND_LABEL[chosen.kind]} &middot; {chosen.address}</p>
-                {chosen.note && <p className="gg-map-panel-note">{chosen.note}</p>}
-                <p className="gg-place-links">{placeLinks(chosen)}</p>
+                <p className="g-map-panel-name">{chosen.num}. {chosen.name}</p>
+                <p className="g-map-panel-meta">{KIND_LABEL[chosen.kind]} &middot; {chosen.address}</p>
+                {chosen.note && <p className="g-map-panel-note">{chosen.note}</p>}
+                <p className="g-place-links">{placeLinks(chosen)}</p>
               </>
-            ) : (
-              <p className="gg-map-panel-hint">Choose a place in the list or on the map to see it here.</p>
-            )}
+            ) : null}
           </div>
         )}
-        <p className="gg-sr-only" aria-live="polite">{announce}</p>
+        <p className="g-sr-only" aria-live="polite">{announce}</p>
 
-        <div className="gg-map-foot">
+        <div className="g-map-foot">
           {places.length > 0 && (
-            <ul className="gg-legend" aria-label="Key">
+            <ul className="g-legend" aria-label="Key">
               <li><Mark kind="kitchen" label="G" keyMark />Guido&rsquo;s kitchen</li>
               {(['grocery', 'restaurant'] as Kind[]).filter((k) => counts[k] > 0).map((k) => (
                 <li key={k}><Mark kind={k} keyMark />{KIND_LABEL[k]}</li>
               ))}
             </ul>
           )}
-          <p className="gg-credit">
+          <p className="g-credit">
             Map data{' '}
             <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
-              &copy; OpenStreetMap contributors<span className="gg-sr-only"> (opens in a new tab)</span>
+              &copy; OpenStreetMap contributors<span className="g-sr-only"> (opens in a new tab)</span>
             </a>
           </p>
         </div>
       </div>
+
+      <p className="g-places-ask">
+        Would you like Guido&rsquo;s in your shop or on your menu? <Link href="/contact">Get in touch</Link>
+      </p>
     </div>
   );
 }

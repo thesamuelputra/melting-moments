@@ -1,0 +1,181 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import GuidosImage from '@/components/GuidosImage';
+
+type Product = {
+  name: string;
+  category: string;
+  priceFrom: number;
+  sizes?: { label: string; price: number }[];
+  image: string;
+  isAvailable: boolean;
+  isLimitedEdition: boolean;
+};
+
+const products: Product[] = [
+  // Lasagnes
+  { name: 'Beef Bolognese Lasagne', category: 'Lasagnes', priceFrom: 27, sizes: [{ label: 'Family (4-6)', price: 27 }, { label: 'Party (8-10)', price: 45 }], image: '/guidos/beef-bolognese-lasagne.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Meat Lasagne', category: 'Lasagnes', priceFrom: 16.95, sizes: [{ label: 'Single', price: 16.95 }, { label: 'Family (4-6)', price: 27 }], image: '/guidos/meat-lasagne.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Veggie Lasagne', category: 'Lasagnes', priceFrom: 14, sizes: [{ label: 'Single', price: 14 }, { label: 'Family (4-6)', price: 24 }], image: '/guidos/veggie-lasagne.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Vegan Lasagne w/ Roasted Veg', category: 'Lasagnes', priceFrom: 14, image: '/guidos/vegan-lasagne.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Eggplant Parmesan', category: 'Lasagnes', priceFrom: 14, image: '/guidos/eggplant-parmesan.webp', isAvailable: true, isLimitedEdition: false },
+  // Pot Pies
+  { name: 'Turkey Pot Pie', category: 'Pot Pies', priceFrom: 9, image: '/guidos/turkey-pot-pie.webp', isAvailable: true, isLimitedEdition: false },
+  // Soups
+  { name: 'Beef Stew', category: 'Soups', priceFrom: 12, image: '/guidos/beef-stew.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Beef Barley Soup', category: 'Soups', priceFrom: 10, image: '/guidos/beef-barley-soup.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Broccoli Cheddar Soup', category: 'Soups', priceFrom: 10, image: '/guidos/broccoli-cheddar-soup.webp', isAvailable: true, isLimitedEdition: false },
+  // Pasta
+  { name: 'Spaghetti and Meatballs', category: 'Pasta', priceFrom: 14, image: '/guidos/spaghetti-meatballs.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Pulled Pork Mac & Cheese', category: 'Pasta', priceFrom: 14, image: '/guidos/pulled-pork-mac.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Mac & Cheese', category: 'Pasta', priceFrom: 12, image: '/guidos/mac-cheese.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Peanut Chicken', category: 'Pasta', priceFrom: 14, image: '/guidos/peanut-chicken.webp', isAvailable: true, isLimitedEdition: false },
+  // Desserts
+  { name: 'Tiramisu', category: 'Desserts', priceFrom: 12, image: '/guidos/tiramisu.webp', isAvailable: true, isLimitedEdition: false },
+  { name: 'Tiramisu Cans (5 Flavours)', category: 'Desserts', priceFrom: 9.95, image: '/guidos/tiramisu-cans.webp', isAvailable: true, isLimitedEdition: false },
+  // Holiday
+  { name: 'Turkey Dinner', category: 'Holiday', priceFrom: 25, image: '/guidos/turkey-dinner.webp', isAvailable: true, isLimitedEdition: true },
+];
+
+const categories = ['All', 'Lasagnes', 'Pot Pies', 'Soups', 'Pasta', 'Desserts', 'Holiday'];
+
+export default function GuidosMenuFallback() {
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [expandedProduct, setExpandedProduct] = useState<string | null>(null);
+
+  const filtered = activeCategory === 'All'
+    ? products
+    : products.filter(p => p.category === activeCategory);
+
+  return (
+    <div>
+      <section className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(4rem, 8vw, 8rem)' }}>
+        <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>Guido&apos;s Gourmet</div>
+        <h1 className="haus-display" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', marginBottom: '1.5rem' }}>
+          Ready-Made Italian Meals
+        </h1>
+        {/* The tricolour signature, quiet, capping the header */}
+        <div className="g-tricolor g-tricolor--rule" style={{ margin: '0 0 clamp(2rem, 4vw, 4rem)' }} />
+
+        {/* Category Tabs: green underline marks the active filter, quiet ink-soft otherwise */}
+        <div className="category-tabs">
+          {categories.map((cat) => {
+            const isActive = activeCategory === cat;
+            return (
+              <button
+                key={cat}
+                className="category-tab"
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  color: isActive ? 'var(--g-ink)' : 'var(--g-ink-soft)',
+                  borderBottomWidth: '2px',
+                  borderBottomColor: isActive ? 'var(--g-green)' : 'transparent',
+                }}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Product Grid */}
+        <div className="product-grid">
+          {filtered.map((product) => (
+            <div
+              key={product.name}
+              className={`g-card ${!product.isAvailable ? 'product-card--sold-out' : ''}`}
+            >
+              <button
+                type="button"
+                aria-expanded={expandedProduct === product.name}
+                disabled={!product.isAvailable}
+                aria-disabled={!product.isAvailable}
+                onClick={() => setExpandedProduct(expandedProduct === product.name ? null : product.name)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  width: '100%',
+                  textAlign: 'inherit',
+                  cursor: 'pointer',
+                  font: 'inherit',
+                  color: 'inherit',
+                }}
+              >
+              <div className="g-card__media">
+                <GuidosImage
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  style={{ objectFit: 'cover' }}
+                />
+                {product.isLimitedEdition && (
+                  <span className="menu-index" style={{
+                    position: 'absolute', top: '1rem', left: '1rem',
+                    color: 'var(--g-cream)', backgroundColor: 'var(--g-green-deep)',
+                    padding: '0.3rem 0.6rem', borderRadius: '2px',
+                  }}>
+                    Limited Edition
+                  </span>
+                )}
+                {!product.isAvailable && (
+                  <span className="menu-index" style={{
+                    position: 'absolute', top: '1rem', left: '1rem',
+                    color: 'var(--g-cream)', backgroundColor: 'var(--g-ink)',
+                    padding: '0.3rem 0.6rem', borderRadius: '2px',
+                  }}>
+                    Sold Out
+                  </span>
+                )}
+              </div>
+
+              <div className="g-card__body">
+                <span className="g-card__name">{product.name}</span>
+                <span className="g-card__price">From ${product.priceFrom.toFixed(2)}</span>
+              </div>
+              </button>
+
+              {/* Expanded detail stays in the DOM (CSS-collapsed, not
+                  conditionally mounted) so every per-size price ships in the
+                  server HTML for crawlers and answer engines. */}
+              <div
+                style={{
+                  display: expandedProduct === product.name && product.isAvailable ? 'block' : 'none',
+                  padding: '1rem 1.25rem 1.35rem',
+                  borderTop: '1px solid var(--g-line)',
+                  animation: 'fadeIn 0.3s ease',
+                }}
+              >
+                {product.sizes && product.sizes.length > 0 && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    {product.sizes.map((size) => (
+                      <div key={size.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: 'var(--text-body)' }}>
+                        <span style={{ color: 'var(--g-ink-soft)' }}>{size.label}</span>
+                        <span style={{ color: 'var(--g-gold)', fontWeight: 600 }}>${size.price.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <Link href="/guidos/order" className="btn-solid" style={{ display: 'block', textAlign: 'center', width: '100%', padding: '0.8rem', fontSize: 'var(--text-micro)' }}>
+                  Order This
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Order CTA */}
+        <div style={{ textAlign: 'center', marginTop: 'clamp(3rem, 6vw, 6rem)' }}>
+          <p className="g-script g-script--sm" style={{ marginBottom: '0.75rem' }}>Handcrafted in Small Batches</p>
+          <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)', marginBottom: '1.5rem' }}>
+            Know what you want? Place your order directly.
+          </p>
+          <Link href="/guidos/order" className="btn-solid">Place an Order</Link>
+        </div>
+      </section>
+    </div>
+  );
+}
