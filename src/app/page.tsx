@@ -46,10 +46,13 @@ export default async function Home() {
         <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', width: '100%', padding: '6rem 2rem' }}>
           {/* Each brand name is the way into its own side of the site; the
               nav stays hidden over the hero, so these are the only way in from
-              the top. Pointing at a name dresses the hairline between them in
-              that house's own divider (see .hero-seam in globals.css). */}
+              the top. The catering name glides down to the two offers below,
+              since this page is the catering introduction; the Guido's name
+              goes to the Guido's page. Pointing at a name dresses the hairline
+              between them in that house's own divider (see .hero-seam in
+              globals.css). */}
           <div className="hero-brand-lockup">
-            <Link href="/catering" className="hero-brand-link hero-brand-link--mm" aria-label="Melting Moments catering: weddings and events">
+            <Link href="/#cater" className="hero-brand-link hero-brand-link--mm" aria-label="Melting Moments catering: weddings and events">
               <h1 className="haus-display hero-brand-name" aria-label="Melting Moments">
                 Melting<br />Moments
               </h1>
@@ -85,7 +88,7 @@ export default async function Home() {
       {/* ================================================
           WHAT WE CATER
           ================================================ */}
-      <section className="container" style={{ paddingTop: 'clamp(4rem, 8vw, 8rem)', paddingBottom: 'clamp(4rem, 8vw, 7rem)' }}>
+      <section id="cater" className="container" style={{ paddingTop: 'clamp(4rem, 8vw, 8rem)', paddingBottom: 'clamp(4rem, 8vw, 7rem)', scrollMarginTop: 'calc(var(--banner-height) + var(--nav-height))' }}>
         <div className="menu-index" style={{ marginBottom: '2rem' }}>What We Cater</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2.5rem 3rem', borderTop: '1px solid rgba(0,0,0,0.12)', paddingTop: '3rem' }}>
           {SERVICES.map((s, i) => (

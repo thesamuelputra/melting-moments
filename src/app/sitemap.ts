@@ -5,7 +5,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes: { path: string; priority: number; changeFrequency: 'weekly' | 'monthly' | 'yearly' }[] = [
     { path: '', priority: 1, changeFrequency: 'monthly' },
     // High-value conversion pages
-    { path: '/catering', priority: 0.9, changeFrequency: 'monthly' },
     { path: '/contact', priority: 0.9, changeFrequency: 'monthly' },
     { path: '/menus', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/weddings', priority: 0.9, changeFrequency: 'monthly' },
@@ -18,14 +17,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/faq', priority: 0.6, changeFrequency: 'monthly' },
     { path: '/service-area', priority: 0.6, changeFrequency: 'yearly' },
     // (/quote intentionally omitted; it 308-redirects to /contact. The retired
-    // /corporate, /private-events, /family-style and /fountains URLs redirect
-    // permanently from next.config.ts and are left out for the same reason.)
+    // /catering, /guidos/menu, /corporate, /private-events, /family-style and
+    // /fountains URLs redirect permanently from next.config.ts and are left out
+    // for the same reason.)
     // Legal pages
     { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
     { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },
     // Guido's Gourmet
-    { path: '/guidos', priority: 0.9, changeFrequency: 'monthly' },
-    { path: '/guidos/menu', priority: 0.9, changeFrequency: 'weekly' },
+    { path: '/guidos', priority: 0.9, changeFrequency: 'weekly' },
     { path: '/guidos/order', priority: 0.8, changeFrequency: 'monthly' },
   ];
 

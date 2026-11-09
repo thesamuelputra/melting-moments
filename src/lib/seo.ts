@@ -75,7 +75,7 @@ function postalAddress(): Record<string, unknown> {
 
 export interface BreadcrumbItem {
   name: string;
-  /** Path starting with '/', e.g. '/guidos/menu'. '' or '/' for home. */
+  /** Path starting with '/', e.g. '/guidos/order'. '' or '/' for home. */
   path: string;
 }
 
@@ -243,7 +243,7 @@ export function menuNode(sections: MenuSectionInput[]): Record<string, unknown> 
 /** ItemList of Guido's Product nodes with AggregateOffer pricing. */
 export function productNodes(
   products: ProductInput[],
-  pageUrl: string = `${SITE.url}/guidos/menu`
+  pageUrl: string = `${SITE.url}/guidos`
 ): Record<string, unknown> {
   return {
     '@type': 'ItemList',

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Instrument_Serif, Inter, Dancing_Script } from 'next/font/google'
+import { Instrument_Serif, Inter } from 'next/font/google'
 import './globals.css'
 import PublicShell from '@/components/PublicShell'
 import BannerWrapper from '@/components/BannerWrapper'
@@ -10,6 +10,7 @@ import { SITE, catererNode, websiteNode, JsonLd } from '@/lib/seo'
 const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   weight: '400',
+  style: ['normal', 'italic'],
   variable: '--font-serif',
   display: 'swap',
 });
@@ -19,17 +20,6 @@ const inter = Inter({
   weight: ['400', '500', '600'],
   variable: '--font-sans',
   display: 'swap',
-});
-
-// Reserved strictly for Guido's taglines (the packaging's handwritten voice).
-// Not preloaded: only /guidos uses it, so preloading on every route wastes the
-// hint. It still loads on demand (display swap) when a Guido's page renders it.
-const dancingScript = Dancing_Script({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-script',
-  display: 'swap',
-  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -95,7 +85,7 @@ export default async function RootLayout({
   });
 
   return (
-    <html lang="en" className={`${instrumentSerif.variable} ${inter.variable} ${dancingScript.variable}`}>
+    <html lang="en" className={`${instrumentSerif.variable} ${inter.variable}`}>
       <body style={{ fontFamily: 'var(--font-sans)' }}>
         <BannerWrapper data={banner} />
         <PublicShell>

@@ -1,0 +1,140 @@
+/* ========================================================
+   GUIDO'S PAGE
+   The menu set as a printed list in the catering menu's
+   grammar, with a wider right column for the sizes, plus
+   the few pieces the page has to itself.
+======================================================== */
+
+/* The sticky index sits beside the list from 901px; below that the pinned
+   rail above the list does the same job and the index is not drawn */
+.g-menu-index {
+  display: none;
+}
+@media (min-width: 901px) {
+  .g-menu-shell {
+    display: grid;
+    grid-template-columns: minmax(180px, 240px) 1fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+  .g-menu-index {
+    display: block;
+    position: sticky;
+    top: calc(var(--banner-height) + var(--nav-height) + 20px);
+    align-self: start;
+  }
+}
+
+.g-menu-row {
+  display: grid;
+  grid-template-columns: 40px minmax(200px, 500px) minmax(180px, 240px);
+  gap: clamp(1rem, 3vw, 4rem);
+  justify-content: center;
+  align-items: start;
+  margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.05);
+  padding-bottom: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+/* A dish that has run out stays on the list, read but not offered */
+.g-menu-row--out > * {
+  opacity: 0.45;
+}
+
+/* Sizes and prices sit in the right column, top aligned with the name */
+.g-menu-pricing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-top: 6px;
+  text-align: right;
+}
+
+.g-menu-sizes {
+  margin: 0;
+  width: 100%;
+  display: grid;
+  gap: 0.45rem;
+}
+.g-menu-sizes > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+.g-menu-sizes dt,
+.g-menu-sizes dd {
+  margin: 0;
+  white-space: nowrap;
+}
+.g-menu-sizes dd,
+.g-menu-pricing .menu-price {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* The same small ink tag the catering menu uses for a chef's pick */
+.g-menu-tag {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background-color: var(--clr-ink);
+  color: var(--clr-bone);
+  padding: 0.2rem 0.5rem;
+  margin-left: 0.75rem;
+  vertical-align: middle;
+  font-weight: 600;
+}
+
+/* The quiet per-dish link into the order form, drawn like the home page's Explore links */
+.g-menu-order {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+}
+.g-menu-order:hover,
+.g-menu-order:focus-visible {
+  opacity: 1;
+}
+
+/* The client's tagline, once per page, in the serif's italic on the green block */
+.g-tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  line-height: 1.2;
+  color: var(--clr-oat);
+  margin-bottom: 2.5rem;
+}
+
+/* The floating order pill keeps a solid fill when hovered over scrolling content */
+.brand-guidos .btn-solid--stay:hover,
+.brand-guidos .btn-solid--stay:focus-visible {
+  background-color: var(--g-green-deep);
+  border-color: var(--g-green-deep);
+  color: var(--clr-bone);
+}
+
+@media (max-width: 768px) {
+  .g-menu-row {
+    grid-template-columns: 30px 1fr;
+    gap: 1rem;
+  }
+  .g-menu-pricing {
+    grid-column: 2;
+    align-items: flex-start;
+    text-align: left;
+    margin-top: 0;
+  }
+  .g-menu-sizes {
+    max-width: 320px;
+  }
+}

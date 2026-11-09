@@ -241,9 +241,9 @@ function townLabels(view: View, box: Box, items: Item[], keepCornerClear = false
 
 /* ===== The marker, the same in the list, on the map and in the key ===== */
 
-function Mark({ kind, label, keyMark }: { kind: Kind | 'kitchen'; label?: string | number; keyMark?: boolean }) {
+function Mark({ kind, label }: { kind: Kind | 'kitchen'; label?: string | number }) {
   return (
-    <span className={`g-mark g-mark--${kind}${keyMark ? ' g-mark--key' : ''}`} aria-hidden="true">
+    <span className={`g-mark g-mark--${kind}`} aria-hidden="true">
       {label}
     </span>
   );
@@ -494,11 +494,11 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
                 <Mark kind="kitchen" label="G" />
                 <span>
                   <span className="g-place-name">{KITCHEN.name}</span>
-                  <span className="g-place-meta">{KITCHEN.address}</span>
+                  <span className="menu-index g-place-kind">{KITCHEN.note}</span>
+                  <span className="g-place-address">{KITCHEN.address}</span>
                   <span className="g-sr-only">, show on the map</span>
                 </span>
               </button>
-              <p className="g-place-note">{KITCHEN.note}</p>
               <p className="g-place-links">{kitchenLinks}</p>
             </li>
           </ul>
@@ -515,7 +515,8 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
                       <Mark kind={p.kind} label={p.num} />
                       <span>
                         <span className="g-place-name">{p.name}</span>
-                        <span className="g-place-meta">{KIND_LABEL[p.kind]} &middot; {p.address}</span>
+                        <span className="menu-index g-place-kind">{KIND_LABEL[p.kind]}</span>
+                        <span className="g-place-address">{p.address}</span>
                         <span className="g-sr-only">, show on the map</span>
                       </span>
                     </button>
@@ -544,8 +545,7 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
             viewBox={view ? `${view.x} ${view.y} ${view.w} ${view.h}` : `${KITCHEN_POINT.x - 800} ${KITCHEN_POINT.y - 700} 1600 1400`}
             preserveAspectRatio="xMidYMid slice"
           >
-            {/* Water only where the map data reaches; a very wide view shows a plain margin beyond it */}
-            <rect className="g-map-water" x={0} y={0} width={MAP_EXTENT.w} height={MAP_EXTENT.h} />
+            {/* Water is the paper itself, so only the land is drawn, with the roads on it */}
             <path className="g-map-land" d={LAND_PATH} fillRule="evenodd" vectorEffect="non-scaling-stroke" />
             <path className="g-map-roads" d={ROADS_PATH} />
             <rect className="g-map-edge" x={0} y={0} width={MAP_EXTENT.w} height={MAP_EXTENT.h} vectorEffect="non-scaling-stroke" />
@@ -626,28 +626,50 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
           <div ref={panelRef} className={`g-map-panel${clusterList ? ' g-map-panel--group' : ''}`}>
             {clusterList ? (
               <>
-                <p className="g-map-panel-meta">{clusterList.length} places here</p>
-                <ul className="g-place-links" style={{ flexDirection: 'column', gap: 0 }}>
-                  {clusterList.map((id) => (
-                    <li key={id}>
-                      <button type="button" className="g-textlink" onClick={(e) => choose(id, 'map', isPointer(e))}>
-                        {byId.get(id)?.num}. {nameOf(id)}
-                      </button>
-                    </li>
-                  ))}
+                <p className="menu-index">{clusterList.length} places here</p>
+                <ul className="g-map-panel-list">
+                  {clusterList.map((id) => {
+                    const member = byId.get(id);
+                    return (
+                      <li key={id}>
+                        <button type="button" className="g-textlink" onClick={(e) => choose(id, 'map', isPointer(e))}>
+                          {member && <Mark kind={member.kind} label={member.num} />}
+                          <span className="g-place-name">
+                            <span className="g-sr-only">{member?.num}. </span>
+                            {nameOf(id)}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </>
             ) : selected === KITCHEN.id ? (
               <>
-                <p className="g-map-panel-name">{KITCHEN.name}</p>
-                <p className="g-map-panel-meta">{KITCHEN.note} &middot; {KITCHEN.address}</p>
+                <div className="g-place-head">
+                  <Mark kind="kitchen" label="G" />
+                  <div>
+                    <p className="g-place-name">{KITCHEN.name}</p>
+                    <p className="menu-index g-place-kind">{KITCHEN.note}</p>
+                    <p className="g-place-address">{KITCHEN.address}</p>
+                  </div>
+                </div>
                 <p className="g-place-links">{kitchenLinks}</p>
               </>
             ) : chosen ? (
               <>
-                <p className="g-map-panel-name">{chosen.num}. {chosen.name}</p>
-                <p className="g-map-panel-meta">{KIND_LABEL[chosen.kind]} &middot; {chosen.address}</p>
-                {chosen.note && <p className="g-map-panel-note">{chosen.note}</p>}
+                <div className="g-place-head">
+                  <Mark kind={chosen.kind} label={chosen.num} />
+                  <div>
+                    <p className="g-place-name">
+                      <span className="g-sr-only">{chosen.num}. </span>
+                      {chosen.name}
+                    </p>
+                    <p className="menu-index g-place-kind">{KIND_LABEL[chosen.kind]}</p>
+                    <p className="g-place-address">{chosen.address}</p>
+                    {chosen.note && <p className="g-place-address">{chosen.note}</p>}
+                  </div>
+                </div>
                 <p className="g-place-links">{placeLinks(chosen)}</p>
               </>
             ) : null}
@@ -658,9 +680,9 @@ export default function StockistMap({ stockists }: { stockists: Stockist[] }) {
         <div className="g-map-foot">
           {places.length > 0 && (
             <ul className="g-legend" aria-label="Key">
-              <li><Mark kind="kitchen" label="G" keyMark />Guido&rsquo;s kitchen</li>
+              <li><Mark kind="kitchen" label="G" />Guido&rsquo;s kitchen</li>
               {(['grocery', 'restaurant'] as Kind[]).filter((k) => counts[k] > 0).map((k) => (
-                <li key={k}><Mark kind={k} keyMark />{KIND_LABEL[k]}</li>
+                <li key={k}><Mark kind={k} />{KIND_LABEL[k]}</li>
               ))}
             </ul>
           )}

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
 };
 
-// Segment config lives here because page.tsx is a client component
+// Rebuild the static page at most every five minutes
 export const revalidate = 300;
 
 export default function GuidosOrderLayout({
@@ -24,7 +24,7 @@ export default function GuidosOrderLayout({
 }) {
   return (
     <>
-      {/* Breadcrumbs live here because page.tsx is a client component */}
+      {/* Breadcrumb trail for search engines: Home, Guido's Gourmet, Order */}
       <JsonLd
         data={breadcrumbList([
           { name: 'Home', path: '/' },

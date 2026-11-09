@@ -99,15 +99,14 @@ function NavDropdown({ label, items, active, currentPath }: { label: string; ite
 }
 
 const cateringItems = [
-  { href: '/catering', label: 'Overview' },
-  { href: '/menus', label: 'Menus' },
   { href: '/weddings', label: 'Weddings' },
   { href: '/events', label: 'Events' },
+  { href: '/menus', label: 'Menus' },
 ];
 
 const guidosItems = [
-  { href: '/guidos', label: 'About' },
-  { href: '/guidos/menu', label: 'Menu' },
+  { href: '/guidos', label: 'Menu' },
+  { href: '/guidos#stockists', label: 'Where to Buy' },
   { href: '/guidos/order', label: 'Order' },
 ];
 
@@ -129,7 +128,7 @@ export default function GlobalNav() {
   const pathname = usePathname();
   const isHomepage = pathname === '/';
   const isGuidosPage = pathname.startsWith('/guidos');
-  const isCateringSection = pathname === '/catering' || cateringItems.some((i) => i.href === pathname);
+  const isCateringSection = cateringItems.some((i) => i.href === pathname);
   const isAboutSection = aboutItems.some((i) => i.href === pathname);
   const isContactPage = pathname === '/contact';
   const mobileNavRef = useRef<HTMLDivElement>(null);
@@ -282,13 +281,12 @@ export default function GlobalNav() {
         className={`global-nav${isGuidosPage ? ' brand-guidos' : ''}`}
         aria-label="Main navigation"
         style={{
-          color: isGuidosPage ? 'var(--g-ink)' : 'var(--clr-ink)',
+          color: 'var(--clr-ink)',
           // Opaque while the menu is open as well as when scrolled: the bar
           // floats over the panel, so a transparent one would be an invisible
           // strip that swallows taps and lets the menu's own list scroll up
           // behind it.
-          backgroundColor:
-            scrolled || isOpen ? (isGuidosPage ? 'var(--g-cream)' : 'var(--clr-bone)') : 'transparent',
+          backgroundColor: scrolled || isOpen ? 'var(--clr-bone)' : 'transparent',
           borderBottom: scrolled && !isOpen && !isGuidosPage ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
           position: 'fixed',
           top: 'var(--banner-height, 0px)',
@@ -373,7 +371,7 @@ export default function GlobalNav() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: isGuidosPage ? 'var(--g-cream)' : 'var(--clr-bone)',
+            backgroundColor: 'var(--clr-bone)',
             zIndex: 10000,
             // Start the list clear of the bar floating above it, whatever the
             // banner and the bar actually measure

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GuidosCrest } from '@/components/guidos/GuidosWordmark';
+import { GuidosCrest } from '@/components/guidos/GuidosCrest';
 import { SITE } from '@/lib/seo';
 
 export default function Footer() {
@@ -49,15 +49,14 @@ export default function Footer() {
                 <div className="footer-nav__groups">
                     <div className="footer-nav__group">
                         <div className="footer-nav__heading">Catering</div>
-                        <Link href="/catering">Overview</Link>
-                        <Link href="/menus">Menus</Link>
                         <Link href="/weddings">Weddings</Link>
                         <Link href="/events">Events</Link>
+                        <Link href="/menus">Menus</Link>
                     </div>
                     <div className="footer-nav__group">
                         <div className="footer-nav__heading">Guido&apos;s</div>
-                        <Link href="/guidos">About</Link>
-                        <Link href="/guidos/menu">Menu</Link>
+                        <Link href="/guidos">Menu</Link>
+                        <Link href="/guidos#stockists">Where to Buy</Link>
                         <Link href="/guidos/order">Order</Link>
                     </div>
                     <div className="footer-nav__group">
