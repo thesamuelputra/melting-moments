@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
+import { chromeBottom } from '@/lib/fixed-chrome';
 
 type MenuItem = {
   id: string;
@@ -20,24 +21,6 @@ type MenuItem = {
 // instead of repeating the same bold word on every row.
 const INCLUDED_LABEL = 'Included';
 const isIncluded = (label: string) => label.trim().toLowerCase() === INCLUDED_LABEL.toLowerCase();
-
-/**
- * Bottom edge of the fixed chrome in viewport coordinates: the announcement
- * banner, the nav, and the pinned rail where it is showing. Both the anchor
- * jump and the scroll-spy reading line measure from this, so a jump always
- * lands below the bar and lights the section it jumped to, whatever the
- * banner and nav happen to measure.
- */
-function chromeBottom(rail: HTMLElement | null): number {
-  const root = getComputedStyle(document.documentElement);
-  const num = (name: string, fallback: number) =>
-    parseFloat(root.getPropertyValue(name)) || fallback;
-  const railHeight =
-    rail && getComputedStyle(rail).display !== 'none'
-      ? rail.getBoundingClientRect().height
-      : 0;
-  return num('--banner-height', 0) + num('--nav-height', 61) + railHeight;
-}
 
 export default function MenuClient({ menuItems, disclaimer, categoryOrder }: { menuItems: MenuItem[]; disclaimer: string; categoryOrder?: string[] }) {
   const [showScrollTop, setShowScrollTop] = useState(false);

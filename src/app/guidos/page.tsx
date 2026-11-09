@@ -1,21 +1,20 @@
-import fs from 'fs';
-import path from 'path';
+import Image from 'next/image';
 import Link from 'next/link';
-import GuidosImage from '@/components/GuidosImage';
-import GuidosWordmark from '@/components/guidos/GuidosWordmark';
-import GuidosOrnament from '@/components/guidos/GuidosOrnament';
+import type { Metadata } from 'next';
 import StockistMap, { type Stockist } from '@/components/guidos/StockistMap';
 import { inGreaterVictoria } from '@/components/guidos/stockist-map-geometry';
-import type { Metadata } from 'next';
-import { getStockists } from '@/lib/cms';
-import { GUIDOS_DELIVERY_FEE, JsonLd, SITE, breadcrumbList } from '@/lib/seo';
+import { getGuidosProducts, getStockists } from '@/lib/cms';
+import { GUIDOS_DELIVERY_FEE, JsonLd, SITE, breadcrumbList, productNodes } from '@/lib/seo';
+import GuidosMenu from './GuidosMenu';
+import { FALLBACK_PRODUCTS, type GuidosProduct } from './guidos-products';
+import './guidos.css';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
   // Guido's carries its own brand, so bypass the Melting Moments title template.
   title: { absolute: "Guido's Gourmet | Ready-Made Italian Meals, Victoria BC" },
-  description: 'Homemade Italian meals ready to heat and serve. Lasagnes, pot pies, soups, pasta, and desserts. Delivery available in Victoria, BC.',
+  description: 'Homemade Italian meals ready to heat and serve: lasagnes, pot pies, soups, pasta and desserts, with delivery anywhere in Victoria, BC.',
   openGraph: {
     url: '/guidos',
     siteName: "Guido's Gourmet",
@@ -25,21 +24,9 @@ export const metadata: Metadata = {
   },
 };
 
-const featuredProducts = [
-  { name: 'Beef Bolognese Lasagne', price: 'From $27.00', image: '/guidos/beef-bolognese-lasagne.webp' },
-  { name: 'Tiramisu Cans', price: 'From $9.95', image: '/guidos/tiramisu-cans.webp' },
-  { name: 'Turkey Pot Pie', price: 'From $9.00', image: '/guidos/turkey-pot-pie.webp' },
-];
-
-// Only pass image paths whose file actually exists, so missing photos render the
-// placeholder without hitting the image optimizer; photos appear automatically
-// once the files are added and the site is redeployed.
-const publicImage = (image: string) =>
-  fs.existsSync(path.join(process.cwd(), 'public', image)) ? image : undefined;
-
 const COUNT_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 
-/** The section heading: grocers sell the meals and restaurants have them on
+/** The Where to Buy heading: grocers sell the meals and restaurants have them on
  *  the menu, each named when there is one and counted when there are more. */
 function whereToBuyLine(stockists: Stockist[]) {
   const name = (s: Stockist) => s.name.replace(/[.!?]+$/, '');
@@ -68,12 +55,32 @@ function whereToBuyLine(stockists: Stockist[]) {
 }
 
 export default async function GuidosPage() {
-  const stockists: Stockist[] = (
-    await getStockists().catch((e) => {
-      console.error('[cms] Convex unavailable; Where to Buy left off this render', e);
+  const [items, stockistDocs] = await Promise.all([
+    getGuidosProducts().catch((e) => {
+      console.error('[cms] Convex unavailable; the Guido\'s menu shows the starting range', e);
       return [];
-    })
-  ).map((s) => ({
+    }),
+    getStockists().catch((e) => {
+      console.error('[cms] Convex unavailable; the map shows the kitchen alone', e);
+      return [];
+    }),
+  ]);
+
+  // The owner's list from the admin, or the starting range while it is empty
+  const products: GuidosProduct[] =
+    items.length > 0
+      ? items.map((item) => ({
+          id: item._id,
+          name: item.name,
+          category: item.category,
+          priceFrom: item.priceFrom,
+          sizes: item.sizes ?? [],
+          isAvailable: item.isAvailable,
+          isLimitedEdition: item.isLimitedEdition,
+        }))
+      : FALLBACK_PRODUCTS;
+
+  const stockists: Stockist[] = stockistDocs.map((s) => ({
     id: s._id,
     name: s.name,
     kind: s.kind === 'restaurant' ? 'restaurant' : 'grocery',
@@ -83,116 +90,93 @@ export default async function GuidosPage() {
     website: s.website,
     note: s.note,
   }));
-  // Where to Buy shows only while a stockist is visible, and then Delivery becomes 04
   const hasStockists = stockists.length > 0;
+
+  const howToGet = hasStockists
+    ? 'Order online for delivery or pickup, or find us at the shops and restaurants below.'
+    : 'Order online and we deliver anywhere in Victoria, or arrange a pickup from our kitchen in Esquimalt.';
 
   return (
     <div>
       <JsonLd data={breadcrumbList([{ name: 'Home', path: '/' }, { name: "Guido's Gourmet", path: '/guidos' }])} />
+      <JsonLd
+        data={productNodes(
+          products.map((p) => ({ name: p.name, category: p.category, priceFrom: p.priceFrom, sizes: p.sizes, isAvailable: p.isAvailable })),
+          `${SITE.url}/guidos`
+        )}
+      />
 
-      {/* Hero: the brand lockup, spoken plainly on cream paper */}
-      <section className="container" style={{ paddingTop: 'calc(80px + 4vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)', textAlign: 'center' }}>
-        {/* The wordmark below is a decorative SVG, so carry the page heading in a
-            visually-hidden h1 for assistive tech and search engines. */}
-        <h1 style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}>
-          Guido&apos;s Gourmet, Ready-Made Italian Meals
+      {/* Header in the catering pages' grammar, with the tricolour as the one signature */}
+      <header className="container" style={{ paddingTop: 'calc(80px + 3vw)', paddingBottom: 'clamp(2rem, 4vw, 4rem)' }}>
+        <div className="menu-index" style={{ marginBottom: '2rem' }}>Ready-Made Italian Meals &middot; Victoria BC</div>
+        <h1 className="haus-display" style={{ textTransform: 'uppercase' }}>
+          Guido&apos;s<br />Gourmet
         </h1>
-        <div className="g-eyebrow" style={{ marginBottom: '2rem' }}>Est. 2009 &middot; Victoria BC</div>
-        <GuidosWordmark tagline="When your hunger speaks Italian!" style={{ margin: '0 auto' }} />
-        <p style={{ marginTop: '1.75rem', fontSize: 'var(--text-body)', letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--g-ink-soft)', fontWeight: 500 }}>
-          Italian Heritage &middot; Ready-Made Meals
-        </p>
-      </section>
+        <div className="g-tricolor g-tricolor--rule" aria-hidden="true" style={{ margin: 'clamp(1.5rem, 3vw, 2.5rem) 0 0' }} />
 
-      {/* Hero image, with the packaging tricolour capping it */}
-      <section className="container" style={{ marginTop: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 24px 60px rgba(18,63,46,0.10)' }}>
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
-            {/* The tricolour caps the image (as it caps every package), so all
-                three stripes sit on the photo and read as one flag */}
-            <span className="g-tricolor" aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }} />
-            <GuidosImage
-              src={publicImage('/guidos/guidos-hero.webp')}
-              alt="Italian ready-made meals by Guido's Gourmet"
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', marginTop: '4rem', alignItems: 'center' }}>
+          <div>
+            <h2 className="noire-serif" style={{ marginBottom: '2rem' }}>
+              Dinner from our kitchen, ready to heat and serve.
+            </h2>
+            <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, marginBottom: '1.5rem', lineHeight: 1.7, maxWidth: '52ch' }}>
+              We started in a family kitchen. Seventeen years later, the recipes are the same and the portions are
+              bigger. Lasagnes, pot pies, soups, pasta and desserts, all made fresh by Chef Paul Silletta from recipes
+              passed down through his family.
+            </p>
+            <p style={{ fontSize: 'var(--text-body)', opacity: 0.8, marginBottom: '2rem', lineHeight: 1.7, maxWidth: '52ch' }}>
+              {howToGet}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+              <Link href="/guidos/order" className="btn-solid">Order Now</Link>
+              <Link href="/guidos#stockists" className="btn-outline">Where to Buy</Link>
+            </div>
+          </div>
+          <div className="shape-editorial-tall" style={{ position: 'relative', width: '100%' }}>
+            <Image
+              src="/chef_plating_sauce.webp"
+              alt="Chef Paul Silletta plating a dish in the kitchen"
               fill
-              sizes="(max-width: 768px) 100vw, 1000px"
+              sizes="(max-width: 768px) 100vw, 50vw"
               style={{ objectFit: 'cover' }}
               priority
             />
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* Our roots */}
-      <section className="container spacer-massive" style={{ textAlign: 'center', maxWidth: '720px' }}>
-        <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>01 &middot; Our Roots</div>
-        <p className="noire-serif" style={{ fontSize: 'var(--text-secondary)', lineHeight: 1.35, marginBottom: '1.75rem' }}>
-          We started in a family kitchen. Seventeen years later, the recipes are the same. The portions are bigger.
-        </p>
-        <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)', maxWidth: '52ch', margin: '0 auto 1.5rem' }}>
-          Good food at a fair price. Order online or visit by appointment. Everything is made fresh by Chef Paul Silletta using traditional Italian recipes passed down through generations.
-        </p>
-        <p className="g-script g-script--sm">Chef crafted. Handmade. Made with love.</p>
-      </section>
-
-      <div className="spacer-large">
-        <GuidosOrnament />
-      </div>
-
-      {/* Featured */}
-      <section className="container spacer-massive">
-        <div className="g-eyebrow" style={{ marginBottom: '2rem' }}>02 &middot; Featured</div>
-        <div className="product-grid">
-          {featuredProducts.map((product) => (
-            <Link href="/guidos/menu" key={product.name} className="g-card">
-              <div className="g-card__media">
-                <GuidosImage
-                  src={publicImage(product.image)}
-                  alt={product.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  style={{ objectFit: 'cover' }}
-                />
-              </div>
-              <div className="g-card__body">
-                <span className="g-card__name">{product.name}</span>
-                <span className="g-card__price">{product.price}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-        <div style={{ textAlign: 'center', marginTop: 'clamp(2.5rem, 5vw, 4rem)' }}>
-          <Link href="/guidos/menu" className="btn-outline">View Full Menu</Link>
-        </div>
-      </section>
+      <GuidosMenu products={products} />
 
       {/* Where to buy: the shops and restaurants the owner lists in the admin, with the kitchen for pickups */}
-      {hasStockists && (
-        <section id="stockists" className="container spacer-massive g-where" aria-labelledby="g-where-title">
-          <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>03 &middot; Where to Buy</div>
-          <h2 id="g-where-title" className="noire-serif" style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', lineHeight: 1.25, maxWidth: '24em', textWrap: 'balance', marginBottom: '1rem' }}>
-            {whereToBuyLine(stockists)}
-          </h2>
-          <p style={{ fontSize: 'var(--text-body)', color: 'var(--g-ink-soft)', maxWidth: '52ch', marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
-            Or pick up from our kitchen in {SITE.locality}, by appointment.
-          </p>
-          <StockistMap stockists={stockists} />
-        </section>
-      )}
+      <section
+        id="stockists"
+        className="container"
+        aria-labelledby="g-where-title"
+        style={{ marginTop: 'clamp(2rem, 4vw, 4rem)', scrollMarginTop: 'calc(var(--banner-height) + var(--nav-height) + 24px)' }}
+      >
+        <div className="menu-index" style={{ marginBottom: '2rem' }}>Where to Buy</div>
+        <h2 id="g-where-title" className="noire-serif" style={{ maxWidth: '22em', textWrap: 'balance', marginBottom: '1.5rem' }}>
+          {hasStockists ? whereToBuyLine(stockists) : 'From our kitchen in Esquimalt, by appointment, or delivered to your door.'}
+        </h2>
+        <p style={{ fontSize: 'var(--text-body)', opacity: 0.7, maxWidth: '52ch', lineHeight: 1.7, marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
+          {hasStockists
+            ? `Or pick up from our kitchen in ${SITE.locality}, by appointment.`
+            : `Order online and we deliver anywhere in Victoria for a flat ${GUIDOS_DELIVERY_FEE}. Pickup is by appointment; Paul arranges a time when he confirms your order.`}
+        </p>
+        <StockistMap stockists={stockists} />
+      </section>
 
-      {/* Delivery, on the deep-green block */}
+      {/* Delivery and pickup, on the deep green block */}
       <section className="g-block spacer-massive">
         <div className="container" style={{ textAlign: 'center', maxWidth: '720px' }}>
-          <div className="g-eyebrow" style={{ marginBottom: '1.5rem' }}>{hasStockists ? '04' : '03'} &middot; Delivery</div>
-          <h2 className="noire-serif" style={{ marginBottom: '1.5rem' }}>
-            Flat rate: {GUIDOS_DELIVERY_FEE} anywhere in Victoria.
+          <div className="menu-index" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2rem' }}>Delivery and Pickup</div>
+          <h2 className="noire-serif" style={{ color: 'var(--clr-oat)', marginBottom: '1.5rem' }}>
+            Flat rate {GUIDOS_DELIVERY_FEE} anywhere in Victoria.
           </h2>
-          <p style={{ opacity: 0.75, marginBottom: '0.4rem' }}>Pickup by appointment.</p>
-          <p style={{ opacity: 0.75, marginBottom: '1.75rem' }}>614 Grenville Ave, Esquimalt.</p>
-          <p className="g-script" style={{ marginBottom: '2.25rem' }}>Quando la fame parla, parla Italiano!</p>
-          <Link href="/guidos/order" className="btn-outline btn-outline--inverse">
-            Order Now
-          </Link>
+          <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem' }}>Pickup by appointment.</p>
+          <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '2rem' }}>{SITE.addressShort}.</p>
+          <p className="g-tagline">When your hunger speaks Italian!</p>
+          <Link href="/guidos/order" className="btn-outline btn-outline--inverse">Order Now</Link>
         </div>
       </section>
     </div>

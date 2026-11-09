@@ -59,7 +59,7 @@ export async function GET(): Promise<Response> {
   lines.push('');
 
   lines.push("## Guido's Gourmet (ready-made Italian meals)");
-  lines.push(`Menu: ${SITE.url}/guidos/menu · Order: ${SITE.url}/guidos/order`);
+  lines.push(`Menu: ${SITE.url}/guidos · Order: ${SITE.url}/guidos/order`);
   const available = products.filter((p) => p.isAvailable);
   if (available.length > 0) {
     let currentCategory = '';

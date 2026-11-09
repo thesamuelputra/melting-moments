@@ -35,7 +35,7 @@ export default function NotFoundClient() {
           Return Home
         </Link>
         {isGuidosPath ? (
-          <Link href="/guidos/menu" className="btn-outline">
+          <Link href="/guidos" className="btn-outline">
             View Menu
           </Link>
         ) : (
