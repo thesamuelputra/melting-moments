@@ -26,14 +26,30 @@
 }
 
 .g-menu-row {
+  --g-photo-w: 114px;
   display: grid;
-  grid-template-columns: 40px minmax(200px, 500px) minmax(180px, 240px);
+  /* The name column takes the slack so the frame lines up under the section
+     title and the prices end under its number */
+  grid-template-columns: var(--g-photo-w) minmax(200px, 1fr) minmax(180px, 240px);
   gap: clamp(1rem, 3vw, 4rem);
   justify-content: center;
   align-items: start;
   margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
   border-bottom: 1px solid rgba(17, 17, 17, 0.05);
   padding-bottom: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+/* The frame on the left of each row, held for the dish's photo, with the
+   crest in it until there is one */
+.g-photo {
+  display: grid;
+  place-items: center;
+  width: var(--g-photo-w);
+  aspect-ratio: 2 / 3;
+  outline: 1px solid rgba(17, 17, 17, 0.1);
+}
+.g-photo svg {
+  opacity: 0.35;
 }
 
 /* A dish that has run out stays on the list, read but not offered */
@@ -125,8 +141,13 @@
 
 @media (max-width: 768px) {
   .g-menu-row {
-    grid-template-columns: 30px 1fr;
+    grid-template-columns: var(--g-photo-w) 1fr;
+    grid-template-rows: auto 1fr;
     gap: 1rem;
+  }
+  /* The frame stands beside both the name and the prices */
+  .g-menu-row > .g-photo {
+    grid-row: span 2;
   }
   .g-menu-pricing {
     grid-column: 2;
