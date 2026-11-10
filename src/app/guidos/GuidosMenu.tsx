@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { GuidosCrest } from '@/components/guidos/GuidosCrest';
 import { chromeBottom } from '@/lib/fixed-chrome';
 import { CATEGORY_ORDER, type GuidosProduct } from './guidos-products';
 
@@ -12,8 +13,9 @@ const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: r
 /**
  * The Guido's range as a printed list: a sticky index of the categories on
  * desktop, a pinned rail of them on phones, and one hairline row per dish with
- * its sizes and prices in the right column. The scroll spy and the anchor
- * jumps work the same way as on the catering menu.
+ * a frame for its photo on the left and its sizes and prices in the right
+ * column. The scroll spy and the anchor jumps work the same way as on the
+ * catering menu.
  */
 export default function GuidosMenu({ products }: { products: GuidosProduct[] }) {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -175,8 +177,10 @@ export default function GuidosMenu({ products }: { products: GuidosProduct[] }) 
 
               {items.map((item) => (
                 <div key={item.id} className={`g-menu-row${item.isAvailable ? '' : ' g-menu-row--out'}`}>
-                  {/* The empty first cell keeps the reading grid aligned with the catering menu */}
-                  <div aria-hidden="true" />
+                  {/* A frame held for the dish's photo, with the crest until there is one */}
+                  <div className="g-photo" aria-hidden="true">
+                    <GuidosCrest size={36} />
+                  </div>
                   <div>
                     <h3 className="noire-serif" style={{ fontSize: 'var(--text-secondary)' }}>
                       {item.name}
